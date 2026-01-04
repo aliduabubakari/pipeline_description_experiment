@@ -1,0 +1,303 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "daily_sales_report",
+  "pipeline_name": "daily_sales_report",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_linear_01_report_generation.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "8a66c097715a6f87b8b49d9a6c48b9e0f9c30f93e220d9bbe4a171741b37046c"
+  },
+  "summary": {
+    "purpose": "Daily sales reporting pipeline: Query PostgreSQL → Transform to CSV → Generate PDF chart → Email report",
+    "business_domain": "sales",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Linear four-step pipeline for daily sales reporting"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "query_sales_data",
+        "to": "transform_to_csv"
+      },
+      {
+        "from": "transform_to_csv",
+        "to": "generate_pdf_chart"
+      },
+      {
+        "from": "generate_pdf_chart",
+        "to": "email_sales_report"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "postgres_default",
+      "details": [
+        "PostgreSQL database for sales data"
+      ],
+      "auth": [
+        "Connection credentials"
+      ]
+    },
+    {
+      "type": "email",
+      "name": "Email service",
+      "identifier": null,
+      "details": [
+        "Email delivery service"
+      ],
+      "auth": [
+        "Email server credentials"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/tmp/sales_report.csv",
+        "description": "CSV file containing sales data"
+      },
+      {
+        "identifier": "/tmp/sales_chart.pdf",
+        "description": "PDF chart visualizing sales data"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "sales",
+        "description": "Sales data table in PostgreSQL"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "query_sales_data",
+      "name": "query_sales_data",
+      "objective": "Query PostgreSQL database for daily sales data",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "table",
+          "identifier": "sales",
+          "description": "Sales data table"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "query_results",
+          "identifier": null,
+          "description": "Daily sales query results"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_default"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "sql",
+          "value": "SELECT date, product, SUM(amount) as daily_sales FROM sales WHERE date = '{{ ds }}' GROUP BY date, product ORDER BY date, product;"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "transform_to_csv",
+      "name": "transform_to_csv",
+      "objective": "Transform query results to CSV format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "query_results",
+          "identifier": null,
+          "description": "Sales data from database query"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/sales_report.csv",
+          "description": "CSV file with sales data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": [
+          "Python with pandas library"
+        ]
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "generate_pdf_chart",
+      "name": "generate_pdf_chart",
+      "objective": "Generate PDF chart from sales data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/sales_report.csv",
+          "description": "CSV file with sales data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/sales_chart.pdf",
+          "description": "PDF chart visualizing sales"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": [
+          "Python with matplotlib library"
+        ]
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "email_sales_report",
+      "name": "email_sales_report",
+      "objective": "Email sales report to management",
+      "mechanism": "notification",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/sales_report.csv",
+          "description": "CSV sales data"
+        },
+        {
+          "type": "file",
+          "identifier": "/tmp/sales_chart.pdf",
+          "description": "PDF sales chart"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": null,
+          "description": "Email sent to management"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email service",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "to",
+          "value": "management@company.com"
+        },
+        {
+          "key": "subject",
+          "value": "Daily Sales Report - {{ ds }}"
+        },
+        {
+          "key": "html_content",
+          "value": "<h3>Daily Sales Report</h3><p>Please find attached the daily sales report for {{ ds }}.</p><p>Includes:</p><ul><li>Sales data in CSV format</li><li>Sales chart in PDF format</li></ul><p>Best regards,<br>Data Team</p>"
+        },
+        {
+          "key": "files",
+          "value": "['/tmp/sales_report.csv', '/tmp/sales_chart.pdf']"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Mock transformation logic in Python functions may not reflect actual implementation",
+      "File paths (/tmp/) may be temporary and implementation-specific",
+      "Email recipient and content are hardcoded in the workflow definition"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:40:01.924004Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_linear_01_report_generation.py",
+    "spec_pipeline_id": "daily_sales_report"
+  }
+}

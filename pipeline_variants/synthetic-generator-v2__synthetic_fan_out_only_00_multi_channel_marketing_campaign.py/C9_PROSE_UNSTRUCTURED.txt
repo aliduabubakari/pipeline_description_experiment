@@ -1,0 +1,5 @@
+multi_channel_marketing_campaign is a workflow with execution model batch and topology pattern fan_out_only. Its purpose is: Multi-channel marketing campaign that loads customer segments and triggers parallel email, SMS, and push notification campaigns.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: load_customer_segment_csv→send_email_campaign; load_customer_segment_csv→send_sms_campaign; load_customer_segment_csv→send_push_notification.
+
+load_customer_segment_csv performs Load customer segment data from CSV file using mechanism python_callable. send_email_campaign performs Send email campaign to customer segment using mechanism python_callable. send_sms_campaign performs Send SMS campaign to customer segment using mechanism python_callable. send_push_notification performs Send push notification campaign to customer segment using mechanism python_callable.

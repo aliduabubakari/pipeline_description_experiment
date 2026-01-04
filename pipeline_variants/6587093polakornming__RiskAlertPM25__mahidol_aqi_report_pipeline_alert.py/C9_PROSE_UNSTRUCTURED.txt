@@ -1,0 +1,5 @@
+mahidol_aqi_pipeline_v2_alert_1 is a workflow with execution model batch and topology pattern linear. Its purpose is: ETL pipeline that scrapes Mahidol University AQI data from website, processes it, loads to PostgreSQL database, and sends email alerts.
+
+Scheduling: schedule type is manual, start date is 2025-03-20, catchup/backfill is False. Control flow dependencies are not explicitly specified.
+
+alert_email performs Send email alerts based on AQI values using mechanism python_callable.

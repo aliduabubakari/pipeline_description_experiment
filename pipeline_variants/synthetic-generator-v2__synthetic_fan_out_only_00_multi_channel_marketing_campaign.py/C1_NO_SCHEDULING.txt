@@ -1,0 +1,57 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py
+- Name: multi_channel_marketing_campaign
+- Purpose: Multi-channel marketing campaign that loads customer segments and triggers parallel email, SMS, and push notification campaigns
+- Execution model: batch
+- Topology pattern: fan_out_only
+- Business domain: marketing
+- Notes: Loads customer segment data then triggers three parallel marketing campaigns
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_customer_segment_csv -> send_email_campaign
+  - load_customer_segment_csv -> send_sms_campaign
+  - load_customer_segment_csv -> send_push_notification
+
+Data Artifacts / I-O Identifiers:
+- file: customer_segment_csv (CSV file containing customer segment data with columns: customer_id, segment, email, phone, device_token)
+
+External Systems:
+- filesystem: CSV file system
+- email: Email service
+- http_api: SMS service
+- http_api: Push notification service
+
+Pipeline Steps:
+1. load_customer_segment_csv — load_customer_segment_csv
+  - Objective: Load customer segment data from CSV file
+  - Mechanism: python_callable
+  - Inputs: file:customer_segment_csv
+  - Outputs: data:customer_segments
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. send_email_campaign — send_email_campaign
+  - Objective: Send email campaign to customer segment
+  - Mechanism: python_callable
+  - Inputs: data:customer_segments
+  - Outputs: notification:email_campaign_results
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. send_sms_campaign — send_sms_campaign
+  - Objective: Send SMS campaign to customer segment
+  - Mechanism: python_callable
+  - Inputs: data:customer_segments
+  - Outputs: notification:sms_campaign_results
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. send_push_notification — send_push_notification
+  - Objective: Send push notification campaign to customer segment
+  - Mechanism: python_callable
+  - Inputs: data:customer_segments
+  - Outputs: notification:push_notification_campaign_results
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M

@@ -205,3 +205,30 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# macOS
+.DS_Store
+
+# Python virtual environments
+.venv*/
+venv/
+
+# Local configuration (do not commit)
+config/
+config_llm.json
+config_reasoning_llm.json
+
+# Generated artifacts / results
+results/
+results_analysis/
+results_full/
+generated_full/
+eval_full/
+
+# Temporary / scratch
+temp.csv
+
+# OS / editor noise
+*.log
+README_pipeline_description copy.md
+README_pipeline_description.md

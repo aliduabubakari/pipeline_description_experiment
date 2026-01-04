@@ -1,0 +1,386 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "medical_facility_accessibility_v1",
+  "pipeline_name": "medical_facility_accessibility_v1",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/medical_facility_accessibility_pipeline.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "5542da1c1618c61974ac9887bced6f1321a74047b814a54df565f802aa362335"
+  },
+  "summary": {
+    "purpose": "Geospatial analysis pipeline that processes medical facility locations, geocodes them using HERE maps, and calculates spatial proximity to public transport and residential zones.",
+    "business_domain": "urban_planning",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Processes medical facility data through sequential geospatial transformations"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "load_and_modify_facilities",
+        "to": "geocode_facilities"
+      },
+      {
+        "from": "geocode_facilities",
+        "to": "calc_distance_public_transport"
+      },
+      {
+        "from": "calc_distance_public_transport",
+        "to": "calc_distance_residential"
+      },
+      {
+        "from": "calc_distance_residential",
+        "to": "save_accessibility_data"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "facilities.csv",
+        "description": "Input medical facility data"
+      },
+      {
+        "identifier": "table_data_2.json",
+        "description": "Formatted facility data"
+      },
+      {
+        "identifier": "reconciled_table_2.json",
+        "description": "Geocoded facility data with coordinates"
+      },
+      {
+        "identifier": "distance_pt_2.json",
+        "description": "Facility data with public transport distances"
+      },
+      {
+        "identifier": "column_extended_2.json",
+        "description": "Facility data with residential area distances"
+      },
+      {
+        "identifier": "enriched_data_2.csv",
+        "description": "Final enriched accessibility dataset"
+      },
+      {
+        "identifier": "transport_stops.geojson",
+        "description": "Public transport stop locations"
+      },
+      {
+        "identifier": "residential_areas.geojson",
+        "description": "Residential zone boundaries"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_and_modify_facilities",
+      "name": "load_and_modify_facilities",
+      "objective": "Ingest and format medical facility data from CSV to structured JSON",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "facilities.csv",
+          "description": "Input medical facility CSV data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted JSON facility data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "table_name",
+          "value": "JOT_"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/medical/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove container after execution"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "geocode_facilities",
+      "name": "geocode_facilities",
+      "objective": "Geocode facility addresses to latitude/longitude coordinates using <http_api>",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted facility data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "Geocoded facility data with coordinates"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "column_name",
+          "value": "address"
+        },
+        {
+          "key": "reconciliator_id",
+          "value": "<http_api_identifier>"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "HERE_API_TOKEN"
+        ],
+        "mounts": [
+          "/tmp/medical/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove container after execution"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "calc_distance_public_transport",
+      "name": "calc_distance_public_transport",
+      "objective": "Calculate spatial distance from facilities to nearest public transport stops",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "Geocoded facility data"
+        },
+        {
+          "type": "file",
+          "identifier": "transport_stops.geojson",
+          "description": "Public transport stop locations"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "distance_pt_2.json",
+          "description": "Facility data with public transport distances"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "extender_id",
+          "value": "spatialDistanceCalculator"
+        },
+        {
+          "key": "lat_column",
+          "value": "latitude"
+        },
+        {
+          "key": "lon_column",
+          "value": "longitude"
+        },
+        {
+          "key": "target_layer",
+          "value": "public_transport"
+        },
+        {
+          "key": "output_column",
+          "value": "distance_to_pt"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/medical/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove container after execution"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "calc_distance_residential",
+      "name": "calc_distance_residential",
+      "objective": "Calculate spatial distance from facilities to nearest residential areas",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "distance_pt_2.json",
+          "description": "Facility data with public transport distances"
+        },
+        {
+          "type": "file",
+          "identifier": "residential_areas.geojson",
+          "description": "Residential zone boundaries"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Facility data with residential area distances"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "extender_id",
+          "value": "spatialDistanceCalculator"
+        },
+        {
+          "key": "lat_column",
+          "value": "latitude"
+        },
+        {
+          "key": "lon_column",
+          "value": "longitude"
+        },
+        {
+          "key": "target_layer",
+          "value": "residential_areas"
+        },
+        {
+          "key": "output_column",
+          "value": "distance_to_residential"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/medical/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove container after execution"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_accessibility_data",
+      "name": "save_accessibility_data",
+      "objective": "Save final enriched accessibility data to CSV format",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Fully enriched facility data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "enriched_data_2.csv",
+          "description": "Final CSV output"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/medical/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove container after execution"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder; actual value would require file content hash"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:14:30.742850Z"
+  },
+  "variant": {
+    "class_id": "C5",
+    "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+    "canonical_pipeline_id": "medical_facility_accessibility_pipeline",
+    "spec_pipeline_id": "medical_facility_accessibility_v1"
+  }
+}

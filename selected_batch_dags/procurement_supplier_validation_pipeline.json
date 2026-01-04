@@ -1,0 +1,47 @@
+{
+    "unique_key": "synthetic/docker_pipelines:procurement_supplier_validation_pipeline.py",
+    "repo": "synthetic-generator-v2",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "stars": 0,
+    "license": "MIT",
+    "file_path": "synthetic/procurement_supplier_validation_pipeline.py",
+    "detected_airflow_version": "2.x",
+    "sampled_versions": [
+      {
+        "version": "latest",
+        "commit": "synthetic_generation",
+        "code": "from airflow import DAG\nfrom airflow.providers.docker.operators.docker import DockerOperator\nfrom airflow.utils.dates import days_ago\nfrom docker.types import Mount\nimport os\n\n# Define default arguments\ndefault_args = {\n    'owner': 'procurement_team',\n    'depends_on_past': False,\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 1,\n}\n\n# Shared infrastructure configuration\nhost_data_dir = os.getenv('DATA_DIR', '/tmp/procurement/data')\nnetwork_name = 'app_network'\n\nwith DAG(\n    dag_id='procurement_supplier_validation_v1',\n    default_args=default_args,\n    description='Validates and standardizes supplier data using Wikidata entity reconciliation',\n    schedule_interval=None,\n    start_date=days_ago(1),\n    catchup=False,\n) as dag:\n\n    # Step 1: Ingest and Format\n    load_and_modify = DockerOperator(\n        task_id='load_and_modify_suppliers',\n        image='i2t-backendwithintertwino6-load-and-modify:latest',\n        command=[\n            'python', '/app/scripts/load_and_modify.py',\n            '--input_pattern', 'suppliers.csv',\n            '--output_pattern', 'table_data_2.json',\n            '--dataset_id', '2',\n            '--table_name', 'JOT_'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n        tty=True,\n    )\n\n    # Step 2: Wikidata Reconciliation\n    reconciliation = DockerOperator(\n        task_id='reconcile_supplier_entities',\n        image='i2t-backendwithintertwino6-reconciliation:latest',\n        command=[\n            'python', '/app/scripts/reconciliation.py',\n            '--input_pattern', 'table_data_2.json',\n            '--output_pattern', 'reconciled_table_2.json',\n            '--column_name', 'supplier_name',\n            '--reconciliator_id', 'wikidataEntity',\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n        tty=True,\n    )\n\n    # Step 3: Export Enriched CSV\n    save_data = DockerOperator(\n        task_id='save_validated_suppliers',\n        image='i2t-backendwithintertwino6-save:latest',\n        command=[\n            'python', '/app/scripts/save.py',\n            '--input_pattern', 'reconciled_table_2.json',\n            '--output_filename', 'enriched_data_2.csv',\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n        tty=True,\n    )\n\n    load_and_modify >> reconciliation >> save_data\n"
+      }
+    ],
+    "sampled_time": "2025-12-15T19:40:00Z",
+    "analysis": {
+      "is_valid_dag_file": true,
+      "is_production_dag": true,
+      "is_airflow_2": true,
+      "processing_type": "batch",
+      "has_streaming_operators": false,
+      "has_ml_operators": false,
+      "topology": {
+        "pattern": "linear",
+        "has_sensors": false,
+        "has_branches": false,
+        "has_fan_out": false,
+        "has_fan_in": false,
+        "estimated_max_parallel_width": 1,
+        "estimated_branch_depth": 0,
+        "has_cycles": false,
+        "has_subdags": false,
+        "has_task_groups": false
+      },
+      "tasks": {
+        "total_count": 3,
+        "operator_types": [
+          "DockerOperator"
+        ],
+        "has_dynamic_mapping": false,
+        "has_external_task_sensor": false
+      },
+      "description": "Procurement pipeline that standardizes supplier CSV data, reconciles supplier names against Wikidata entities via Dockerized services, and exports the enriched dataset.",
+      "complexity_score": 3
+    }
+  }

@@ -1,0 +1,275 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "etl_import_ensembl",
+  "pipeline_name": "etl_import_ensembl",
+  "source": {
+    "unique_key": null,
+    "repo": "Ferlab-Ste-Justine/clin-pipelines-dags",
+    "file_path": "dags/etl_import_ensembl.py",
+    "repo_url": "https://github.com/Ferlab-Ste-Justine/clin-pipelines-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "2d27f373d344c1046c45dc6adc9d7576e2c4838d831513f9019a144f6a398e06"
+  },
+  "summary": {
+    "purpose": "ETL pipeline for importing Ensembl genomic data from FTP to object storage and processing with Spark",
+    "business_domain": "genomics",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Downloads Ensembl mapping files from FTP, checks for new versions, uploads to object storage, then processes with Spark"
+  },
+  "schedule": {
+    "schedule_type": null,
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "file",
+        "to": "table"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "Ensembl FTP",
+      "identifier": "ftp.ensembl.org",
+      "details": [
+        "FTP server hosting Ensembl genomic data files"
+      ],
+      "auth": [
+        "anonymous"
+      ]
+    },
+    {
+      "type": "object_storage",
+      "name": "S3-compatible storage",
+      "identifier": "cqgc-{env}-app-datalake",
+      "details": [
+        "Raw data landing zone for Ensembl files"
+      ],
+      "auth": [
+        "connection_id_based"
+      ]
+    },
+    {
+      "type": "cloud_service",
+      "name": "Kubernetes",
+      "identifier": "ETL context",
+      "details": [
+        "Kubernetes cluster for Spark job execution"
+      ],
+      "auth": [
+        "kubernetes_config"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "Homo_sapiens.GRCh38.{version}.canonical.tsv.gz",
+        "description": "Ensembl canonical mapping file"
+      },
+      {
+        "identifier": "Homo_sapiens.GRCh38.{version}.ena.tsv.gz",
+        "description": "Ensembl ENA mapping file"
+      },
+      {
+        "identifier": "Homo_sapiens.GRCh38.{version}.entrez.tsv.gz",
+        "description": "Ensembl Entrez mapping file"
+      },
+      {
+        "identifier": "Homo_sapiens.GRCh38.{version}.refseq.tsv.gz",
+        "description": "Ensembl RefSeq mapping file"
+      },
+      {
+        "identifier": "Homo_sapiens.GRCh38.{version}.uniprot.tsv.gz",
+        "description": "Ensembl UniProt mapping file"
+      },
+      {
+        "identifier": "CHECKSUMS",
+        "description": "MD5 checksums file for Ensembl downloads"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "ensembl_mapping",
+        "description": "Processed Ensembl mapping table"
+      }
+    ],
+    "buckets": [
+      {
+        "identifier": "raw/landing/ensembl/",
+        "description": "S3 path for raw Ensembl files"
+      }
+    ],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "file",
+      "name": "file",
+      "objective": "Download Ensembl mapping files from FTP, check for new versions, and upload to object storage",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "url",
+          "identifier": "http://ftp.ensembl.org/pub/current_tsv/homo_sapiens",
+          "description": "Ensembl FTP URL"
+        },
+        {
+          "type": "file",
+          "identifier": "CHECKSUMS",
+          "description": "MD5 checksums file"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "Homo_sapiens.GRCh38.{version}.{type}.tsv.gz",
+          "description": "Versioned Ensembl mapping files"
+        },
+        {
+          "type": "bucket_object",
+          "identifier": "raw/landing/ensembl/Homo_sapiens.GRCh38.{type}.tsv.gz",
+          "description": "S3 objects for each mapping type"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Ensembl FTP",
+          "identifier": "ftp.ensembl.org"
+        },
+        {
+          "type": "object_storage",
+          "name": "S3-compatible storage",
+          "identifier": "cqgc-{env}-app-datalake"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "types",
+          "value": "canonical,ena,entrez,refseq,uniprot"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [
+          "slack_notification_on_failure"
+        ],
+        "idempotency": [
+          "version_checking",
+          "md5_verification"
+        ]
+      }
+    },
+    {
+      "step_id": "table",
+      "name": "table",
+      "objective": "Process Ensembl mapping files with Spark and load into structured table",
+      "mechanism": "spark_job",
+      "inputs": [
+        {
+          "type": "bucket_object",
+          "identifier": "raw/landing/ensembl/Homo_sapiens.GRCh38.{type}.tsv.gz",
+          "description": "Raw Ensembl files from object storage"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "ensembl_mapping",
+          "description": "Processed Ensembl mapping table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "object_storage",
+          "name": "S3-compatible storage",
+          "identifier": "cqgc-{env}-app-datalake"
+        },
+        {
+          "type": "cloud_service",
+          "name": "Kubernetes",
+          "identifier": "ETL context"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "spark_class",
+          "value": "bio.ferlab.datalake.spark3.publictables.ImportPublicTable"
+        },
+        {
+          "key": "spark_config",
+          "value": "config-etl-large"
+        },
+        {
+          "key": "table_name",
+          "value": "ensembl_mapping"
+        },
+        {
+          "key": "steps",
+          "value": "default"
+        },
+        {
+          "key": "app_name",
+          "value": "etl_import_ensembl_table"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": [
+          "kubernetes_context=ETL",
+          "config_file_parameter"
+        ]
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [
+          "slack_notification_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Airflow-specific callbacks (Slack.notify_dag_start, Slack.notify_dag_completion) converted to generic alert mechanisms",
+      "AirflowSkipException converted to conditional execution logic",
+      "config.s3_conn_id reference converted to generic auth description",
+      "K8sContext.ETL converted to generic Kubernetes context identifier"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:45:02.209763Z"
+  },
+  "variant": {
+    "class_id": "C1",
+    "class_name": "NO_SCHEDULING",
+    "canonical_pipeline_id": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py",
+    "spec_pipeline_id": "etl_import_ensembl"
+  }
+}

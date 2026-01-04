@@ -1,0 +1,285 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "content_moderation_pipeline",
+  "pipeline_name": "content_moderation_pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_branch_merge_05_content_moderation_pipeline.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "687dd0100877260c4843f2618fc60b077799382e47080c5bddb4e03af96bb5e0"
+  },
+  "summary": {
+    "purpose": "Content moderation pipeline that scans user-generated content for toxicity and routes accordingly",
+    "business_domain": "content moderation",
+    "execution_model": "batch",
+    "topology_pattern": "branch_merge",
+    "notes": "Uses conditional branching based on toxicity threshold (0.7) to route content to different processing paths"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "scan_csv",
+        "to": "toxicity_check"
+      },
+      {
+        "from": "toxicity_check",
+        "to": "remove_and_flag_content"
+      },
+      {
+        "from": "toxicity_check",
+        "to": "publish_content"
+      },
+      {
+        "from": "remove_and_flag_content",
+        "to": "audit_log"
+      },
+      {
+        "from": "publish_content",
+        "to": "audit_log"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [
+      {
+        "step": "toxicity_check",
+        "branches": [
+          {
+            "condition": "toxicity_score > 0.7",
+            "next_steps": [
+              "remove_and_flag_content"
+            ]
+          },
+          {
+            "condition": "toxicity_score ≤ 0.7",
+            "next_steps": [
+              "publish_content"
+            ]
+          }
+        ],
+        "merge_step": "audit_log"
+      }
+    ],
+    "gates": []
+  },
+  "external_systems": [],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/data/user_content.csv",
+        "description": "CSV file containing user-generated content"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "scan_csv",
+      "name": "scan_csv",
+      "objective": "Scan CSV file for user-generated content",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/data/user_content.csv",
+          "description": "CSV file with user content"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Scan results including total items count"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "toxicity_check",
+      "name": "toxicity_check",
+      "objective": "Check toxicity level and determine routing path",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Scan results from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "decision",
+          "identifier": null,
+          "description": "Routing decision based on toxicity threshold"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "remove_and_flag_content",
+      "name": "remove_and_flag_content",
+      "objective": "Remove toxic content and flag user account for review",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Scan results from initial scan"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Removal action results"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "publish_content",
+      "name": "publish_content",
+      "objective": "Publish safe content to platform",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Scan results from initial scan"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Publication results"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "audit_log",
+      "name": "audit_log",
+      "objective": "Create audit log entry for moderation actions",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Results from both processing branches"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Audit log entry"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Mock toxicity scoring uses random values - actual implementation would call an API",
+      "Email alert configuration details not specified in code"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:28:09.986313Z"
+  }
+}

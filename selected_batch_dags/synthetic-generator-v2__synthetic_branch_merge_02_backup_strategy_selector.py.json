@@ -1,0 +1,49 @@
+{
+  "unique_key": "synthetic/branch_merge:synthetic_branch_merge_02_backup_strategy_selector.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_branch_merge_02_backup_strategy_selector.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import BranchPythonOperator\nfrom airflow.operators.bash import BashOperator\nfrom airflow.operators.empty import EmptyOperator\n\ndefault_args = {\n    'owner': 'backup_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\ndef check_day_of_week(**kwargs):\n    \"\"\"\n    Check current day of week and return appropriate branch task ID.\n    Returns 'full_backup_task' for Saturday, 'incremental_backup_task' for weekdays.\n    \"\"\"\n    execution_date = kwargs['execution_date']\n    day_of_week = execution_date.weekday()\n    \n    print(f\"Checking day of week: {execution_date}, weekday number: {day_of_week}\")\n    \n    if day_of_week == 5:  # Saturday (0=Monday, 5=Saturday, 6=Sunday)\n        print(\"Today is Saturday - triggering FULL backup\")\n        return 'full_backup_task'\n    else:\n        print(\"Today is a weekday - triggering INCREMENTAL backup\")\n        return 'incremental_backup_task'\n\nwith DAG(\n    'backup_strategy_selector',\n    default_args=default_args,\n    description='DAG to select backup strategy based on day of week',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['backup', 'maintenance'],\n) as dag:\n\n    dag.doc_md = \"\"\"\n    # Backup Strategy Selector DAG\n    \n    This DAG implements a branch-merge pattern for database backups:\n    - **Date_Check**: Determines current day of week\n    - **Branch**: Routes to either Full_Backup (Saturday) or Incremental_Backup (weekdays)\n    - **Merge**: Both branches converge at Verify_Backup for validation\n    \n    **Pattern**: BRANCH MERGE\n    \"\"\"\n    \n    # Start task\n    start_task = EmptyOperator(\n        task_id='start_backup_process',\n        dag=dag,\n    )\n    \n    # Branch decision task\n    date_check_task = BranchPythonOperator(\n        task_id='date_check_task',\n        python_callable=check_day_of_week,\n        provide_context=True,\n        dag=dag,\n    )\n    \n    # Full backup branch (Saturday)\n    full_backup_task = BashOperator(\n        task_id='full_backup_task',\n        bash_command='echo \"Performing FULL database backup - dumping entire database\" && sleep 5',\n        dag=dag,\n    )\n    \n    # Incremental backup branch (Weekdays)\n    incremental_backup_task = BashOperator(\n        task_id='incremental_backup_task',\n        bash_command='echo \"Performing INCREMENTAL database backup - only changed data\" && sleep 3',\n        dag=dag,\n    )\n    \n    # Merge task\n    verify_backup_task = BashOperator(\n        task_id='verify_backup_task',\n        bash_command='echo \"Verifying backup integrity and completeness\" && sleep 2',\n        trigger_rule='none_failed_min_one_success',\n        dag=dag,\n    )\n    \n    # End task\n    end_task = EmptyOperator(\n        task_id='backup_complete',\n        dag=dag,\n    )\n    \n    # Define dependencies\n    start_task >> date_check_task\n    date_check_task >> [full_backup_task, incremental_backup_task]\n    [full_backup_task, incremental_backup_task] >> verify_backup_task\n    verify_backup_task >> end_task"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:41:24Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "branch_merge",
+      "has_sensors": false,
+      "has_branches": true,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 1,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 6,
+      "operator_types": [
+        "EmptyOperator",
+        "BranchPythonOperator",
+        "BashOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "DAG implements a branch-merge pattern for database backups that selects backup strategy based on day of week (full backup on Saturday, incremental backup on weekdays)",
+    "complexity_score": 4
+  }
+}

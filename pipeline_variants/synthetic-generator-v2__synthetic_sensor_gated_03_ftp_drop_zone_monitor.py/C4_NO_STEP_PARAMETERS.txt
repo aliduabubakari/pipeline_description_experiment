@@ -1,0 +1,63 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py
+- Name: ftp_vendor_inventory_processor
+- Purpose: Monitor FTP for vendor inventory file, download, cleanse and merge with internal inventory
+- Execution model: batch
+- Topology pattern: sensor_gated
+- Business domain: inventory
+- Notes: Pattern: SENSOR GATED - Sensor step waits for file availability, processing steps execute only when file is detected
+
+Control Flow:
+- Dependencies (directed edges):
+  - wait_for_ftp_file -> download_vendor_file
+  - download_vendor_file -> cleanse_vendor_data
+  - cleanse_vendor_data -> merge_with_internal_inventory
+
+Data Artifacts / I-O Identifiers:
+- file: vendor_inventory.csv (Vendor inventory file on FTP server)
+- file: /tmp/vendor_inventory.csv (Downloaded vendor inventory file)
+- table: internal inventory (Internal inventory database table)
+
+External Systems:
+- ftp: FTP server
+- database: internal inventory system
+
+Pipeline Steps:
+1. wait_for_ftp_file — wait_for_ftp_file
+  - Objective: Monitor FTP server for vendor inventory file availability
+  - Mechanism: wait_poll
+  - Inputs: file:vendor_inventory.csv
+  - Outputs: signal:file_detected
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. download_vendor_file — download_vendor_file
+  - Objective: Download vendor inventory file from FTP server
+  - Mechanism: python_callable
+  - Inputs: file:vendor_inventory.csv
+  - Outputs: file:/tmp/vendor_inventory.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. cleanse_vendor_data — cleanse_vendor_data
+  - Objective: Clean null values from vendor inventory data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/vendor_inventory.csv
+  - Outputs: data:cleansed_vendor_data
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. merge_with_internal_inventory — merge_with_internal_inventory
+  - Objective: Merge vendor inventory data with internal inventory system
+  - Mechanism: python_callable
+  - Inputs: data:cleansed_vendor_data, table:internal inventory
+  - Outputs: table:updated_internal_inventory
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

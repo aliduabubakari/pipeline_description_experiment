@@ -1,0 +1,30 @@
+Pipeline Summary:
+- Pipeline ID: Tezz1999__Covid-19-Realtime-Stream__hive_connection.py
+- Name: hive_script
+- Purpose: Execute Hive database operations including database creation, table creation, and data insertion
+- Execution model: batch
+- Topology pattern: linear
+- Notes: Simple linear workflow with two steps: a shell command execution followed by Hive database operations
+
+Control Flow:
+- Dependencies (directed edges):
+  - run_after_loop -> hive_script_task
+
+Data Artifacts / I-O Identifiers:
+- table: mydb.test_af (Hive table created and populated by the workflow)
+
+External Systems:
+- database: Hive (hive_local)
+
+Pipeline Steps:
+1. run_after_loop — run_after_loop
+  - Objective: Execute a shell command to display the current user
+  - Mechanism: shell_command
+2. hive_script_task — hive_script_task
+  - Objective: Execute Hive database operations including database creation, table creation, and data insertion
+  - Mechanism: sql_query
+  - Outputs: table:mydb.test_af
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: 00 1 * * *

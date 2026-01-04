@@ -1,0 +1,64 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py
+- Name: supply_chain_shipment_etl
+- Purpose: Three-stage ETL pipeline for supply chain shipment data processing with vendor data ingestion, cleansing/normalization, and database loading with email notification
+- Execution model: batch
+- Topology pattern: staged_etl
+- Business domain: supply_chain
+- Notes: Processes shipment data from three vendors through extract, transform, load stages
+
+Control Flow:
+- Dependencies (directed edges):
+  - stage_1_extract -> stage_2_transform
+  - stage_2_transform -> stage_3_load
+  - load_to_db -> send_summary_email
+
+Data Artifacts / I-O Identifiers:
+- file: vendor_a_shipments_20240115.csv (Raw shipment data from Vendor A)
+- file: vendor_b_shipments_20240115.csv (Raw shipment data from Vendor B)
+- file: vendor_c_shipments_20240115.csv (Raw shipment data from Vendor C)
+- table: inventory_shipments (Processed shipment data in inventory database)
+
+External Systems:
+- database: PostgreSQL inventory database (inventory_db)
+- email: Email service
+
+Pipeline Steps:
+1. ingest_vendor_a — ingest_vendor_a
+  - Objective: Ingest raw shipment data from Vendor A
+  - Mechanism: python_callable
+  - Inputs: file:vendor_a_shipments_20240115.csv
+  - Outputs: data_object:vendor_a_data
+2. ingest_vendor_b — ingest_vendor_b
+  - Objective: Ingest raw shipment data from Vendor B
+  - Mechanism: python_callable
+  - Inputs: file:vendor_b_shipments_20240115.csv
+  - Outputs: data_object:vendor_b_data
+3. ingest_vendor_c — ingest_vendor_c
+  - Objective: Ingest raw shipment data from Vendor C
+  - Mechanism: python_callable
+  - Inputs: file:vendor_c_shipments_20240115.csv
+  - Outputs: data_object:vendor_c_data
+4. cleanse_data — cleanse_data
+  - Objective: Cleanse, normalize SKUs, validate dates, and enrich with location data
+  - Mechanism: python_callable
+  - Inputs: data_object:vendor_a_data, data_object:vendor_b_data, data_object:vendor_c_data
+  - Outputs: data_object:cleansed_shipment_data
+5. load_to_db — load_to_db
+  - Objective: Load processed data to inventory database
+  - Mechanism: python_callable
+  - Inputs: data_object:cleansed_shipment_data
+  - Outputs: data_object:db_load_complete
+6. send_summary_email — send_summary_email
+  - Objective: Send email summary of ETL processing results
+  - Mechanism: notification
+  - Inputs: data_object:db_load_complete
+  - Step parameters:
+    - to=supply-chain-team@company.com
+    - subject=Daily Supply Chain Shipment ETL Summary
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

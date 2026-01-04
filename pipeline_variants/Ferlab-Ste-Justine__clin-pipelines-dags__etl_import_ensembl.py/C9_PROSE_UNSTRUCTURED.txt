@@ -1,0 +1,5 @@
+etl_import_ensembl is a workflow with execution model batch and topology pattern linear. Its purpose is: ETL pipeline for importing Ensembl genomic data from FTP to object storage and processing with Spark.
+
+Scheduling: schedule type is manual, start date is 2022-01-01. Control flow includes dependencies such as: file→table.
+
+file performs Download Ensembl mapping files from FTP, check for new versions, and upload to object storage using mechanism python_callable. table performs Process Ensembl mapping files with Spark and load into structured table using mechanism spark_job.

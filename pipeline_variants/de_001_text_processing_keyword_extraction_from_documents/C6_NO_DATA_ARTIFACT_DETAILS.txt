@@ -1,0 +1,63 @@
+Pipeline Summary:
+- Pipeline ID: de_001_text_processing_keyword_extraction_from_documents
+- Name: keyword_extraction_pipeline
+- Purpose: ETL pipeline for document keyword extraction and validation. Generates synthetic documents, cleanses and standardizes them, calculates keyword density and complexity features, validates data integrity, and generates a final report.
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: text_processing
+- Notes: Data is passed between steps using intermediate Parquet files in a temporary directory.
+
+Control Flow:
+- Dependencies (directed edges):
+  - generate_documents -> explore_data
+  - generate_documents -> clean_data
+  - clean_data -> extract_features
+  - extract_features -> validate_data
+  - extract_features -> save_and_report
+  - validate_data -> save_and_report
+
+External Systems:
+- filesystem: temporary_directory (/tmp/airflow_processing)
+
+Pipeline Steps:
+1. generate_documents — generate_documents
+  - Objective: Generate synthetic document data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+2. explore_data — explore_data
+  - Objective: Log exploration statistics of raw data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+3. clean_data — clean_data
+  - Objective: Clean and standardize raw document data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+4. extract_features — extract_features
+  - Objective: Extract keyword features and metrics from cleaned data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+5. validate_data — validate_data
+  - Objective: Validate processed data against business rules
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+6. save_and_report — save_and_report
+  - Objective: Save final artifacts and log pipeline report
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Catchup/backfill: False

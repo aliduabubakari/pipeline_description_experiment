@@ -1,0 +1,70 @@
+Pipeline Summary:
+- Pipeline ID: de_001_text_processing_keyword_extraction_from_documents
+- Name: keyword_extraction_pipeline
+- Purpose: ETL pipeline for document keyword extraction and validation. Generates synthetic documents, cleanses and standardizes them, calculates keyword density and complexity features, validates data integrity, and generates a final report.
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: text_processing
+- Notes: Data is passed between steps using intermediate Parquet files in a temporary directory.
+
+Data Artifacts / I-O Identifiers:
+- file: /tmp/airflow_processing/raw_documents.parquet (Raw synthetic document data)
+- file: /tmp/airflow_processing/cleaned_documents.parquet (Cleaned and standardized document data)
+- file: /tmp/airflow_processing/processed_documents.parquet (Document data with extracted features)
+- file: /tmp/airflow_processing/final_output_*.csv (Final output CSV with timestamp)
+
+External Systems:
+- filesystem: temporary_directory (/tmp/airflow_processing)
+
+Pipeline Steps:
+- clean_data — clean_data
+  - Objective: Clean and standardize raw document data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_processing/raw_documents.parquet
+  - Outputs: file:/tmp/airflow_processing/cleaned_documents.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+- explore_data — explore_data
+  - Objective: Log exploration statistics of raw data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_processing/raw_documents.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+- extract_features — extract_features
+  - Objective: Extract keyword features and metrics from cleaned data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_processing/cleaned_documents.parquet
+  - Outputs: file:/tmp/airflow_processing/processed_documents.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+- generate_documents — generate_documents
+  - Objective: Generate synthetic document data
+  - Mechanism: python_callable
+  - Outputs: file:/tmp/airflow_processing/raw_documents.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+- save_and_report — save_and_report
+  - Objective: Save final artifacts and log pipeline report
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_processing/processed_documents.parquet, data:Validation results
+  - Outputs: file:/tmp/airflow_processing/final_output_*.csv
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+- validate_data — validate_data
+  - Objective: Validate processed data against business rules
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_processing/processed_documents.parquet
+  - Outputs: data:Validation results dictionary
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Catchup/backfill: False

@@ -1,0 +1,5 @@
+airflow-log-cleanup is a workflow with execution model batch and topology pattern fan_out_fan_in. Its purpose is: Periodically clean out task logs to prevent them from growing too large.
+
+Scheduling: schedule type is cron, expression is @daily, catchup/backfill is False. Control flow includes dependencies such as: start→log_cleanup_worker_num_1_dir_0.
+
+start performs Initialize the log cleanup workflow using mechanism unknown. log_cleanup_worker_num_1_dir_0 performs Clean up old log files from the specified directory using mechanism shell_command.

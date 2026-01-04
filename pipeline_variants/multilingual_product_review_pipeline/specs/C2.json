@@ -1,0 +1,426 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "multilingual_product_review_analysis_v1",
+  "pipeline_name": "multilingual_product_review_analysis_v1",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/multilingual_product_review_pipeline.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "8132a9fc464c6928b9ac05b4fa63ab1924b0fcc6f74df690c9792ca802561465"
+  },
+  "summary": {
+    "purpose": "Enriches product reviews with language detection and sentiment analysis",
+    "business_domain": "data_science",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Sequential data pipeline analyzing multilingual product reviews. It performs language verification, LLM-based sentiment analysis, and feature extraction using containerized services."
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "local_data_directory",
+      "identifier": "/tmp/reviews/data",
+      "details": [
+        "Host directory mounted into containers for data exchange"
+      ],
+      "auth": [
+        "Filesystem access"
+      ]
+    },
+    {
+      "type": "cloud_service",
+      "name": "Docker Registry",
+      "identifier": null,
+      "details": [
+        "Container images: i2t-backendwithintertwino6-load-and-modify:latest, jmockit/language-detection:latest, huggingface/transformers-inference:latest, i2t-backendwithintertwino6-column-extension:latest, i2t-backendwithintertwino6-save:latest"
+      ],
+      "auth": [
+        "Docker registry authentication"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "reviews.csv",
+        "description": "Input product reviews"
+      },
+      {
+        "identifier": "table_data_2.json",
+        "description": "Formatted review data"
+      },
+      {
+        "identifier": "lang_detected_2.json",
+        "description": "Reviews with language detection"
+      },
+      {
+        "identifier": "sentiment_analyzed_2.json",
+        "description": "Reviews with sentiment scores"
+      },
+      {
+        "identifier": "column_extended_2.json",
+        "description": "Reviews with extracted features"
+      },
+      {
+        "identifier": "enriched_data_2.csv",
+        "description": "Final enriched output"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_and_modify_reviews",
+      "name": "load_and_modify_reviews",
+      "objective": "Ingest and format raw review data",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "reviews.csv",
+          "description": "Raw product reviews"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted review data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "local_data_directory",
+          "identifier": "/tmp/reviews/data"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "reviews.csv"
+        },
+        {
+          "key": "output_pattern",
+          "value": "table_data_2.json"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "date_column",
+          "value": "submission_date"
+        },
+        {
+          "key": "table_name",
+          "value": "JOT_"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/reviews/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove_container"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "detect_language",
+      "name": "detect_language",
+      "objective": "Detect language of review text",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted review data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "lang_detected_2.json",
+          "description": "Reviews with language detection"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "local_data_directory",
+          "identifier": "/tmp/reviews/data"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "input_file",
+          "value": "table_data_2.json"
+        },
+        {
+          "key": "output_file",
+          "value": "lang_detected_2.json"
+        },
+        {
+          "key": "text_column",
+          "value": "review_text"
+        },
+        {
+          "key": "lang_code_column",
+          "value": "language_code"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/reviews/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove_container"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_sentiment",
+      "name": "analyze_sentiment",
+      "objective": "Perform sentiment analysis on review text",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "lang_detected_2.json",
+          "description": "Reviews with language detection"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "sentiment_analyzed_2.json",
+          "description": "Reviews with sentiment scores"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "local_data_directory",
+          "identifier": "/tmp/reviews/data"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "input_file",
+          "value": "lang_detected_2.json"
+        },
+        {
+          "key": "output_file",
+          "value": "sentiment_analyzed_2.json"
+        },
+        {
+          "key": "model_name",
+          "value": "distilbert-base-uncased-finetuned-sst-2-english"
+        },
+        {
+          "key": "text_column",
+          "value": "review_text"
+        },
+        {
+          "key": "output_column",
+          "value": "sentiment_score"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/reviews/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove_container"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "extract_features",
+      "name": "extract_features",
+      "objective": "Extract product features mentioned in reviews",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "sentiment_analyzed_2.json",
+          "description": "Reviews with sentiment scores"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Reviews with extracted features"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "local_data_directory",
+          "identifier": "/tmp/reviews/data"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "sentiment_analyzed_2.json"
+        },
+        {
+          "key": "output_pattern",
+          "value": "column_extended_2.json"
+        },
+        {
+          "key": "extender_id",
+          "value": "featureExtractor"
+        },
+        {
+          "key": "text_column",
+          "value": "review_text"
+        },
+        {
+          "key": "output_column",
+          "value": "mentioned_features"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/reviews/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove_container"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_enriched_reviews",
+      "name": "save_enriched_reviews",
+      "objective": "Save final enriched data to CSV format",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Reviews with extracted features"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "enriched_data_2.csv",
+          "description": "Final enriched output"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "local_data_directory",
+          "identifier": "/tmp/reviews/data"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "column_extended_2.json"
+        },
+        {
+          "key": "output_filename",
+          "value": "enriched_data_2.csv"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/reviews/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove_container"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder; actual fingerprint would require file content hash"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:15:55.692733Z"
+  },
+  "variant": {
+    "class_id": "C2",
+    "class_name": "NO_CONTROL_FLOW",
+    "canonical_pipeline_id": "multilingual_product_review_pipeline",
+    "spec_pipeline_id": "multilingual_product_review_analysis_v1"
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "RunELT_Alert",
+  "pipeline_name": "RunELT_Alert",
+  "source": {
+    "unique_key": null,
+    "repo": "keeyong/airflow-bootcamp",
+    "file_path": "dags_to_move/run_elt_error.py",
+    "repo_url": "https://github.com/keeyong/airflow-bootcamp",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "4e3f5eb7586ae5a4c6fc66fa8d3906998981bf7e76aad4b6ca1ce7b67db81996"
+  },
+  "summary": {
+    "purpose": "Builds ELT tables using SQL CTAS with Snowflake, validates data, and sends Slack alerts on failures",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Processes tables sequentially with data validation and failure alerts"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2025-01-10",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "runCTAS_mau_summary",
+        "to": null
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "Snowflake",
+      "identifier": "snowflake_conn",
+      "details": [
+        "Snowflake database connection for ELT operations"
+      ],
+      "auth": [
+        "Connection credentials from configuration"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "Slack",
+      "identifier": null,
+      "details": [
+        "Slack API for sending failure notifications"
+      ],
+      "auth": [
+        "API token from configuration"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [
+      {
+        "identifier": "analytics.mau_summary",
+        "description": "Monthly Active Users summary table"
+      },
+      {
+        "identifier": "analytics.temp_mau_summary",
+        "description": "Temporary table for CTAS operation"
+      },
+      {
+        "identifier": "raw_data.session_timestamp",
+        "description": "Source table with session timestamps"
+      },
+      {
+        "identifier": "raw_data.user_session_channel",
+        "description": "Source table linking users to sessions"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "runCTAS_mau_summary",
+      "name": "runCTAS",
+      "objective": "Create or replace analytics table using CTAS with validation",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "table",
+          "identifier": "raw_data.session_timestamp",
+          "description": "Source table with session timestamps"
+        },
+        {
+          "type": "table",
+          "identifier": "raw_data.user_session_channel",
+          "description": "Source table linking users to sessions"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "analytics.mau_summary",
+          "description": "Monthly Active Users summary table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Snowflake",
+          "identifier": "snowflake_conn"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "schema",
+          "value": "analytics"
+        },
+        {
+          "key": "table",
+          "value": "mau_summary"
+        },
+        {
+          "key": "sql",
+          "value": "SELECT TO_VARCHAR(A.timestamp, 'YYYY-MM') AS month, COUNT(DISTINCT B.userid) AS mau FROM raw_data.session_timestamp A JOIN raw_data.user_session_channel B ON A.sessionid = B.sessionid GROUP BY 1;"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Only one table defined in TABLES list, but code suggests multiple tables could be processed sequentially",
+      "Slack alert configuration details not fully specified in code"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:13:04.656442Z"
+  },
+  "variant": {
+    "class_id": "C8",
+    "class_name": "NO_FAILURE_HANDLING_DETAILS",
+    "canonical_pipeline_id": "keeyong__airflow-bootcamp__run_elt_error.py",
+    "spec_pipeline_id": "RunELT_Alert"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "unique_key": "synthetic/fan_out_only:synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\n\ndefault_args = {\n    'owner': 'marketing_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\ndef load_customer_segment():\n    \"\"\"Load customer segment data from CSV file\"\"\"\n    print(\"Loading customer segment CSV file...\")\n    print(\"CSV columns: customer_id, segment, email, phone, device_token\")\n    print(\"Successfully loaded 1,500 customer records\")\n    print(\"Customer segments: premium, regular, new\")\n\ndef send_email_campaign():\n    \"\"\"Send email campaign to customer segment\"\"\"\n    print(\"Preparing email campaign...\")\n    print(\"Email template: Special Offer for Premium Customers\")\n    print(\"Personalizing email content...\")\n    print(\"Sending emails to 500 customers...\")\n    print(\"Email campaign completed successfully\")\n\ndef send_sms_campaign():\n    \"\"\"Send SMS campaign to customer segment\"\"\"\n    print(\"Preparing SMS campaign...\")\n    print(\"SMS template: Exclusive Deal - Limited Time!\")\n    print(\"Formatting SMS messages...\")\n    print(\"Sending SMS to 800 customers...\")\n    print(\"SMS campaign completed successfully\")\n\ndef send_push_notification():\n    \"\"\"Send push notification campaign to customer segment\"\"\"\n    print(\"Preparing push notification campaign...\")\n    print(\"Push message: Don't miss out on our latest offer!\")\n    print(\"Targeting mobile app users...\")\n    print(\"Sending push notifications to 200 customers...\")\n    print(\"Push notification campaign completed successfully\")\n\nwith DAG(\n    'multi_channel_marketing_campaign',\n    default_args=default_args,\n    description='Multi-channel marketing campaign DAG that loads customer segments and triggers parallel email, SMS, and push notification campaigns',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['marketing', 'campaign', 'multi_channel'],\n) as dag:\n\n    load_csv_task = PythonOperator(\n        task_id='load_customer_segment_csv',\n        python_callable=load_customer_segment,\n    )\n\n    email_campaign_task = PythonOperator(\n        task_id='send_email_campaign',\n        python_callable=send_email_campaign,\n    )\n\n    sms_campaign_task = PythonOperator(\n        task_id='send_sms_campaign',\n        python_callable=send_sms_campaign,\n    )\n\n    push_notification_task = PythonOperator(\n        task_id='send_push_notification',\n        python_callable=send_push_notification,\n    )\n\n    # Set up dependencies: FAN OUT ONLY pattern\n    # Load CSV triggers all three parallel campaign tasks independently\n    load_csv_task >> [email_campaign_task, sms_campaign_task, push_notification_task]"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:45:35Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 3,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 4,
+      "operator_types": [
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Multi-channel marketing campaign DAG that loads customer segments and triggers parallel email, SMS, and push notification campaigns",
+    "complexity_score": 3
+  }
+}

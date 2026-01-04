@@ -1,0 +1,108 @@
+Pipeline Summary:
+- Pipeline ID: environmental_monitoring_pipeline
+- Name: environmental_monitoring_network_v1
+- Purpose: Integrates station locations with weather, land use, and demographic data to calculate environmental risk scores
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: environmental_monitoring
+- Notes: A comprehensive 7-stage pipeline enriching environmental station data. It chains geocoding, weather history, land use API, and demographic data services before calculating a composite risk score.
+
+Data Artifacts / I-O Identifiers:
+- file: stations.csv (Input station data file)
+- file: table_data_2.json (Formatted station data)
+- file: reconciled_table_2.json (Geocoded station data)
+- file: open_meteo_2.json (Weather-enriched data)
+- file: land_use_2.json (Land use classified data)
+- file: pop_density_2.json (Population density enriched data)
+- file: column_extended_2.json (Risk score calculated data)
+- file: enriched_data_2.csv (Final output dataset)
+
+External Systems:
+- http_api: HERE Geocoding API (geocodingHere)
+- http_api: OpenMeteo API
+- http_api: Geoapify API
+- http_api: WorldPop API
+
+Pipeline Steps:
+- calculate_risk_score — calculate_risk_score
+  - Objective: Calculate environmental risk score based on multiple factors
+  - Mechanism: container_run
+  - Inputs: file:pop_density_2.json
+  - Outputs: file:column_extended_2.json
+  - Step parameters:
+    - extender_id=environmentalRiskCalculator
+    - input_columns=precipitation_sum,population_density,land_use_type
+    - output_column=risk_score
+  - Failure handling:
+    - retries: 1
+- classify_land_use — classify_land_use
+  - Objective: Classify land use type for station locations
+  - Mechanism: container_run
+  - Inputs: file:open_meteo_2.json
+  - Outputs: file:land_use_2.json
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - output_column=land_use_type
+  - Failure handling:
+    - retries: 1
+- fetch_historical_weather — fetch_historical_weather
+  - Objective: Fetch historical weather data for station locations
+  - Mechanism: container_run
+  - Inputs: file:reconciled_table_2.json
+  - Outputs: file:open_meteo_2.json
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - date_column=installation_date
+    - variables=apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours
+    - date_format=YYYYMMDD
+  - Failure handling:
+    - retries: 1
+- fetch_population_density — fetch_population_density
+  - Objective: Fetch population density data for station locations
+  - Mechanism: container_run
+  - Inputs: file:land_use_2.json
+  - Outputs: file:pop_density_2.json
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - radius=5000
+    - output_column=population_density
+  - Failure handling:
+    - retries: 1
+- geocode_stations — geocode_stations
+  - Objective: Geocode station locations using HERE API
+  - Mechanism: container_run
+  - Inputs: file:table_data_2.json
+  - Outputs: file:reconciled_table_2.json
+  - Step parameters:
+    - column_name=location
+    - reconciliator_id=geocodingHere
+    - dataset_id=2
+  - Failure handling:
+    - retries: 1
+- load_and_modify_stations — load_and_modify_stations
+  - Objective: Ingest and format station data from CSV to JSON
+  - Mechanism: container_run
+  - Inputs: file:stations.csv
+  - Outputs: file:table_data_2.json
+  - Step parameters:
+    - dataset_id=2
+    - date_column=installation_date
+    - table_name=JOT_
+  - Failure handling:
+    - retries: 1
+- save_environmental_dataset — save_environmental_dataset
+  - Objective: Save final enriched dataset to CSV format
+  - Mechanism: container_run
+  - Inputs: file:column_extended_2.json
+  - Outputs: file:enriched_data_2.csv
+  - Step parameters:
+    - dataset_id=2
+  - Failure handling:
+    - retries: 1
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

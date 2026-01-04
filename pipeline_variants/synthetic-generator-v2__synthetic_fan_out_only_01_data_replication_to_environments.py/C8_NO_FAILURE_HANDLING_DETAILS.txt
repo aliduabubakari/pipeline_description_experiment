@@ -1,0 +1,50 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py
+- Name: database_replication_fanout
+- Purpose: Dump production database snapshot and copy to multiple environments (Dev, Staging, QA) in parallel using fan-out pattern
+- Execution model: batch
+- Topology pattern: fan_out_only
+- Notes: Database replication from production to multiple environments with no synchronization point after copying - each environment copy is independent
+
+Control Flow:
+- Dependencies (directed edges):
+  - dump_prod_csv -> copy_dev
+  - dump_prod_csv -> copy_staging
+  - dump_prod_csv -> copy_qa
+
+Data Artifacts / I-O Identifiers:
+- file: /tmp/prod_snapshot_$(date +%Y%m%d).csv (CSV snapshot of production database)
+
+External Systems:
+- database: Production Database
+- database: Development Database (Dev_DB)
+- database: Staging Database (Staging_DB)
+- database: QA Database (QA_DB)
+
+Pipeline Steps:
+1. dump_prod_csv — dump_prod_csv
+  - Objective: Dump production database to CSV snapshot
+  - Mechanism: shell_command
+  - Inputs: database:Production database
+  - Outputs: file:/tmp/prod_snapshot_$(date +%Y%m%d).csv
+2. copy_dev — copy_dev
+  - Objective: Copy CSV snapshot to Development database
+  - Mechanism: shell_command
+  - Inputs: file:/tmp/prod_snapshot_$(date +%Y%m%d).csv
+  - Outputs: database:Dev_DB
+3. copy_staging — copy_staging
+  - Objective: Copy CSV snapshot to Staging database
+  - Mechanism: shell_command
+  - Inputs: file:/tmp/prod_snapshot_$(date +%Y%m%d).csv
+  - Outputs: database:Staging_DB
+4. copy_qa — copy_qa
+  - Objective: Copy CSV snapshot to QA database
+  - Mechanism: shell_command
+  - Inputs: file:/tmp/prod_snapshot_$(date +%Y%m%d).csv
+  - Outputs: database:QA_DB
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

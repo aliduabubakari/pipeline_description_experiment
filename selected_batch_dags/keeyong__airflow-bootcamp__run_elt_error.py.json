@@ -1,0 +1,25 @@
+{
+  "unique_key": "keeyong/airflow-bootcamp:dags_to_move/run_elt_error.py",
+  "repo": "keeyong/airflow-bootcamp",
+  "repo_url": "https://github.com/keeyong/airflow-bootcamp",
+  "stars": 4,
+  "license": "Apache-2.0",
+  "file_path": "dags_to_move/run_elt_error.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "b9ba2f62c91e7041eb5d8e3019faed1f3e4edd35",
+      "code": "from airflow import DAG\nfrom airflow.decorators import task\nfrom airflow.exceptions import AirflowException\nfrom airflow.models import Variable\n\nfrom datetime import datetime\nfrom datetime import timedelta\nfrom helpers import util\nfrom helpers import slack\n\nimport logging\n\n\nTABLES = [\n    {\n        'schema' : 'analytics',\n        'table': 'mau_summary',\n        'business owner': 'John Doe',\n        'sql' : \"\"\"\n            SSELECT \n                TO_VARCHAR(A.timestamp, 'YYYY-MM') AS month,\n                COUNT(DISTINCT B.userid) AS mau\n            FROM raw_data.session_timestamp A\n            JOIN raw_data.user_session_channel B ON A.sessionid = B.sessionid\n            GROUP BY 1;\"\"\"\n    }\n]\n\n\n@task\ndef runCTAS(table_params):\n\n    schema = table_params['schema'] \n    table = table_params['table']\n    select_sql = table_params['sql']\n\n    logging.info(schema)\n    logging.info(table)\n    logging.info(select_sql)\n\n    cur = util.return_snowflake_conn(\"snowflake_conn\")\n    try:\n        # 임시 테이블로 CTAS 적용\n        ctas_sql = f\"\"\"CREATE OR REPLACE TABLE {schema}.temp_{table} AS {select_sql}\"\"\"\n        cur.execute(ctas_sql)\n\n        # 임시 테이블에 레코드가 없다면 에러 발생 \n        # 여기에 사실 더 많은 검증을 수행해야함 - 중복 레코드 체크, 기본키 유일성 체크 등등\n        cur.execute(f\"\"\"SELECT COUNT(1) FROM {schema}.temp_{table}\"\"\")\n        count = cur.fetchone()[0]\n        if count == 0:\n            raise AirflowException(f\"{schema}.{table} didn't have any record\")\n\n        # 테이블 SWAP 명령을 사용할 예정이라 타겟 테이블이 없는 경우를 대비해서 없으면 하나 만들어둠\n        main_table_creation_if_not_exists_sql = f\"\"\"\n            CREATE TABLE IF NOT EXISTS {schema}.{table} AS\n            SELECT * FROM {schema}.temp_{table} WHERE 1=0;\"\"\"\n        cur.execute(main_table_creation_if_not_exists_sql)\n\n        # SWAP 명령 실행. DDL이라 transaction 여부와 관계없이 항상 바로 커밋이 됨\n        swap_sql = f\"\"\"ALTER TABLE {schema}.{table} SWAP WITH {schema}.temp_{table};\"\"\"\n        logging.info(swap_sql)\n        cur.execute(swap_sql)\n    except Exception as e:\n        raise e\n\nwith DAG(\n    dag_id=\"RunELT_Alert\",\n    start_date=datetime(2025,1,10),\n    description=\"Build ELT tables using SQL CTAS with Slack failure alert\",\n    schedule='@daily',\n    tags=[\"ELT\"],\n    catchup=False,\n    default_args = {\n        'on_failure_callback': slack.on_failure_callback,\n    }\n) as dag:\n\n    # 테이블을 일렬로 하나씩 빌드\n    prev_task = None\n    for table in TABLES:\n        task = runCTAS(table)\n        if prev_task is not None:\n            prev_task >> task\n        prev_task = task\n"
+    }
+  ],
+  "sampled_time": "2025-08-22T21:12:40.163589Z",
+  "analysis": {
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "topology_pattern": "linear",
+    "description": "Builds ELT tables using SQL CTAS with Snowflake, validates data, and sends Slack alerts on failures",
+    "complexity_score": 3
+  }
+}

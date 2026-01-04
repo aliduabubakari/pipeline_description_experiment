@@ -1,0 +1,31 @@
+Pipeline Summary:
+- Pipeline ID: 6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py
+- Name: mahidol_aqi_pipeline_v2_alert_1
+- Purpose: ETL pipeline that scrapes Mahidol University AQI data from website, processes it, loads to PostgreSQL database, and sends email alerts
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: environmental_monitoring
+- Notes: Code shows commented-out steps (t1, t2, t3) and only t4 (alert_email) is active. Pipeline appears to be in development/testing state.
+
+External Systems:
+- http_api: Mahidol AQI Report Website (https://mahidol.ac.th/aqireport/)
+- database: PostgreSQL (postgres_conn)
+- email: Gmail SMTP (smtp.gmail.com:587)
+- filesystem: Local filesystem
+
+Pipeline Steps:
+1. alert_email — alert_email
+  - Objective: Send email alerts based on AQI values
+  - Mechanism: python_callable
+  - Step parameters:
+    - LATITUDE=13.794606
+    - LONGITUDE=100.327256
+    - DESCRIPTION=คณะสิ่งแวดล้อมและทรัพยากรศาสตร์ มหาวิทยาลัยมหิดล
+    - COUNTRY=Thailand
+    - STATE=Nakhon Pathom
+    - CITY=Salaya
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2025-03-20
+- Catchup/backfill: False

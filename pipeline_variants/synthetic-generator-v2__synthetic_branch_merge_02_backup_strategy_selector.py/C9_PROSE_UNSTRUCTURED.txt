@@ -1,0 +1,5 @@
+backup_strategy_selector is a workflow with execution model batch and topology pattern branch_merge. Its purpose is: Selects database backup strategy based on day of week (full backup on Saturday, incremental backup on weekdays).
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: start_backup_process→date_check_task; date_check_task→full_backup_task; date_check_task→incremental_backup_task; full_backup_task→verify_backup_task; incremental_backup_task→verify_backup_task; verify_backup_task→backup_complete.
+
+start_backup_process performs Initialize backup workflow using mechanism unknown. date_check_task performs Determine day of week and select backup strategy using mechanism python_callable. full_backup_task performs Perform full database backup using mechanism shell_command. incremental_backup_task performs Perform incremental database backup using mechanism shell_command. verify_backup_task performs Verify backup integrity and completeness using mechanism shell_command. backup_complete performs Finalize backup workflow using mechanism unknown.

@@ -1,0 +1,5 @@
+database_replication_fanout is a workflow with execution model batch and topology pattern fan_out_only. Its purpose is: Dump production database snapshot and copy to multiple environments (Dev, Staging, QA) in parallel using fan-out pattern.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: dump_prod_csv→copy_dev; dump_prod_csv→copy_staging; dump_prod_csv→copy_qa.
+
+dump_prod_csv performs Dump production database to CSV snapshot using mechanism shell_command. copy_dev performs Copy CSV snapshot to Development database using mechanism shell_command. copy_staging performs Copy CSV snapshot to Staging database using mechanism shell_command. copy_qa performs Copy CSV snapshot to QA database using mechanism shell_command.

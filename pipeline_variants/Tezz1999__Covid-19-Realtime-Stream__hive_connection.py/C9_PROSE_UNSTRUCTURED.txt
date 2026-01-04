@@ -1,0 +1,5 @@
+hive_script is a workflow with execution model batch and topology pattern linear. Its purpose is: Execute Hive database operations including database creation, table creation, and data insertion.
+
+Scheduling: schedule type is cron, expression is 00 1 * * *. Control flow includes dependencies such as: run_after_loop→hive_script_task.
+
+run_after_loop performs Execute a shell command to display the current user using mechanism shell_command. hive_script_task performs Execute Hive database operations including database creation, table creation, and data insertion using mechanism sql_query.

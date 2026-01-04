@@ -1,0 +1,5 @@
+pipeline_execution_dag is a workflow with execution model batch and topology pattern linear. Its purpose is: Sequential data processing pipeline executing containerized tasks to ingest CSVs, perform reconciliation and weather enrichment, extend columns, and save the final output.
+
+Scheduling: schedule type is manual, catchup/backfill is False. Control flow includes dependencies such as: load_and_modify→reconciliation; reconciliation→openmeteo_extension; openmeteo_extension→column_extension; column_extension→save.
+
+load_and_modify performs Load CSV files and modify data structure using mechanism container_run. reconciliation performs Reconcile data using external service using mechanism container_run. openmeteo_extension performs Enrich data with weather information using mechanism container_run. column_extension performs Extend data with additional columns using mechanism container_run. save performs Save processed data to final output file using mechanism container_run.

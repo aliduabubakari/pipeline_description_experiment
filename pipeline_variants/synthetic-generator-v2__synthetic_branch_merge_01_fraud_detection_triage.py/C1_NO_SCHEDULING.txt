@@ -1,0 +1,61 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py
+- Name: fraud_detection_triage
+- Purpose: Processes daily transaction batches for fraud detection by analyzing transaction data, applying risk scoring, and routing transactions based on risk thresholds before merging for final notification
+- Execution model: batch
+- Topology pattern: branch_merge
+- Business domain: fraud_detection
+- Notes: Conditional branching with later merge point
+
+Control Flow:
+- Dependencies (directed edges):
+  - analyze_transactions -> route_transaction
+  - route_transaction -> route_to_manual_review
+  - route_transaction -> route_to_auto_approve
+  - route_to_manual_review -> send_notification
+  - route_to_auto_approve -> send_notification
+
+Data Artifacts / I-O Identifiers:
+- file: transaction CSV file (Daily transaction batch file)
+
+Pipeline Steps:
+1. analyze_transactions — analyze_transactions
+  - Objective: Analyze transaction CSV file and calculate risk score
+  - Mechanism: python_callable
+  - Inputs: file:transaction CSV file
+  - Outputs: data:risk_score
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+2. route_transaction — route_transaction
+  - Objective: Apply risk model and determine routing based on risk score
+  - Mechanism: python_callable
+  - Inputs: data:risk_score
+  - Outputs: control:routing_decision
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+3. route_to_manual_review — route_to_manual_review
+  - Objective: Process high-risk transactions through manual review
+  - Mechanism: python_callable
+  - Inputs: control:routing_decision
+  - Outputs: data:manual_review_status
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+4. route_to_auto_approve — route_to_auto_approve
+  - Objective: Auto-approve low-risk transactions for payment processing
+  - Mechanism: python_callable
+  - Inputs: control:routing_decision
+  - Outputs: data:auto_approval_status
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+5. send_notification — send_notification
+  - Objective: Send notification after transaction processing completes
+  - Mechanism: python_callable
+  - Inputs: data:manual_review_status, data:auto_approval_status
+  - Outputs: notification:processing_complete_notification
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes

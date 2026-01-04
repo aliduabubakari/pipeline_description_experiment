@@ -1,0 +1,5 @@
+magento_graphql_customer is a workflow with execution model batch and topology pattern linear. Its purpose is: Creates a Magento customer, generates authentication token, and retrieves customer information using GraphQL operations.
+
+Scheduling: schedule type is manual, start date is 2024-08-22, catchup/backfill is False. Control flow includes dependencies such as: create_customer→generate_customer_token; generate_customer_token→get_customer_info.
+
+create_customer performs Create a new customer in Magento system using mechanism http_request. generate_customer_token performs Generate authentication token for the created customer using mechanism http_request. get_customer_info performs Retrieve customer information using authentication token using mechanism http_request.

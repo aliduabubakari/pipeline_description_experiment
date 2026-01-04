@@ -1,0 +1,59 @@
+Pipeline Summary:
+- Pipeline ID: procurement_supplier_validation_pipeline
+- Name: procurement_supplier_validation_v1
+- Purpose: Validates and standardizes supplier data using Wikidata entity reconciliation
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: procurement
+- Notes: Procurement pipeline that standardizes supplier CSV data, reconciles supplier names against Wikidata entities via Dockerized services, and exports the enriched dataset.
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_and_modify_suppliers -> reconcile_supplier_entities
+  - reconcile_supplier_entities -> save_validated_suppliers
+
+Data Artifacts / I-O Identifiers:
+- file: suppliers.csv (Input supplier CSV data)
+- file: table_data_2.json (Standardized intermediate JSON)
+- file: reconciled_table_2.json (Wikidata-reconciled intermediate JSON)
+- file: enriched_data_2.csv (Final enriched CSV output)
+
+External Systems:
+- database: Wikidata (wikidataEntity)
+- filesystem: Host filesystem
+
+Pipeline Steps:
+1. load_and_modify_suppliers — load_and_modify_suppliers
+  - Objective: Ingest and standardize supplier CSV data into structured JSON format
+  - Mechanism: container_run
+  - Inputs: file:suppliers.csv
+  - Outputs: file:table_data_2.json
+  - Step parameters:
+    - input_pattern=suppliers.csv
+    - output_pattern=table_data_2.json
+    - dataset_id=2
+    - table_name=JOT_
+2. reconcile_supplier_entities — reconcile_supplier_entities
+  - Objective: Reconcile supplier names against Wikidata entities
+  - Mechanism: container_run
+  - Inputs: file:table_data_2.json
+  - Outputs: file:reconciled_table_2.json
+  - Step parameters:
+    - input_pattern=table_data_2.json
+    - output_pattern=reconciled_table_2.json
+    - column_name=supplier_name
+    - reconciliator_id=wikidataEntity
+    - dataset_id=2
+3. save_validated_suppliers — save_validated_suppliers
+  - Objective: Export enriched supplier data to CSV format
+  - Mechanism: container_run
+  - Inputs: file:reconciled_table_2.json
+  - Outputs: file:enriched_data_2.csv
+  - Step parameters:
+    - input_pattern=reconciled_table_2.json
+    - output_filename=enriched_data_2.csv
+    - dataset_id=2
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

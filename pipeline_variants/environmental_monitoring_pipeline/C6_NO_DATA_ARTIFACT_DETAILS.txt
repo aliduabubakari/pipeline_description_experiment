@@ -1,0 +1,93 @@
+Pipeline Summary:
+- Pipeline ID: environmental_monitoring_pipeline
+- Name: environmental_monitoring_network_v1
+- Purpose: Integrates station locations with weather, land use, and demographic data to calculate environmental risk scores
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: environmental_monitoring
+- Notes: A comprehensive 7-stage pipeline enriching environmental station data. It chains geocoding, weather history, land use API, and demographic data services before calculating a composite risk score.
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_and_modify_stations -> geocode_stations
+  - geocode_stations -> fetch_historical_weather
+  - fetch_historical_weather -> classify_land_use
+  - classify_land_use -> fetch_population_density
+  - fetch_population_density -> calculate_risk_score
+  - calculate_risk_score -> save_environmental_dataset
+
+External Systems:
+- http_api: HERE Geocoding API (geocodingHere)
+- http_api: OpenMeteo API
+- http_api: Geoapify API
+- http_api: WorldPop API
+
+Pipeline Steps:
+1. load_and_modify_stations — load_and_modify_stations
+  - Objective: Ingest and format station data from CSV to JSON
+  - Mechanism: container_run
+  - Step parameters:
+    - dataset_id=2
+    - date_column=installation_date
+    - table_name=JOT_
+  - Failure handling:
+    - retries: 1
+2. geocode_stations — geocode_stations
+  - Objective: Geocode station locations using HERE API
+  - Mechanism: container_run
+  - Step parameters:
+    - column_name=location
+    - reconciliator_id=geocodingHere
+    - dataset_id=2
+  - Failure handling:
+    - retries: 1
+3. fetch_historical_weather — fetch_historical_weather
+  - Objective: Fetch historical weather data for station locations
+  - Mechanism: container_run
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - date_column=installation_date
+    - variables=apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours
+    - date_format=YYYYMMDD
+  - Failure handling:
+    - retries: 1
+4. classify_land_use — classify_land_use
+  - Objective: Classify land use type for station locations
+  - Mechanism: container_run
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - output_column=land_use_type
+  - Failure handling:
+    - retries: 1
+5. fetch_population_density — fetch_population_density
+  - Objective: Fetch population density data for station locations
+  - Mechanism: container_run
+  - Step parameters:
+    - lat_column=latitude
+    - lon_column=longitude
+    - radius=5000
+    - output_column=population_density
+  - Failure handling:
+    - retries: 1
+6. calculate_risk_score — calculate_risk_score
+  - Objective: Calculate environmental risk score based on multiple factors
+  - Mechanism: container_run
+  - Step parameters:
+    - extender_id=environmentalRiskCalculator
+    - input_columns=precipitation_sum,population_density,land_use_type
+    - output_column=risk_score
+  - Failure handling:
+    - retries: 1
+7. save_environmental_dataset — save_environmental_dataset
+  - Objective: Save final enriched dataset to CSV format
+  - Mechanism: container_run
+  - Step parameters:
+    - dataset_id=2
+  - Failure handling:
+    - retries: 1
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

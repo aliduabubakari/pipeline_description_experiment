@@ -1,0 +1,92 @@
+Pipeline Summary:
+- Pipeline ID: HaydarovAkbar__airflow_dag__main.py
+- Name: WF_MAIN_DATASETS_LOAD_L2_TO_L2
+- Purpose: Main workflow for loading datasets from DWH L2 to L2 with segmentation processing and SAP integration
+- Execution model: batch
+- Topology pattern: mixed
+- Business domain: data_warehouse
+- Notes: Includes wait conditions, parallel execution, and failure notifications
+
+Control Flow:
+- Dependencies (directed edges):
+  - wait_for_l2_full_load -> get_load_id
+  - get_load_id -> workflow_registration
+  - workflow_registration -> wait_for_success_end
+  - wait_for_success_end -> run_sys_kill_all_session_pg
+  - run_sys_kill_all_session_pg -> run_wf_data_preparation_for_reports
+  - run_sys_kill_all_session_pg -> segmentation_group
+  - run_wf_data_preparation_for_reports -> end
+  - segmentation_group -> end
+  - end -> email_on_failure
+
+Data Artifacts / I-O Identifiers:
+- table: wk_export.ds_client_segmentation_last_v (Client segmentation dataset view)
+- table: md.dwh_flag (Data warehouse flag table)
+
+External Systems:
+- database: DWH database (dwh)
+- http_api: SAP system (sap_conn)
+
+Pipeline Steps:
+1. get_load_id — get_load_id
+  - Objective: Generate load identifier for the session
+  - Mechanism: python_callable
+  - Outputs: internal:load_id
+2. workflow_registration — workflow_registration
+  - Objective: Register workflow session in metadata system
+  - Mechanism: python_callable
+  - Inputs: internal:load_id
+3. end — end
+  - Objective: Finalize workflow session with success status
+  - Mechanism: python_callable
+  - Inputs: internal:load_id
+4. wait_for_l2_full_load — wait_for_l2_full_load
+  - Objective: Wait for L1 to L2 data load completion flag
+  - Mechanism: wait_poll
+  - Step parameters:
+    - sql_query=select * from md.dwh_flag where flag_cd = 'l1_to_l2_load_successfull' and bussines_date = current_date - 1
+    - poke_interval=60
+5. wait_for_success_end — wait_for_success_end
+  - Objective: Wait for previous successful execution completion
+  - Mechanism: wait_poll
+  - Step parameters:
+    - external_workflow_id=WF_MAIN_DATASETS_LOAD_L2_TO_L2
+    - external_step_id=end
+    - poke_interval=100
+    - execution_delta=1 day
+6. run_sys_kill_all_session_pg — run_sys_kill_all_session_pg
+  - Objective: Trigger session cleanup workflow
+  - Mechanism: external_workflow_trigger
+  - Step parameters:
+    - target_workflow_id=sys_kill_all_session_pg
+    - wait_for_completion=true
+7. run_wf_data_preparation_for_reports — run_wf_data_preparation_for_reports
+  - Objective: Trigger data preparation for reports workflow
+  - Mechanism: external_workflow_trigger
+  - Step parameters:
+    - target_workflow_id=wf_data_preparation_for_reports
+    - wait_for_completion=true
+    - pool=dwh_l2
+    - pool_slots=1
+8. email_on_failure — email_on_failure
+  - Objective: Send notification email on workflow failure
+  - Mechanism: notification
+  - Step parameters:
+    - recipients=test@gmail.com
+    - subject=Airflow DAG Execution Failure
+    - trigger_condition=on_failure
+9. load_ds_client_segmentation — load_ds_client_segmentation
+  - Objective: Trigger client segmentation data load workflow
+  - Mechanism: external_workflow_trigger
+  - Step parameters:
+    - target_workflow_id=l1_to_l2_p_load_data_ds_client_segmentation_full
+    - wait_for_completion=true
+10. send_flg_to_sap — send_flg_to_sap
+  - Objective: Send completion flag to SAP system
+  - Mechanism: python_callable
+  - Inputs: table:wk_export.ds_client_segmentation_last_v
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2024-12-22
+- Catchup/backfill: False

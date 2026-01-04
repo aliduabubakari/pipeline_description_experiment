@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/staged_etl:synthetic_staged_etl_01_supply_chain_etl.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_staged_etl_01_supply_chain_etl.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.operators.email import EmailOperator\nfrom airflow.utils.task_group import TaskGroup\n\ndefault_args = {\n    'owner': 'supply_chain_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef ingest_vendor_a():\n    \"\"\"Mock function to ingest raw shipment data from Vendor A\"\"\"\n    print(\"Ingesting raw shipment CSV from Vendor A...\")\n    print(\"File: vendor_a_shipments_20240115.csv\")\n    print(\"Records processed: 1,250\")\n    return \"vendor_a_data\"\n\ndef ingest_vendor_b():\n    \"\"\"Mock function to ingest raw shipment data from Vendor B\"\"\"\n    print(\"Ingesting raw shipment CSV from Vendor B...\")\n    print(\"File: vendor_b_shipments_20240115.csv\")\n    print(\"Records processed: 980\")\n    return \"vendor_b_data\"\n\ndef ingest_vendor_c():\n    \"\"\"Mock function to ingest raw shipment data from Vendor C\"\"\"\n    print(\"Ingesting raw shipment CSV from Vendor C...\")\n    print(\"File: vendor_c_shipments_20240115.csv\")\n    print(\"Records processed: 1,750\")\n    return \"vendor_c_data\"\n\ndef cleanse_and_normalize(**context):\n    \"\"\"Mock function to cleanse, normalize SKUs, validate dates, and enrich with location data\"\"\"\n    ti = context['ti']\n    vendor_a_data = ti.xcom_pull(task_ids='stage_1_extract.ingest_vendor_a')\n    vendor_b_data = ti.xcom_pull(task_ids='stage_1_extract.ingest_vendor_b')\n    vendor_c_data = ti.xcom_pull(task_ids='stage_1_extract.ingest_vendor_c')\n    \n    print(f\"Processing data from: {vendor_a_data}, {vendor_b_data}, {vendor_c_data}\")\n    print(\"Normalizing SKU formats across all vendors...\")\n    print(\"Validating shipment dates and filtering invalid records...\")\n    print(\"Enriching with location data from reference tables...\")\n    print(\"Total records after cleansing: 3,850\")\n    return \"cleansed_shipment_data\"\n\ndef load_to_inventory_db(**context):\n    \"\"\"Mock function to load processed data to inventory database\"\"\"\n    cleansed_data = context['ti'].xcom_pull(task_ids='stage_2_transform.cleanse_data')\n    print(f\"Loading {cleansed_data} to inventory database...\")\n    print(\"Connected to PostgreSQL inventory_db\")\n    print(\"Upserting shipment records to inventory_shipments table\")\n    print(\"Successfully loaded 3,850 records\")\n    return \"db_load_complete\"\n\ndef generate_email_content(**context):\n    \"\"\"Mock function to generate email summary content\"\"\"\n    db_result = context['ti'].xcom_pull(task_ids='stage_3_load.load_to_db')\n    print(f\"Database load result: {db_result}\")\n    email_content = \"\"\"\n    Supply Chain ETL Summary - Daily Shipment Processing\n    \n    Processing Date: 2024-01-15\n    Total Records Processed: 3,850\n    - Vendor A: 1,250 records\n    - Vendor B: 980 records  \n    - Vendor C: 1,750 records\n    \n    Data Quality Metrics:\n    - Invalid SKUs corrected: 45\n    - Date validation failures: 12\n    - Location enrichment rate: 99.8%\n    \n    All data successfully loaded to inventory database.\n    \"\"\"\n    return email_content\n\nwith DAG(\n    'supply_chain_shipment_etl',\n    default_args=default_args,\n    description='Three-stage ETL pipeline for supply chain shipment data processing',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['supply_chain', 'etl', 'shipments']\n) as dag:\n    \n    # Stage 1: Extract - Ingest raw data from vendors\n    with TaskGroup('stage_1_extract', tooltip='Extract raw shipment data from vendors') as stage1:\n        ingest_a = PythonOperator(\n            task_id='ingest_vendor_a',\n            python_callable=ingest_vendor_a\n        )\n        \n        ingest_b = PythonOperator(\n            task_id='ingest_vendor_b',\n            python_callable=ingest_vendor_b\n        )\n        \n        ingest_c = PythonOperator(\n            task_id='ingest_vendor_c',\n            python_callable=ingest_vendor_c\n        )\n    \n    # Stage 2: Transform - Cleanse and normalize data\n    with TaskGroup('stage_2_transform', tooltip='Transform and cleanse shipment data') as stage2:\n        cleanse_data = PythonOperator(\n            task_id='cleanse_data',\n            python_callable=cleanse_and_normalize\n        )\n    \n    # Stage 3: Load - Load to database and send notification\n    with TaskGroup('stage_3_load', tooltip='Load processed data and send notifications') as stage3:\n        load_to_db = PythonOperator(\n            task_id='load_to_db',\n            python_callable=load_to_inventory_db\n        )\n        \n        send_email = EmailOperator(\n            task_id='send_summary_email',\n            to='supply-chain-team@company.com',\n            subject='Daily Supply Chain Shipment ETL Summary',\n            html_content=\"\"\"<h3>Daily Supply Chain Shipment ETL Processing Complete</h3>\n            <p><strong>Processing Date:</strong> {{ ds }}</p>\n            <p><strong>Total Records:</strong> 3,850</p>\n            <p><strong>Status:</strong> SUCCESS</p>\n            <p>All vendor shipment data has been processed and loaded to the inventory database.</p>\"\"\"\n        )\n    \n    # Define DAG dependencies following staged ETL pattern\n    stage1 >> stage2 >> stage3\n    load_to_db >> send_email"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:47:56Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "staged_etl",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 3,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": true
+    },
+    "tasks": {
+      "total_count": 5,
+      "operator_types": [
+        "PythonOperator",
+        "EmailOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Three-stage ETL pipeline for supply chain shipment data processing with vendor data ingestion, cleansing/normalization, and database loading with email notification",
+    "complexity_score": 4
+  }
+}

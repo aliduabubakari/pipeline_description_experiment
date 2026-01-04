@@ -1,0 +1,250 @@
+{
+  "generated_at": "2025-12-16T13:41:53.055179Z",
+  "input_dir": "selected_batch_dags",
+  "output_dir": "pipeline_specs",
+  "model": "deepseek-chat",
+  "count_total_files": 40,
+  "pipelines": [
+    {
+      "input_file": "6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py.json",
+      "pipeline_id": "6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py",
+      "output_file": "6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py.json",
+      "pipeline_id": "6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py",
+      "output_file": "6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py.json",
+      "pipeline_id": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py",
+      "output_file": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py.json",
+      "pipeline_id": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py",
+      "output_file": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "HaydarovAkbar__airflow_dag__main.py.json",
+      "pipeline_id": "HaydarovAkbar__airflow_dag__main.py",
+      "output_file": "HaydarovAkbar__airflow_dag__main.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "M4TTRX__data-eng-project__global_dag.py.json",
+      "pipeline_id": "M4TTRX__data-eng-project__global_dag.py",
+      "output_file": "M4TTRX__data-eng-project__global_dag.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "Tezz1999__Covid-19-Realtime-Stream__hive_connection.py.json",
+      "pipeline_id": "Tezz1999__Covid-19-Realtime-Stream__hive_connection.py",
+      "output_file": "Tezz1999__Covid-19-Realtime-Stream__hive_connection.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "bcgov__medis-scheduler__PCD-ETL.py.json",
+      "pipeline_id": "bcgov__medis-scheduler__PCD-ETL.py",
+      "output_file": "bcgov__medis-scheduler__PCD-ETL.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "customer_data_quality_scoring_dag.json",
+      "pipeline_id": "customer_data_quality_scoring_dag",
+      "output_file": "customer_data_quality_scoring_dag.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "de_001_text_processing_keyword_extraction_from_documents.json",
+      "pipeline_id": "de_001_text_processing_keyword_extraction_from_documents",
+      "output_file": "de_001_text_processing_keyword_extraction_from_documents.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "environmental_monitoring_pipeline.json",
+      "pipeline_id": "environmental_monitoring_pipeline",
+      "output_file": "environmental_monitoring_pipeline.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "hejnal__dataform-training__dataform_dag_dynamic_vars.py.json",
+      "pipeline_id": "hejnal__dataform-training__dataform_dag_dynamic_vars.py",
+      "output_file": "hejnal__dataform-training__dataform_dag_dynamic_vars.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "keeyong__airflow-bootcamp__run_elt_error.py.json",
+      "pipeline_id": "keeyong__airflow-bootcamp__run_elt_error.py",
+      "output_file": "keeyong__airflow-bootcamp__run_elt_error.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "medical_facility_accessibility_pipeline.json",
+      "pipeline_id": "medical_facility_accessibility_pipeline",
+      "output_file": "medical_facility_accessibility_pipeline.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "multilingual_product_review_pipeline.json",
+      "pipeline_id": "multilingual_product_review_pipeline",
+      "output_file": "multilingual_product_review_pipeline.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "nazzang49__gcp-tutorials__airflow_db_cleanup.py.json",
+      "pipeline_id": "nazzang49__gcp-tutorials__airflow_db_cleanup.py",
+      "output_file": "nazzang49__gcp-tutorials__airflow_db_cleanup.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "peterbull__bodhi-cast__log_cleanup.py.json",
+      "pipeline_id": "peterbull__bodhi-cast__log_cleanup.py",
+      "output_file": "peterbull__bodhi-cast__log_cleanup.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "procurement_supplier_validation_pipeline.json",
+      "pipeline_id": "procurement_supplier_validation_pipeline",
+      "output_file": "procurement_supplier_validation_pipeline.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "sivajik34__magento-airflow__magento_customer_graphql.py.json",
+      "pipeline_id": "sivajik34__magento-airflow__magento_customer_graphql.py",
+      "output_file": "sivajik34__magento-airflow__magento_customer_graphql.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "stikkireddy__databricks-reusable-job-clusters__example_dag.py.json",
+      "pipeline_id": "stikkireddy__databricks-reusable-job-clusters__example_dag.py",
+      "output_file": "stikkireddy__databricks-reusable-job-clusters__example_dag.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py",
+      "output_file": "synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py",
+      "output_file": "synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py",
+      "output_file": "synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py",
+      "output_file": "synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py",
+      "output_file": "synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py",
+      "output_file": "synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_linear_01_report_generation.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_linear_01_report_generation.py",
+      "output_file": "synthetic-generator-v2__synthetic_linear_01_report_generation.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py",
+      "output_file": "synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py",
+      "output_file": "synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py",
+      "output_file": "synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+      "output_file": "synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py",
+      "output_file": "synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py.json",
+      "pipeline_id": "synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py",
+      "output_file": "synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "synthetic_docker_pipeline_01_intertwino.json",
+      "pipeline_id": "synthetic_docker_pipeline_01_intertwino",
+      "output_file": "synthetic_docker_pipeline_01_intertwino.pipelinespec.json",
+      "status": "success"
+    },
+    {
+      "input_file": "technoavengers-com__airflow-training-private__assignment_template.py.json",
+      "pipeline_id": "technoavengers-com__airflow-training-private__assignment_template.py",
+      "output_file": "technoavengers-com__airflow-training-private__assignment_template.py.pipelinespec.json",
+      "status": "success"
+    }
+  ],
+  "last_updated": "2025-12-16T19:04:34.489697Z"
+}

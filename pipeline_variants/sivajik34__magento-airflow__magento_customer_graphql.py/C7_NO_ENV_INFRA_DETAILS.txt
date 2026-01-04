@@ -1,0 +1,54 @@
+Pipeline Summary:
+- Pipeline ID: sivajik34__magento-airflow__magento_customer_graphql.py
+- Name: magento_graphql_customer
+- Purpose: Creates a Magento customer, generates authentication token, and retrieves customer information using GraphQL operations
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: e-commerce
+- Notes: Uses Magento GraphQL API for customer management operations
+
+Control Flow:
+- Dependencies (directed edges):
+  - create_customer -> generate_customer_token
+  - generate_customer_token -> get_customer_info
+
+External Systems:
+- http_api: Magento (magento_default)
+
+Pipeline Steps:
+1. create_customer — create_customer
+  - Objective: Create a new customer in Magento system
+  - Mechanism: http_request
+  - Outputs: data:customer_email
+  - Step parameters:
+    - firstname=John
+    - lastname=Doe
+    - email=john.doe@example.com
+    - password=Airflow@123
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+2. generate_customer_token — generate_customer_token
+  - Objective: Generate authentication token for the created customer
+  - Mechanism: http_request
+  - Inputs: data:customer_email
+  - Outputs: data:customer_token
+  - Step parameters:
+    - email=customer_email
+    - password=Airflow@123
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+3. get_customer_info — get_customer_info
+  - Objective: Retrieve customer information using authentication token
+  - Mechanism: http_request
+  - Inputs: data:customer_token
+  - Outputs: data:customer_info
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2024-08-22
+- Catchup/backfill: False

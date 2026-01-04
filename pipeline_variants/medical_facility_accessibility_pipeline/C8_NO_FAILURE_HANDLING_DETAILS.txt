@@ -1,0 +1,81 @@
+Pipeline Summary:
+- Pipeline ID: medical_facility_accessibility_pipeline
+- Name: medical_facility_accessibility_v1
+- Purpose: Geospatial analysis pipeline that processes medical facility locations, geocodes them using HERE maps, and calculates spatial proximity to public transport and residential zones.
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: urban_planning
+- Notes: Processes medical facility data through sequential geospatial transformations
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_and_modify_facilities -> geocode_facilities
+  - geocode_facilities -> calc_distance_public_transport
+  - calc_distance_public_transport -> calc_distance_residential
+  - calc_distance_residential -> save_accessibility_data
+
+Data Artifacts / I-O Identifiers:
+- file: facilities.csv (Input medical facility data)
+- file: table_data_2.json (Formatted facility data)
+- file: reconciled_table_2.json (Geocoded facility data with coordinates)
+- file: distance_pt_2.json (Facility data with public transport distances)
+- file: column_extended_2.json (Facility data with residential area distances)
+- file: enriched_data_2.csv (Final enriched accessibility dataset)
+- file: transport_stops.geojson (Public transport stop locations)
+- file: residential_areas.geojson (Residential zone boundaries)
+
+External Systems:
+- http_api: HERE Maps API (geocodingHere)
+- filesystem: Local data directory (/tmp/medical/data)
+
+Pipeline Steps:
+1. load_and_modify_facilities — load_and_modify_facilities
+  - Objective: Ingest and format medical facility data from CSV to structured JSON
+  - Mechanism: container_run
+  - Inputs: file:facilities.csv
+  - Outputs: file:table_data_2.json
+  - Step parameters:
+    - dataset_id=2
+    - table_name=JOT_
+2. geocode_facilities — geocode_facilities
+  - Objective: Geocode facility addresses to latitude/longitude coordinates using HERE Maps API
+  - Mechanism: container_run
+  - Inputs: file:table_data_2.json
+  - Outputs: file:reconciled_table_2.json
+  - Step parameters:
+    - dataset_id=2
+    - column_name=address
+    - reconciliator_id=geocodingHere
+3. calc_distance_public_transport — calc_distance_public_transport
+  - Objective: Calculate spatial distance from facilities to nearest public transport stops
+  - Mechanism: container_run
+  - Inputs: file:reconciled_table_2.json, file:transport_stops.geojson
+  - Outputs: file:distance_pt_2.json
+  - Step parameters:
+    - extender_id=spatialDistanceCalculator
+    - lat_column=latitude
+    - lon_column=longitude
+    - target_layer=public_transport
+    - output_column=distance_to_pt
+4. calc_distance_residential — calc_distance_residential
+  - Objective: Calculate spatial distance from facilities to nearest residential areas
+  - Mechanism: container_run
+  - Inputs: file:distance_pt_2.json, file:residential_areas.geojson
+  - Outputs: file:column_extended_2.json
+  - Step parameters:
+    - extender_id=spatialDistanceCalculator
+    - lat_column=latitude
+    - lon_column=longitude
+    - target_layer=residential_areas
+    - output_column=distance_to_residential
+5. save_accessibility_data — save_accessibility_data
+  - Objective: Save final enriched accessibility data to CSV format
+  - Mechanism: container_run
+  - Inputs: file:column_extended_2.json
+  - Outputs: file:enriched_data_2.csv
+  - Step parameters:
+    - dataset_id=2
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

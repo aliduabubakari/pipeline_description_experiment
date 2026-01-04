@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/sensor_gated:synthetic_sensor_gated_00_upstream_etl_dependency.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_sensor_gated_00_upstream_etl_dependency.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.sensors.external_task import ExternalTaskSensor\nfrom airflow.operators.python import PythonOperator\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': True,\n    'email_on_retry': False\n}\n\ndef load_aggregated_sales():\n    \"\"\"Mock function to load aggregated sales CSV data\"\"\"\n    print(\"Loading aggregated sales CSV from daily_sales_aggregation DAG output\")\n    print(\"Validating data format and completeness\")\n    print(\"Sales data loaded successfully - ready for dashboard generation\")\n\ndef generate_executive_dashboard():\n    \"\"\"Mock function to generate executive dashboard from sales data\"\"\"\n    print(\"Generating executive dashboard with key sales metrics\")\n    print(\"Creating visualizations: revenue trends, product performance, regional analysis\")\n    print(\"Dashboard generated successfully - available for executive review\")\n\nwith DAG(\n    'executive_sales_dashboard',\n    default_args=default_args,\n    description='Wait for daily sales aggregation DAG to complete, then load data and generate executive dashboard',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['sales', 'dashboard', 'executive']\n) as dag:\n\n    wait_for_sales_aggregation = ExternalTaskSensor(\n        task_id='wait_for_sales_aggregation',\n        external_dag_id='daily_sales_aggregation',\n        external_task_id=None,  # Wait for entire DAG to complete\n        allowed_states=['success'],\n        failed_states=['failed', 'skipped'],\n        mode='reschedule',\n        timeout=3600,\n        poke_interval=60\n    )\n\n    load_sales_csv = PythonOperator(\n        task_id='load_sales_csv',\n        python_callable=load_aggregated_sales\n    )\n\n    generate_dashboard = PythonOperator(\n        task_id='generate_dashboard',\n        python_callable=generate_executive_dashboard\n    )\n\n    # Set dependencies according to sensor_gated pattern\n    wait_for_sales_aggregation >> load_sales_csv >> generate_dashboard"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:43:50Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "sensor_gated",
+      "has_sensors": true,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 3,
+      "operator_types": [
+        "ExternalTaskSensor",
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": true
+    },
+    "description": "DAG waits for daily sales aggregation DAG completion using ExternalTaskSensor, then loads aggregated sales CSV data and generates executive dashboard with PythonOperator tasks in linear sequence.",
+    "complexity_score": 3
+  }
+}

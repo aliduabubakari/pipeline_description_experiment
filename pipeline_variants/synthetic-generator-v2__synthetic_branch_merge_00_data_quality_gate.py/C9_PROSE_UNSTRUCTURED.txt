@@ -1,0 +1,5 @@
+Data Quality Gate is a workflow with execution model batch and topology pattern branch_merge. Its purpose is: Data quality gate for customer CSV data that routes data based on quality scores.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: ingest_csv→quality_check; quality_check→production_load; quality_check→quarantine_and_alert; quarantine_and_alert→send_alert_email; production_load→cleanup; send_alert_email→cleanup.
+
+ingest_csv performs Load raw customer CSV data from source location using mechanism python_callable. quality_check performs Calculate data quality score based on completeness and validity metrics using mechanism python_callable. production_load performs Load high-quality data to production database using mechanism python_callable. quarantine_and_alert performs Move low-quality data to quarantine zone using mechanism python_callable. send_alert_email performs Send data quality alert to data stewards using mechanism notification. cleanup performs Perform cleanup operations on temporary files and resources using mechanism python_callable.

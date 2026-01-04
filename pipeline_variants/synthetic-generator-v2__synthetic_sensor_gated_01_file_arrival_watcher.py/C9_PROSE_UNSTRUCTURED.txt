@@ -1,0 +1,5 @@
+file_arrival_watcher is a workflow with execution model batch and topology pattern sensor_gated. Its purpose is: Monitor for transaction files, validate schema, and load to PostgreSQL.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: wait_for_file→validate_schema; validate_schema→load_db.
+
+wait_for_file performs Wait for transaction file arrival using mechanism wait_poll. validate_schema performs Validate the schema of the incoming transactions file using mechanism python_callable. load_db performs Load validated data to PostgreSQL database using mechanism python_callable.

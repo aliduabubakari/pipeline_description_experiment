@@ -1,0 +1,555 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "environmental_monitoring_network_v1",
+  "pipeline_name": "environmental_monitoring_network_v1",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/environmental_monitoring_pipeline.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "01bcd0fe4d305124e1498beb4266a50f1ae2a5448434fc9d8252529b79bae892"
+  },
+  "summary": {
+    "purpose": "Integrates station locations with weather, land use, and demographic data to calculate environmental risk scores",
+    "business_domain": "environmental_monitoring",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "A comprehensive 7-stage pipeline enriching environmental station data. It chains geocoding, weather history, land use API, and demographic data services before calculating a composite risk score."
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "load_and_modify_stations",
+        "to": "geocode_stations"
+      },
+      {
+        "from": "geocode_stations",
+        "to": "fetch_historical_weather"
+      },
+      {
+        "from": "fetch_historical_weather",
+        "to": "classify_land_use"
+      },
+      {
+        "from": "classify_land_use",
+        "to": "fetch_population_density"
+      },
+      {
+        "from": "fetch_population_density",
+        "to": "calculate_risk_score"
+      },
+      {
+        "from": "calculate_risk_score",
+        "to": "save_environmental_dataset"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "HERE Geocoding API",
+      "identifier": "geocodingHere",
+      "details": [
+        "Geocoding service for station locations"
+      ],
+      "auth": [
+        "API token via HERE_API_TOKEN environment variable"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "OpenMeteo API",
+      "identifier": null,
+      "details": [
+        "Historical weather data service"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "Geoapify API",
+      "identifier": null,
+      "details": [
+        "Land use classification service"
+      ],
+      "auth": [
+        "API key via GEOAPIFY_API_KEY environment variable"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "WorldPop API",
+      "identifier": null,
+      "details": [
+        "Population density data service"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "stations.csv",
+        "description": "Input station data file"
+      },
+      {
+        "identifier": "table_data_2.json",
+        "description": "Formatted station data"
+      },
+      {
+        "identifier": "reconciled_table_2.json",
+        "description": "Geocoded station data"
+      },
+      {
+        "identifier": "open_meteo_2.json",
+        "description": "Weather-enriched data"
+      },
+      {
+        "identifier": "land_use_2.json",
+        "description": "Land use classified data"
+      },
+      {
+        "identifier": "pop_density_2.json",
+        "description": "Population density enriched data"
+      },
+      {
+        "identifier": "column_extended_2.json",
+        "description": "Risk score calculated data"
+      },
+      {
+        "identifier": "enriched_data_2.csv",
+        "description": "Final output dataset"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_and_modify_stations",
+      "name": "load_and_modify_stations",
+      "objective": "Ingest and format station data from CSV to JSON",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "stations.csv",
+          "description": "Input station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted station data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "date_column",
+          "value": "installation_date"
+        },
+        {
+          "key": "table_name",
+          "value": "JOT_"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: i2t-backendwithintertwino6-load-and-modify:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "geocode_stations",
+      "name": "geocode_stations",
+      "objective": "Geocode station locations using HERE API",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Formatted station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "Geocoded station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "HERE Geocoding API",
+          "identifier": "geocodingHere"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "column_name",
+          "value": "location"
+        },
+        {
+          "key": "reconciliator_id",
+          "value": "geocodingHere"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "HERE_API_TOKEN"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: i2t-backendwithintertwino6-reconciliation:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_historical_weather",
+      "name": "fetch_historical_weather",
+      "objective": "Fetch historical weather data for station locations",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "Geocoded station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "open_meteo_2.json",
+          "description": "Weather-enriched data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "OpenMeteo API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "lat_column",
+          "value": "latitude"
+        },
+        {
+          "key": "lon_column",
+          "value": "longitude"
+        },
+        {
+          "key": "date_column",
+          "value": "installation_date"
+        },
+        {
+          "key": "variables",
+          "value": "apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours"
+        },
+        {
+          "key": "date_format",
+          "value": "YYYYMMDD"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: i2t-backendwithintertwino6-openmeteo-extension:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "classify_land_use",
+      "name": "classify_land_use",
+      "objective": "Classify land use type for station locations",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "open_meteo_2.json",
+          "description": "Weather-enriched data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "land_use_2.json",
+          "description": "Land use classified data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Geoapify API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "lat_column",
+          "value": "latitude"
+        },
+        {
+          "key": "lon_column",
+          "value": "longitude"
+        },
+        {
+          "key": "output_column",
+          "value": "land_use_type"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "GEOAPIFY_API_KEY"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: geoapify-land-use:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_population_density",
+      "name": "fetch_population_density",
+      "objective": "Fetch population density data for station locations",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "land_use_2.json",
+          "description": "Land use classified data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "pop_density_2.json",
+          "description": "Population density enriched data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "WorldPop API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "lat_column",
+          "value": "latitude"
+        },
+        {
+          "key": "lon_column",
+          "value": "longitude"
+        },
+        {
+          "key": "radius",
+          "value": "5000"
+        },
+        {
+          "key": "output_column",
+          "value": "population_density"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: worldpop-density:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "calculate_risk_score",
+      "name": "calculate_risk_score",
+      "objective": "Calculate environmental risk score based on multiple factors",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "pop_density_2.json",
+          "description": "Population density enriched data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Risk score calculated data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "extender_id",
+          "value": "environmentalRiskCalculator"
+        },
+        {
+          "key": "input_columns",
+          "value": "precipitation_sum,population_density,land_use_type"
+        },
+        {
+          "key": "output_column",
+          "value": "risk_score"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: i2t-backendwithintertwino6-column-extension:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_environmental_dataset",
+      "name": "save_environmental_dataset",
+      "objective": "Save final enriched dataset to CSV format",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_2.json",
+          "description": "Risk score calculated data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "enriched_data_2.csv",
+          "description": "Final output dataset"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "Docker image: i2t-backendwithintertwino6-save:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Original code uses Airflow-specific DockerOperator and DAG constructs, but specification has been made orchestrator-agnostic"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:11:08.141905Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "environmental_monitoring_pipeline",
+    "spec_pipeline_id": "environmental_monitoring_network_v1"
+  }
+}

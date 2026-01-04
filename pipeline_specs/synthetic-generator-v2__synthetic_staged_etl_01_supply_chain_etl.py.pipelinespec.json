@@ -1,0 +1,348 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "supply_chain_shipment_etl",
+  "pipeline_name": "supply_chain_shipment_etl",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_staged_etl_01_supply_chain_etl.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "b2dd9fd85cdc3447b881b4d708293e968c230a71be18e528eac14e662313dfe1"
+  },
+  "summary": {
+    "purpose": "Three-stage ETL pipeline for supply chain shipment data processing with vendor data ingestion, cleansing/normalization, and database loading with email notification",
+    "business_domain": "supply_chain",
+    "execution_model": "batch",
+    "topology_pattern": "staged_etl",
+    "notes": "Processes shipment data from three vendors through extract, transform, load stages"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "stage_1_extract",
+        "to": "stage_2_transform"
+      },
+      {
+        "from": "stage_2_transform",
+        "to": "stage_3_load"
+      },
+      {
+        "from": "load_to_db",
+        "to": "send_summary_email"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "stage_1_extract",
+        "steps": [
+          "ingest_vendor_a",
+          "ingest_vendor_b",
+          "ingest_vendor_c"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "PostgreSQL inventory database",
+      "identifier": "inventory_db",
+      "details": [
+        "PostgreSQL database for inventory data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "email",
+      "name": "Email service",
+      "identifier": null,
+      "details": [
+        "Sends email notifications to supply chain team"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "vendor_a_shipments_20240115.csv",
+        "description": "Raw shipment data from Vendor A"
+      },
+      {
+        "identifier": "vendor_b_shipments_20240115.csv",
+        "description": "Raw shipment data from Vendor B"
+      },
+      {
+        "identifier": "vendor_c_shipments_20240115.csv",
+        "description": "Raw shipment data from Vendor C"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "inventory_shipments",
+        "description": "Processed shipment data in inventory database"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "ingest_vendor_a",
+      "name": "ingest_vendor_a",
+      "objective": "Ingest raw shipment data from Vendor A",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "vendor_a_shipments_20240115.csv",
+          "description": "Raw shipment CSV from Vendor A"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "vendor_a_data",
+          "description": "Processed vendor A shipment data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_vendor_b",
+      "name": "ingest_vendor_b",
+      "objective": "Ingest raw shipment data from Vendor B",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "vendor_b_shipments_20240115.csv",
+          "description": "Raw shipment CSV from Vendor B"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "vendor_b_data",
+          "description": "Processed vendor B shipment data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_vendor_c",
+      "name": "ingest_vendor_c",
+      "objective": "Ingest raw shipment data from Vendor C",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "vendor_c_shipments_20240115.csv",
+          "description": "Raw shipment CSV from Vendor C"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "vendor_c_data",
+          "description": "Processed vendor C shipment data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanse_data",
+      "name": "cleanse_data",
+      "objective": "Cleanse, normalize SKUs, validate dates, and enrich with location data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": "vendor_a_data",
+          "description": "Processed vendor A shipment data"
+        },
+        {
+          "type": "data_object",
+          "identifier": "vendor_b_data",
+          "description": "Processed vendor B shipment data"
+        },
+        {
+          "type": "data_object",
+          "identifier": "vendor_c_data",
+          "description": "Processed vendor C shipment data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "cleansed_shipment_data",
+          "description": "Cleansed and normalized shipment data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_to_db",
+      "name": "load_to_db",
+      "objective": "Load processed data to inventory database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": "cleansed_shipment_data",
+          "description": "Cleansed and normalized shipment data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "db_load_complete",
+          "description": "Database load completion status"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL inventory database",
+          "identifier": "inventory_db"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_summary_email",
+      "name": "send_summary_email",
+      "objective": "Send email summary of ETL processing results",
+      "mechanism": "notification",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": "db_load_complete",
+          "description": "Database load completion status"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email service",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "to",
+          "value": "supply-chain-team@company.com"
+        },
+        {
+          "key": "subject",
+          "value": "Daily Supply Chain Shipment ETL Summary"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Email content generation function (generate_email_content) is defined but not used as a step"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:45:58.238806Z"
+  }
+}

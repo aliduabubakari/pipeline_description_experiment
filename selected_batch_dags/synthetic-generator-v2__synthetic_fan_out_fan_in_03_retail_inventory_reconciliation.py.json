@@ -1,0 +1,47 @@
+{
+  "unique_key": "synthetic/fan_out_fan_in:synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\n\ndefault_args = {\n    'owner': 'retail_analytics',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\ndef fetch_warehouse_csv(warehouse_id):\n    \"\"\"Mock function to fetch CSV from warehouse management system\"\"\"\n    print(f\"Fetching inventory CSV from warehouse {warehouse_id}\")\n    print(f\"Warehouse {warehouse_id} CSV contains 1000+ SKU records\")\n    return f\"warehouse_{warehouse_id}_inventory.csv\"\n\ndef normalize_sku_format(csv_file, warehouse_id):\n    \"\"\"Mock function to standardize different SKU formats\"\"\"\n    print(f\"Normalizing SKU formats for {csv_file}\")\n    print(f\"Converting warehouse {warehouse_id} SKU format to standard format\")\n    print(\"Applied SKU transformation rules: uppercase, strip whitespace, prefix standardization\")\n    return f\"normalized_{warehouse_id}_inventory.csv\"\n\ndef reconcile_inventory_discrepancies(**kwargs):\n    \"\"\"Mock function to reconcile all normalized inventories and find discrepancies\"\"\"\n    ti = kwargs['ti']\n    normalized_files = []\n    \n    for warehouse_id in ['north', 'south', 'east', 'west']:\n        normalized_file = ti.xcom_pull(task_ids=f'normalize_{warehouse_id}_skus')\n        normalized_files.append(normalized_file)\n        print(f\"Pulled normalized file: {normalized_file}\")\n    \n    print(\"Reconciling inventory across all 4 warehouses...\")\n    print(\"Comparing SKU counts and identifying discrepancies...\")\n    print(\"Found 23 SKUs with quantity mismatches across warehouses\")\n    print(\"Generated discrepancy report: inventory_discrepancies_report.csv\")\n    return \"inventory_discrepancies_report.csv\"\n\ndef generate_final_report(**kwargs):\n    \"\"\"Mock function to generate final reconciliation report\"\"\"\n    ti = kwargs['ti']\n    report_file = ti.xcom_pull(task_ids='reconcile_all_inventories')\n    print(f\"Processing final report from {report_file}\")\n    print(\"Final reconciliation report generated: retail_inventory_reconciliation_final.pdf\")\n    print(\"Report includes: SKU discrepancies, quantity variances, and reconciliation recommendations\")\n    return \"retail_inventory_reconciliation_final.pdf\"\n\nwith DAG(\n    'retail_inventory_reconciliation',\n    default_args=default_args,\n    description='DAG for reconciling retail inventory across multiple warehouse systems',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['retail', 'inventory', 'reconciliation']\n) as dag:\n\n    dag.doc_md = \"\"\"\n    # Retail Inventory Reconciliation DAG\n    \n    This DAG implements a fan-out fan-in pattern to:\n    1. Fetch inventory CSVs from 4 different warehouse management systems\n    2. Normalize SKU formats in parallel for each warehouse\n    3. Reconcile all normalized inventories to find discrepancies\n    4. Generate a final reconciliation report\n    \n    **Data Flow**: 4 CSVs → 4 SKU normalizers → 1 reconciler → discrepancy report\n    \"\"\"\n\n    # Fan-out: Fetch CSVs from all warehouses\n    fetch_north_csv = PythonOperator(\n        task_id='fetch_north_warehouse_csv',\n        python_callable=fetch_warehouse_csv,\n        op_kwargs={'warehouse_id': 'north'}\n    )\n\n    fetch_south_csv = PythonOperator(\n        task_id='fetch_south_warehouse_csv',\n        python_callable=fetch_warehouse_csv,\n        op_kwargs={'warehouse_id': 'south'}\n    )\n\n    fetch_east_csv = PythonOperator(\n        task_id='fetch_east_warehouse_csv',\n        python_callable=fetch_warehouse_csv,\n        op_kwargs={'warehouse_id': 'east'}\n    )\n\n    fetch_west_csv = PythonOperator(\n        task_id='fetch_west_warehouse_csv',\n        python_callable=fetch_warehouse_csv,\n        op_kwargs={'warehouse_id': 'west'}\n    )\n\n    # Parallel SKU normalization tasks (fan-out)\n    normalize_north_skus = PythonOperator(\n        task_id='normalize_north_skus',\n        python_callable=normalize_sku_format,\n        op_kwargs={'warehouse_id': 'north', 'csv_file': 'warehouse_north_inventory.csv'}\n    )\n\n    normalize_south_skus = PythonOperator(\n        task_id='normalize_south_skus',\n        python_callable=normalize_sku_format,\n        op_kwargs={'warehouse_id': 'south', 'csv_file': 'warehouse_south_inventory.csv'}\n    )\n\n    normalize_east_skus = PythonOperator(\n        task_id='normalize_east_skus',\n        python_callable=normalize_sku_format,\n        op_kwargs={'warehouse_id': 'east', 'csv_file': 'warehouse_east_inventory.csv'}\n    )\n\n    normalize_west_skus = PythonOperator(\n        task_id='normalize_west_skus',\n        python_callable=normalize_sku_format,\n        op_kwargs={'warehouse_id': 'west', 'csv_file': 'warehouse_west_inventory.csv'}\n    )\n\n    # Fan-in: Single reconciliation task\n    reconcile_all_inventories = PythonOperator(\n        task_id='reconcile_all_inventories',\n        python_callable=reconcile_inventory_discrepancies,\n        provide_context=True\n    )\n\n    # Final report generation\n    generate_report = PythonOperator(\n        task_id='generate_final_report',\n        python_callable=generate_final_report,\n        provide_context=True\n    )\n\n    # Define dependencies to create fan-out fan-in pattern\n    [fetch_north_csv, fetch_south_csv, fetch_east_csv, fetch_west_csv] >> normalize_north_skus\n    [fetch_north_csv, fetch_south_csv, fetch_east_csv, fetch_west_csv] >> normalize_south_skus\n    [fetch_north_csv, fetch_south_csv, fetch_east_csv, fetch_west_csv] >> normalize_east_skus\n    [fetch_north_csv, fetch_south_csv, fetch_east_csv, fetch_west_csv] >> normalize_west_skus\n\n    [normalize_north_skus, normalize_south_skus, normalize_east_skus, normalize_west_skus] >> reconcile_all_inventories\n\n    reconcile_all_inventories >> generate_report"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:36:23Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 4,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 9,
+      "operator_types": [
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Retail inventory reconciliation DAG that fetches CSVs from 4 warehouses, normalizes SKU formats in parallel, reconciles discrepancies, and generates final report using fan-out fan-in pattern",
+    "complexity_score": 6
+  }
+}

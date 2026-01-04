@@ -1,0 +1,67 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py
+- Name: Healthcare Claims Processing ETL Pipeline
+- Purpose: Healthcare Claims Processing ETL Pipeline with staged extraction, transformation, and loading phases
+- Execution model: batch
+- Topology pattern: staged_etl
+- Business domain: healthcare
+- Notes: Processes patient claims data through extraction, transformation, and loading stages
+
+Data Artifacts / I-O Identifiers:
+- file: claims.csv (Patient claims data with columns: claim_id, patient_id, provider_id, procedure_code, amount, date_of_service)
+- file: providers.csv (Provider data with columns: provider_id, provider_name, specialty, location)
+- table: healthcare_analytics.claims_fact (Transformed claims data in analytics warehouse)
+- table: healthcare_analytics.providers_dim (Provider dimension table in analytics warehouse)
+
+External Systems:
+- filesystem: CSV files
+- database: analytics warehouse
+- cloud_service: BI tools
+
+Pipeline Steps:
+- extract_claims — extract_claims
+  - Objective: Extract patient claims data from CSV file
+  - Mechanism: python_callable
+  - Inputs: file:claims.csv
+  - Outputs: data:claims_data_extracted
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+- extract_providers — extract_providers
+  - Objective: Extract provider data from CSV file
+  - Mechanism: python_callable
+  - Inputs: file:providers.csv
+  - Outputs: data:providers_data_extracted
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+- load_warehouse — load_warehouse
+  - Objective: Load transformed data to analytics warehouse
+  - Mechanism: python_callable
+  - Inputs: data:transformed_data
+  - Outputs: table:healthcare_analytics.claims_fact, table:healthcare_analytics.providers_dim
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+- refresh_bi — refresh_bi
+  - Objective: Trigger BI dashboard refresh
+  - Mechanism: python_callable
+  - Inputs: data:transformed_data
+  - Outputs: notification:bi_refresh_initiated
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+- transform_join — transform_join
+  - Objective: Join claims and providers data, anonymize PII, calculate risk scores
+  - Mechanism: python_callable
+  - Inputs: data:claims_data_extracted, data:providers_data_extracted
+  - Outputs: data:transformed_data
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

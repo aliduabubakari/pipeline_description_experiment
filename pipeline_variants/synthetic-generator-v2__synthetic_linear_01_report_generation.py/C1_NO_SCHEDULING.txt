@@ -1,0 +1,64 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_linear_01_report_generation.py
+- Name: daily_sales_report
+- Purpose: Daily sales reporting pipeline: Query PostgreSQL → Transform to CSV → Generate PDF chart → Email report
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: sales
+- Notes: Linear four-step pipeline for daily sales reporting
+
+Control Flow:
+- Dependencies (directed edges):
+  - query_sales_data -> transform_to_csv
+  - transform_to_csv -> generate_pdf_chart
+  - generate_pdf_chart -> email_sales_report
+
+Data Artifacts / I-O Identifiers:
+- file: /tmp/sales_report.csv (CSV file containing sales data)
+- file: /tmp/sales_chart.pdf (PDF chart visualizing sales data)
+- table: sales (Sales data table in PostgreSQL)
+
+External Systems:
+- database: PostgreSQL (postgres_default)
+- email: Email service
+
+Pipeline Steps:
+1. query_sales_data — query_sales_data
+  - Objective: Query PostgreSQL database for daily sales data
+  - Mechanism: sql_query
+  - Inputs: table:sales
+  - Outputs: query_results:Daily sales query results
+  - Step parameters:
+    - sql=SELECT date, product, SUM(amount) as daily_sales FROM sales WHERE date = '{{ ds }}' GROUP BY date, product ORDER BY date, product;
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. transform_to_csv — transform_to_csv
+  - Objective: Transform query results to CSV format
+  - Mechanism: python_callable
+  - Inputs: query_results:Sales data from database query
+  - Outputs: file:/tmp/sales_report.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. generate_pdf_chart — generate_pdf_chart
+  - Objective: Generate PDF chart from sales data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/sales_report.csv
+  - Outputs: file:/tmp/sales_chart.pdf
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. email_sales_report — email_sales_report
+  - Objective: Email sales report to management
+  - Mechanism: notification
+  - Inputs: file:/tmp/sales_report.csv, file:/tmp/sales_chart.pdf
+  - Outputs: notification:Email sent to management
+  - Step parameters:
+    - to=management@company.com
+    - subject=Daily Sales Report - {{ ds }}
+    - html_content=<h3>Daily Sales Report</h3><p>Please find attached the daily sales report for {{ ds }}.</p><p>Includes:</p><ul><li>Sales data in CSV format</li><li>Sales chart in PDF format</li></ul><p>Best regards,<br>Data Team</p>
+    - files=['/tmp/sales_report.csv', '/tmp/sales_chart.pdf']
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M

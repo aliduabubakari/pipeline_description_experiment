@@ -1,0 +1,67 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py
+- Name: regulatory_report_router
+- Purpose: Processes financial transaction data and routes it to appropriate regulatory reporting systems based on account type (FATCA for international accounts, IRS for domestic accounts), then archives all reports
+- Execution model: batch
+- Topology pattern: branch_merge
+- Business domain: finance
+- Notes: Data Flow: CSV → Account_Check → [International → FATCA | Domestic → IRS] → Archive
+
+Control Flow:
+- Dependencies (directed edges):
+  - read_csv -> account_check
+  - account_check -> route_to_fatca
+  - account_check -> route_to_irs
+  - route_to_fatca -> archive_reports
+  - route_to_irs -> archive_reports
+
+Data Artifacts / I-O Identifiers:
+- file: financial transaction CSV file (CSV with transaction_id, account_type, amount, currency)
+
+Pipeline Steps:
+1. read_csv — read_csv
+  - Objective: Read CSV file with financial transactions
+  - Mechanism: python_callable
+  - Inputs: file:financial transaction CSV file
+  - Outputs: data:csv_data_processed
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. account_check — account_check
+  - Objective: Determine routing based on account type
+  - Mechanism: python_callable
+  - Inputs: data:csv_data_processed
+  - Outputs: decision:routing_decision
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. route_to_fatca — route_to_fatca
+  - Objective: Process FATCA regulatory reporting for international accounts
+  - Mechanism: python_callable
+  - Inputs: data:csv_data_processed
+  - Outputs: report:fatca_report_generated
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. route_to_irs — route_to_irs
+  - Objective: Process IRS regulatory reporting for domestic accounts
+  - Mechanism: python_callable
+  - Inputs: data:csv_data_processed
+  - Outputs: report:irs_report_generated
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+5. archive_reports — archive_reports
+  - Objective: Archive all regulatory reports
+  - Mechanism: python_callable
+  - Inputs: report:fatca_report_generated, report:irs_report_generated
+  - Outputs: archive:reports_archived
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

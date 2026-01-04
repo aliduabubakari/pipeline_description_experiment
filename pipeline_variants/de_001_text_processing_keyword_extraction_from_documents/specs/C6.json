@@ -1,0 +1,334 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "keyword_extraction_pipeline",
+  "pipeline_name": "keyword_extraction_pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-data-engineering",
+    "file_path": "dags/text_processing/keyword_extraction_dag.py",
+    "repo_url": "https://github.com/internal/data-processing-scripts",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "c550beecbf8dc8b2eeebda567dfd6fb6a54eccd9a5ba7fd228d7c7b5e1dcae2e"
+  },
+  "summary": {
+    "purpose": "ETL pipeline for document keyword extraction and validation. Generates synthetic documents, cleanses and standardizes them, calculates keyword density and complexity features, validates data integrity, and generates a final report.",
+    "business_domain": "text_processing",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Data is passed between steps using intermediate Parquet files in a temporary directory."
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "generate_documents",
+        "to": "explore_data"
+      },
+      {
+        "from": "generate_documents",
+        "to": "clean_data"
+      },
+      {
+        "from": "clean_data",
+        "to": "extract_features"
+      },
+      {
+        "from": "extract_features",
+        "to": "validate_data"
+      },
+      {
+        "from": "extract_features",
+        "to": "save_and_report"
+      },
+      {
+        "from": "validate_data",
+        "to": "save_and_report"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "temporary_directory",
+      "identifier": "/tmp/airflow_processing",
+      "details": [
+        "Local filesystem directory for intermediate Parquet files"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "generate_documents",
+      "name": "generate_documents",
+      "objective": "Generate synthetic document data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Raw synthetic documents"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "explore_data",
+      "name": "explore_data",
+      "objective": "Log exploration statistics of raw data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Raw document data"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "clean_data",
+      "name": "clean_data",
+      "objective": "Clean and standardize raw document data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Raw document data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Cleaned document data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "extract_features",
+      "name": "extract_features",
+      "objective": "Extract keyword features and metrics from cleaned data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Cleaned document data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Document data with extracted features"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "validate_data",
+      "name": "validate_data",
+      "objective": "Validate processed data against business rules",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Processed document data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Validation results dictionary"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_and_report",
+      "name": "save_and_report",
+      "objective": "Save final artifacts and log pipeline report",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Processed document data"
+        },
+        {
+          "type": "data",
+          "identifier": null,
+          "description": "Validation results"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Final output CSV"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_directory",
+          "identifier": "/tmp/airflow_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder; actual value would require file hash calculation"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:09:22.587237Z"
+  },
+  "variant": {
+    "class_id": "C6",
+    "class_name": "NO_DATA_ARTIFACT_DETAILS",
+    "canonical_pipeline_id": "de_001_text_processing_keyword_extraction_from_documents",
+    "spec_pipeline_id": "keyword_extraction_pipeline"
+  }
+}

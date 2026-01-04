@@ -1,0 +1,286 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "ftp_vendor_inventory_processor",
+  "pipeline_name": "ftp_vendor_inventory_processor",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "23b243a1fef4aec0218cadf6cd4f04034a11687d48b1736d9b1f8bf829cd28ce"
+  },
+  "summary": {
+    "purpose": "Monitor FTP for vendor inventory file, download, cleanse and merge with internal inventory",
+    "business_domain": "inventory",
+    "execution_model": "batch",
+    "topology_pattern": "sensor_gated",
+    "notes": "Pattern: SENSOR GATED - Sensor step waits for file availability, processing steps execute only when file is detected"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "wait_for_ftp_file",
+        "to": "download_vendor_file"
+      },
+      {
+        "from": "download_vendor_file",
+        "to": "cleanse_vendor_data"
+      },
+      {
+        "from": "cleanse_vendor_data",
+        "to": "merge_with_internal_inventory"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": [
+      {
+        "type": "file_sensor",
+        "step": "wait_for_ftp_file",
+        "waits_for": "vendor_inventory.csv on FTP server"
+      }
+    ]
+  },
+  "external_systems": [
+    {
+      "type": "ftp",
+      "name": "FTP server",
+      "identifier": null,
+      "details": [
+        "Vendor FTP drop zone for inventory files"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "internal inventory system",
+      "identifier": null,
+      "details": [
+        "Internal inventory database for merging vendor data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "vendor_inventory.csv",
+        "description": "Vendor inventory file on FTP server"
+      },
+      {
+        "identifier": "/tmp/vendor_inventory.csv",
+        "description": "Downloaded vendor inventory file"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "internal inventory",
+        "description": "Internal inventory database table"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "wait_for_ftp_file",
+      "name": "wait_for_ftp_file",
+      "objective": "Monitor FTP server for vendor inventory file availability",
+      "mechanism": "wait_poll",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "vendor_inventory.csv",
+          "description": "Vendor inventory file on FTP server"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "signal",
+          "identifier": "file_detected",
+          "description": "Signal that file is available for download"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "ftp",
+          "name": "FTP server",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "poke_interval",
+          "value": "30"
+        },
+        {
+          "key": "timeout",
+          "value": "300"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": "PT5M",
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "download_vendor_file",
+      "name": "download_vendor_file",
+      "objective": "Download vendor inventory file from FTP server",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "vendor_inventory.csv",
+          "description": "Vendor inventory file on FTP server"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/vendor_inventory.csv",
+          "description": "Downloaded vendor inventory file"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "ftp",
+          "name": "FTP server",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanse_vendor_data",
+      "name": "cleanse_vendor_data",
+      "objective": "Clean null values from vendor inventory data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/vendor_inventory.csv",
+          "description": "Downloaded vendor inventory file"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "cleansed_vendor_data",
+          "description": "Cleansed vendor inventory data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "merge_with_internal_inventory",
+      "name": "merge_with_internal_inventory",
+      "objective": "Merge vendor inventory data with internal inventory system",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "cleansed_vendor_data",
+          "description": "Cleansed vendor inventory data"
+        },
+        {
+          "type": "table",
+          "identifier": "internal inventory",
+          "description": "Internal inventory database table"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "updated_internal_inventory",
+          "description": "Updated internal inventory with vendor data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "internal inventory system",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "FTP server authentication details not specified in code",
+      "Internal inventory system connection details not specified in code",
+      "File paths and table names are inferred from print statements and comments"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:43:33.210543Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+    "spec_pipeline_id": "ftp_vendor_inventory_processor"
+  }
+}

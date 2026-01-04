@@ -1,0 +1,5 @@
+database_partition_check_etl is a workflow with execution model batch and topology pattern sensor_gated. Its purpose is: Daily ETL pipeline that waits for database partition availability, then extracts, transforms, and loads incremental orders data.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: wait_partition→extract_incremental; extract_incremental→transform; transform→load.
+
+wait_partition performs Wait for daily partition to become available in the orders table using mechanism wait_poll. extract_incremental performs Extract new orders from the partitioned table using mechanism python_callable. transform performs Transform extracted orders data using mechanism python_callable. load performs Load transformed orders to target system using mechanism python_callable.

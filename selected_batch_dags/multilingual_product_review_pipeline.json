@@ -1,0 +1,47 @@
+{
+    "unique_key": "synthetic/docker_pipelines:multilingual_product_review_pipeline.py",
+    "repo": "synthetic-generator-v2",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "stars": 0,
+    "license": "MIT",
+    "file_path": "synthetic/multilingual_product_review_pipeline.py",
+    "detected_airflow_version": "2.x",
+    "sampled_versions": [
+      {
+        "version": "latest",
+        "commit": "synthetic_generation",
+        "code": "from airflow import DAG\nfrom airflow.providers.docker.operators.docker import DockerOperator\nfrom airflow.utils.dates import days_ago\nfrom docker.types import Mount\nimport os\n\n# Define default arguments\ndefault_args = {\n    'owner': 'data_science_team',\n    'depends_on_past': False,\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 1,\n}\n\n# Shared infrastructure configuration\nhost_data_dir = os.getenv('DATA_DIR', '/tmp/reviews/data')\nnetwork_name = 'app_network'\n\nwith DAG(\n    dag_id='multilingual_product_review_analysis_v1',\n    default_args=default_args,\n    description='Enriches product reviews with language detection and sentiment analysis',\n    schedule_interval=None,\n    start_date=days_ago(1),\n    catchup=False,\n) as dag:\n\n    # Step 1: Ingest and Format\n    load_and_modify = DockerOperator(\n        task_id='load_and_modify_reviews',\n        image='i2t-backendwithintertwino6-load-and-modify:latest',\n        command=[\n            'python', '/app/scripts/load_and_modify.py',\n            '--input_pattern', 'reviews.csv',\n            '--output_pattern', 'table_data_2.json',\n            '--dataset_id', '2',\n            '--date_column', 'submission_date',\n            '--table_name', 'JOT_'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 2: Language Detection\n    language_detection = DockerOperator(\n        task_id='detect_language',\n        image='jmockit/language-detection:latest',\n        command=[\n            'python', '/app/scripts/detect_lang.py',\n            '--input_file', 'table_data_2.json',\n            '--output_file', 'lang_detected_2.json',\n            '--text_column', 'review_text',\n            '--lang_code_column', 'language_code'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 3: Sentiment Analysis (LLM)\n    sentiment_analysis = DockerOperator(\n        task_id='analyze_sentiment',\n        image='huggingface/transformers-inference:latest',\n        command=[\n            'python', '/app/scripts/inference.py',\n            '--input_file', 'lang_detected_2.json',\n            '--output_file', 'sentiment_analyzed_2.json',\n            '--model_name', 'distilbert-base-uncased-finetuned-sst-2-english',\n            '--text_column', 'review_text',\n            '--output_column', 'sentiment_score'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 4: Category/Feature Extraction\n    category_extraction = DockerOperator(\n        task_id='extract_features',\n        image='i2t-backendwithintertwino6-column-extension:latest',\n        command=[\n            'python', '/app/scripts/column_extension.py',\n            '--input_pattern', 'sentiment_analyzed_2.json',\n            '--output_pattern', 'column_extended_2.json',\n            '--extender_id', 'featureExtractor',\n            '--text_column', 'review_text',\n            '--output_column', 'mentioned_features'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 5: Save Final CSV\n    save_data = DockerOperator(\n        task_id='save_enriched_reviews',\n        image='i2t-backendwithintertwino6-save:latest',\n        command=[\n            'python', '/app/scripts/save.py',\n            '--input_pattern', 'column_extended_2.json',\n            '--output_filename', 'enriched_data_2.csv',\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    load_and_modify >> language_detection >> sentiment_analysis >> category_extraction >> save_data\n"
+      }
+    ],
+    "sampled_time": "2025-12-15T20:15:00Z",
+    "analysis": {
+      "is_valid_dag_file": true,
+      "is_production_dag": true,
+      "is_airflow_2": true,
+      "processing_type": "batch",
+      "has_streaming_operators": false,
+      "has_ml_operators": true,
+      "topology": {
+        "pattern": "linear",
+        "has_sensors": false,
+        "has_branches": false,
+        "has_fan_out": false,
+        "has_fan_in": false,
+        "estimated_max_parallel_width": 1,
+        "estimated_branch_depth": 0,
+        "has_cycles": false,
+        "has_subdags": false,
+        "has_task_groups": false
+      },
+      "tasks": {
+        "total_count": 5,
+        "operator_types": [
+          "DockerOperator"
+        ],
+        "has_dynamic_mapping": false,
+        "has_external_task_sensor": false
+      },
+      "description": "Sequential data pipeline analyzing multilingual product reviews. It performs language verification, LLM-based sentiment analysis, and feature extraction using containerized services.",
+      "complexity_score": 5
+    }
+  }

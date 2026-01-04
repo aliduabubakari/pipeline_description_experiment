@@ -1,0 +1,56 @@
+Pipeline Summary:
+- Pipeline ID: 6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py
+- Name: airvisual_pipeline_lat_long_v1
+- Purpose: Air quality data pipeline that fetches data from AirVisual API, processes JSON data, and loads into PostgreSQL database with ETL operations
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: environmental monitoring
+- Notes: Pipeline checks for existing data in database before processing to avoid duplicates
+
+Control Flow:
+- Dependencies (directed edges):
+  - get_airvisual_data_hourly -> read_data_airvisual
+  - read_data_airvisual -> load_data_airvisual_to_postgresql
+
+Data Artifacts / I-O Identifiers:
+- file: /opt/airflow/config/mapping_main_pollution.json (Pollution code mapping configuration)
+- file: /opt/airflow/config/mapping_weather_code.json (Weather code mapping configuration)
+- file: /opt/airflow/data/tmp_airvisual.json (Temporary JSON data file from API response)
+- file: config/config.conf (Configuration file containing API key)
+- table: factairvisualtable (Fact table for air quality measurements)
+- table: dimDateTimeTable (Date/time dimension table)
+- table: dimLocationTable (Location dimension table)
+- table: dimMainPollutionTable (Pollution type dimension table)
+
+External Systems:
+- http_api: AirVisual API (http://api.airvisual.com/v2/nearest_city)
+- database: PostgreSQL (postgres_conn)
+- filesystem: Local filesystem
+
+Pipeline Steps:
+1. get_airvisual_data_hourly — get_airvisual_data_hourly
+  - Objective: Fetch air quality data from AirVisual API and save to temporary JSON file
+  - Inputs: config_file:config/config.conf, api_endpoint:http://api.airvisual.com/v2/nearest_city
+  - Outputs: json_file:/opt/airflow/data/tmp_airvisual.json
+  - Step parameters:
+    - CITY=Salaya
+    - STATE=Nakhon Pathom
+    - COUNTRY=Thailand
+    - LATITUDE=13.79059242
+    - LONGITUDE=100.32622308
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+2. read_data_airvisual — read_data_airvisual
+  - Objective: Read and validate the JSON data file
+  - Inputs: json_file:/opt/airflow/data/tmp_airvisual.json
+  - Outputs: validated_data:Validated JSON data structure
+3. load_data_airvisual_to_postgresql — load_data_airvisual_to_postgresql
+  - Objective: Transform and load air quality data into PostgreSQL database using ETL operations
+  - Inputs: json_file:/opt/airflow/data/tmp_airvisual.json, config_file:/opt/airflow/config/mapping_main_pollution.json, config_file:/opt/airflow/config/mapping_weather_code.json
+  - Outputs: database_table:factairvisualtable, database_table:dimDateTimeTable, database_table:dimLocationTable, database_table:dimMainPollutionTable
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2025-03-20
+- Catchup/backfill: False

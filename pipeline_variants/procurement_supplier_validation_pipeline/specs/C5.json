@@ -1,0 +1,259 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "procurement_supplier_validation_v1",
+  "pipeline_name": "procurement_supplier_validation_v1",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/procurement_supplier_validation_pipeline.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "770a18a6f66bb6ea77195c7fe1515b46a3f7ee1c769d2e2c2858dc35a515e94a"
+  },
+  "summary": {
+    "purpose": "Validates and standardizes supplier data using <database> entity reconciliation",
+    "business_domain": "procurement",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Procurement pipeline that standardizes supplier CSV data, reconciles supplier names against <database> entities via Dockerized services, and exports the enriched dataset."
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "load_and_modify_suppliers",
+        "to": "reconcile_supplier_entities"
+      },
+      {
+        "from": "reconcile_supplier_entities",
+        "to": "save_validated_suppliers"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "suppliers.csv",
+        "description": "Input supplier CSV data"
+      },
+      {
+        "identifier": "table_data_2.json",
+        "description": "Standardized intermediate JSON"
+      },
+      {
+        "identifier": "reconciled_table_2.json",
+        "description": "Wikidata-reconciled intermediate JSON"
+      },
+      {
+        "identifier": "enriched_data_2.csv",
+        "description": "Final enriched CSV output"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_and_modify_suppliers",
+      "name": "load_and_modify_suppliers",
+      "objective": "Ingest and standardize supplier CSV data into structured JSON format",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "suppliers.csv",
+          "description": "Input supplier CSV file"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Standardized JSON output"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "suppliers.csv"
+        },
+        {
+          "key": "output_pattern",
+          "value": "table_data_2.json"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "table_name",
+          "value": "JOT_"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/procurement/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove=True",
+          "tty=True"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "reconcile_supplier_entities",
+      "name": "reconcile_supplier_entities",
+      "objective": "Reconcile supplier names against <database> entities",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_2.json",
+          "description": "Standardized JSON input"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "<database>-reconciled JSON output"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "table_data_2.json"
+        },
+        {
+          "key": "output_pattern",
+          "value": "reconciled_table_2.json"
+        },
+        {
+          "key": "column_name",
+          "value": "supplier_name"
+        },
+        {
+          "key": "reconciliator_id",
+          "value": "<database_identifier>"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/procurement/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove=True",
+          "tty=True"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_validated_suppliers",
+      "name": "save_validated_suppliers",
+      "objective": "Export enriched supplier data to CSV format",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "reconciled_table_2.json",
+          "description": "<database>-reconciled JSON input"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "enriched_data_2.csv",
+          "description": "Final enriched CSV output"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "reconciled_table_2.json"
+        },
+        {
+          "key": "output_filename",
+          "value": "enriched_data_2.csv"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [
+          "/tmp/procurement/data:/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "auto_remove=True",
+          "tty=True"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder; actual fingerprint would require file content hash",
+      "Network 'app_network' referenced but connection details unknown",
+      "<database> authentication method unspecified"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:20:33.750912Z"
+  },
+  "variant": {
+    "class_id": "C5",
+    "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+    "canonical_pipeline_id": "procurement_supplier_validation_pipeline",
+    "spec_pipeline_id": "procurement_supplier_validation_v1"
+  }
+}

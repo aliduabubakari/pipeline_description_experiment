@@ -1,0 +1,25 @@
+{
+  "unique_key": "stikkireddy/databricks-reusable-job-clusters:docker/dags/example_dag.py",
+  "repo": "stikkireddy/databricks-reusable-job-clusters",
+  "repo_url": "https://github.com/stikkireddy/databricks-reusable-job-clusters",
+  "stars": 0,
+  "license": "Apache-2.0",
+  "file_path": "docker/dags/example_dag.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "008470de41f0236144671236d7bfdf951784fe10",
+      "code": "from datetime import datetime, timedelta\n\nfrom airflow import DAG\nfrom airflow.operators.dummy_operator import DummyOperator\nfrom airflow.operators.python import BranchPythonOperator\nfrom airflow.providers.databricks.operators.databricks import DatabricksSubmitRunOperator\nfrom databricks.sdk.service import compute\nfrom databricks.sdk.service.jobs import JobCluster\n\nfrom reusable_job_cluster.mirror.operators import AirflowDBXClusterReuseBuilder\n\n# Define the default arguments for the DAG\ndefault_args = {\n    'owner': 'airflow',\n    'start_date': datetime(2023, 6, 6),\n    'retries': 1,\n    'retry_delay': timedelta(minutes=5),\n}\n\n# Create the DAG object\ndag = DAG('test_dbx_aws_dag_reuse',\n          default_args=default_args,\n          schedule_interval=None\n          )\n\n# Define the tasks/operators in the DAG\nstart_task = DummyOperator(task_id='start_task', dag=dag)\n\nnotebook_task = DatabricksSubmitRunOperator(\n    task_id='spark_jar_task',\n    databricks_conn_id=\"databricks_default\",\n    existing_cluster_id=\"existing_cluster_id\",\n    # \"{{ task_instance.xcom_pull(task_ids='create_cluster_task', key='infinite_loop_cluster_id') }}\",\n    notebook_task={\"notebook_path\": \"/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld\"},\n    dag=dag\n)\n\nnotebook_task_2 = DatabricksSubmitRunOperator(\n    task_id='spark_jar_task_2',\n    databricks_conn_id=\"databricks_default\",\n    existing_cluster_id=\"existing_cluster_id\",\n    # \"{{ task_instance.xcom_pull(task_ids='create_cluster_task', key='infinite_loop_cluster_id') }}\",\n    notebook_task={\"notebook_path\": \"/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld\"},\n    dag=dag\n)\n\ndummy_task_1 = DummyOperator(task_id='dummy_task_1', dag=dag)\ndummy_task_2 = DummyOperator(task_id='dummy_task_2', dag=dag)\ndummy_task_3 = DummyOperator(task_id='dummy_task_3', dag=dag)\nend_task = DummyOperator(task_id='end_task', dag=dag)\n\n\ndef branch_func(**kwargs):\n    return \"dummy_task_3\"\n\n\nbranch_op = BranchPythonOperator(\n    task_id='branch_task',\n    provide_context=True,\n    python_callable=branch_func,\n    dag=dag)\n\nstart_task >> notebook_task >> dummy_task_1 >> branch_op\nbranch_op >> [dummy_task_3, notebook_task_2]\nnotebook_task_2 >> dummy_task_2 >> end_task\n\n(AirflowDBXClusterReuseBuilder(dag)\n .with_job_clusters([JobCluster(\n    new_cluster=compute.ClusterSpec(\n        driver_node_type_id=\"n2-highmem-4\",\n        node_type_id=\"n2-highmem-4\",\n        num_workers=2,\n        spark_version=\"12.2.x-scala2.12\",\n        spark_conf={\"spark.databricks.delta.preview.enabled\": \"true\"},\n    ),\n    job_cluster_key=\"job_cluster\"\n)])\n .with_airflow_host_secret(\"secrets://sri-scope-2/airflow_host\")\n .with_airflow_auth_header_secret(\"secrets://sri-scope-2/airflow_header\")\n .build())\n"
+    }
+  ],
+  "sampled_time": "2025-08-22T21:01:46.767420Z",
+  "analysis": {
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "topology_pattern": "complex_parallel",
+    "description": "Databricks notebook execution workflow with branching logic and cluster reuse",
+    "complexity_score": 6
+  }
+}

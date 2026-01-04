@@ -1,0 +1,67 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py
+- Name: content_moderation_pipeline
+- Purpose: Content moderation pipeline that scans user-generated content for toxicity and routes accordingly
+- Execution model: batch
+- Topology pattern: branch_merge
+- Business domain: content moderation
+- Notes: Uses conditional branching based on toxicity threshold (0.7) to route content to different processing paths
+
+Control Flow:
+- Dependencies (directed edges):
+  - scan_csv -> toxicity_check
+  - toxicity_check -> remove_and_flag_content
+  - toxicity_check -> publish_content
+  - remove_and_flag_content -> audit_log
+  - publish_content -> audit_log
+
+Data Artifacts / I-O Identifiers:
+- file: /data/user_content.csv (CSV file containing user-generated content)
+
+Pipeline Steps:
+1. scan_csv — scan_csv
+  - Objective: Scan CSV file for user-generated content
+  - Mechanism: python_callable
+  - Inputs: file:/data/user_content.csv
+  - Outputs: data:Scan results including total items count
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. toxicity_check — toxicity_check
+  - Objective: Check toxicity level and determine routing path
+  - Mechanism: python_callable
+  - Inputs: data:Scan results from previous step
+  - Outputs: decision:Routing decision based on toxicity threshold
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. remove_and_flag_content — remove_and_flag_content
+  - Objective: Remove toxic content and flag user account for review
+  - Mechanism: python_callable
+  - Inputs: data:Scan results from initial scan
+  - Outputs: data:Removal action results
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. publish_content — publish_content
+  - Objective: Publish safe content to platform
+  - Mechanism: python_callable
+  - Inputs: data:Scan results from initial scan
+  - Outputs: data:Publication results
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+5. audit_log — audit_log
+  - Objective: Create audit log entry for moderation actions
+  - Mechanism: python_callable
+  - Inputs: data:Results from both processing branches
+  - Outputs: data:Audit log entry
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

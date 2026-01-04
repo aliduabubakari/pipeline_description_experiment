@@ -1,0 +1,567 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "multi_region_ecommerce_analytics",
+  "pipeline_name": "multi_region_ecommerce_analytics",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "3ad542930b5e0d9ad478596f3abe0963910969cda1de92947688667bcc55adcc"
+  },
+  "summary": {
+    "purpose": "Ingest regional sales data, convert currencies to USD, and generate global revenue report",
+    "business_domain": "ecommerce",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Multi-region ecommerce analytics pipeline that ingests sales data from 4 regions in parallel, converts currencies to USD, and aggregates into a global revenue report"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "regional_sales_databases",
+      "identifier": null,
+      "details": [
+        "Regional databases for US-East, US-West, EU, APAC sales data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "sales_data_US-East",
+        "description": "Regional sales data for US-East"
+      },
+      {
+        "identifier": "sales_data_US-West",
+        "description": "Regional sales data for US-West"
+      },
+      {
+        "identifier": "sales_data_EU",
+        "description": "Regional sales data for EU"
+      },
+      {
+        "identifier": "sales_data_APAC",
+        "description": "Regional sales data for APAC"
+      },
+      {
+        "identifier": "global_revenue_report_{date}.csv",
+        "description": "Final global revenue report"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "start_pipeline",
+      "name": "start_pipeline",
+      "objective": "Start the pipeline execution",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_us_east",
+      "name": "ingest_us_east",
+      "objective": "Ingest sales data from US-East region",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "regional_database",
+          "identifier": "US-East",
+          "description": "Sales data source for US-East region"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_US-East",
+          "description": "Ingested sales data for US-East"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "regional_sales_databases",
+          "identifier": "US-East"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "US-East"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_us_west",
+      "name": "ingest_us_west",
+      "objective": "Ingest sales data from US-West region",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "regional_database",
+          "identifier": "US-West",
+          "description": "Sales data source for US-West region"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_US-West",
+          "description": "Ingested sales data for US-West"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "regional_sales_databases",
+          "identifier": "US-West"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "US-West"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_eu",
+      "name": "ingest_eu",
+      "objective": "Ingest sales data from EU region",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "regional_database",
+          "identifier": "EU",
+          "description": "Sales data source for EU region"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_EU",
+          "description": "Ingested sales data for EU"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "regional_sales_databases",
+          "identifier": "EU"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "EU"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingest_apac",
+      "name": "ingest_apac",
+      "objective": "Ingest sales data from APAC region",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "regional_database",
+          "identifier": "APAC",
+          "description": "Sales data source for APAC region"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_APAC",
+          "description": "Ingested sales data for APAC"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "regional_sales_databases",
+          "identifier": "APAC"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "APAC"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "convert_currency_us_east",
+      "name": "convert_currency_us_east",
+      "objective": "Convert US-East sales data currency to USD",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_US-East",
+          "description": "Ingested sales data for US-East"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "converted_data_US-East",
+          "description": "US-East sales data converted to USD"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "US-East"
+        },
+        {
+          "key": "data",
+          "value": "sales_data_US-East"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "convert_currency_us_west",
+      "name": "convert_currency_us_west",
+      "objective": "Convert US-West sales data currency to USD",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_US-West",
+          "description": "Ingested sales data for US-West"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "converted_data_US-West",
+          "description": "US-West sales data converted to USD"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "US-West"
+        },
+        {
+          "key": "data",
+          "value": "sales_data_US-West"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "convert_currency_eu",
+      "name": "convert_currency_eu",
+      "objective": "Convert EU sales data currency to USD",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_EU",
+          "description": "Ingested sales data for EU"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "converted_data_EU",
+          "description": "EU sales data converted to USD"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "EU"
+        },
+        {
+          "key": "data",
+          "value": "sales_data_EU"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "convert_currency_apac",
+      "name": "convert_currency_apac",
+      "objective": "Convert APAC sales data currency to USD",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "sales_data_APAC",
+          "description": "Ingested sales data for APAC"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "converted_data_APAC",
+          "description": "APAC sales data converted to USD"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "region",
+          "value": "APAC"
+        },
+        {
+          "key": "data",
+          "value": "sales_data_APAC"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "aggregate_global_revenue",
+      "name": "aggregate_global_revenue",
+      "objective": "Aggregate all regional converted data into global revenue report",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "converted_data_US-East",
+          "description": "US-East sales data converted to USD"
+        },
+        {
+          "type": "file",
+          "identifier": "converted_data_US-West",
+          "description": "US-West sales data converted to USD"
+        },
+        {
+          "type": "file",
+          "identifier": "converted_data_EU",
+          "description": "EU sales data converted to USD"
+        },
+        {
+          "type": "file",
+          "identifier": "converted_data_APAC",
+          "description": "APAC sales data converted to USD"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "global_revenue_report_{date}.csv",
+          "description": "Final global revenue report"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "end_pipeline",
+      "name": "end_pipeline",
+      "objective": "End the pipeline execution",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "EmptyOperator steps (start_pipeline, end_pipeline) have unknown mechanism type",
+      "Exchange rate sources not specified in code",
+      "Regional database connection details not specified"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:30:13.843288Z"
+  },
+  "variant": {
+    "class_id": "C2",
+    "class_name": "NO_CONTROL_FLOW",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+    "spec_pipeline_id": "multi_region_ecommerce_analytics"
+  }
+}

@@ -1,0 +1,612 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "portfolio_rebalancing_dag",
+  "pipeline_name": "Financial Portfolio Rebalancing",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "bb3461584b1eafbf4a1d192b10a14b05a0a84aa2965e8a9a0ebd8d163e67edfe"
+  },
+  "summary": {
+    "purpose": "Financial portfolio rebalancing workflow that fetches holdings from multiple brokerage accounts, analyzes each portfolio, aggregates results to calculate rebalancing trades, and generates trade orders",
+    "business_domain": "finance",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Implements parallel processing of 5 brokerage accounts followed by aggregation"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "fetch_brokerage_holdings_1",
+        "to": "analyze_portfolio_1"
+      },
+      {
+        "from": "fetch_brokerage_holdings_2",
+        "to": "analyze_portfolio_2"
+      },
+      {
+        "from": "fetch_brokerage_holdings_3",
+        "to": "analyze_portfolio_3"
+      },
+      {
+        "from": "fetch_brokerage_holdings_4",
+        "to": "analyze_portfolio_4"
+      },
+      {
+        "from": "fetch_brokerage_holdings_5",
+        "to": "analyze_portfolio_5"
+      },
+      {
+        "from": "analyze_portfolio_1",
+        "to": "aggregate_and_rebalance"
+      },
+      {
+        "from": "analyze_portfolio_2",
+        "to": "aggregate_and_rebalance"
+      },
+      {
+        "from": "analyze_portfolio_3",
+        "to": "aggregate_and_rebalance"
+      },
+      {
+        "from": "analyze_portfolio_4",
+        "to": "aggregate_and_rebalance"
+      },
+      {
+        "from": "analyze_portfolio_5",
+        "to": "aggregate_and_rebalance"
+      },
+      {
+        "from": "aggregate_and_rebalance",
+        "to": "generate_trade_orders"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "fetch_group",
+        "steps": [
+          "fetch_brokerage_holdings_1",
+          "fetch_brokerage_holdings_2",
+          "fetch_brokerage_holdings_3",
+          "fetch_brokerage_holdings_4",
+          "fetch_brokerage_holdings_5"
+        ]
+      },
+      {
+        "group_id": "analysis_group",
+        "steps": [
+          "analyze_portfolio_1",
+          "analyze_portfolio_2",
+          "analyze_portfolio_3",
+          "analyze_portfolio_4",
+          "analyze_portfolio_5"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "Brokerage API",
+      "identifier": null,
+      "details": [
+        "API calls to fetch holdings data from brokerage accounts"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "trade_orders_{date}.csv",
+        "description": "Generated trade orders CSV file"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "fetch_brokerage_holdings_1",
+      "name": "Fetch holdings from brokerage account BROKERAGE_001",
+      "objective": "Retrieve holdings data from a specific brokerage account",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "brokerage_id",
+          "description": "Brokerage account identifier"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data including symbols, quantities, and prices"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Brokerage API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "brokerage_id",
+          "value": "BROKERAGE_001"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_brokerage_holdings_2",
+      "name": "Fetch holdings from brokerage account BROKERAGE_002",
+      "objective": "Retrieve holdings data from a specific brokerage account",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "brokerage_id",
+          "description": "Brokerage account identifier"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data including symbols, quantities, and prices"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Brokerage API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "brokerage_id",
+          "value": "BROKERAGE_002"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_brokerage_holdings_3",
+      "name": "Fetch holdings from brokerage account BROKERAGE_003",
+      "objective": "Retrieve holdings data from a specific brokerage account",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "brokerage_id",
+          "description": "Brokerage account identifier"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data including symbols, quantities, and prices"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Brokerage API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "brokerage_id",
+          "value": "BROKERAGE_003"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_brokerage_holdings_4",
+      "name": "Fetch holdings from brokerage account BROKERAGE_004",
+      "objective": "Retrieve holdings data from a specific brokerage account",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "brokerage_id",
+          "description": "Brokerage account identifier"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data including symbols, quantities, and prices"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Brokerage API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "brokerage_id",
+          "value": "BROKERAGE_004"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "fetch_brokerage_holdings_5",
+      "name": "Fetch holdings from brokerage account BROKERAGE_005",
+      "objective": "Retrieve holdings data from a specific brokerage account",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "brokerage_id",
+          "description": "Brokerage account identifier"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data including symbols, quantities, and prices"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Brokerage API",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "brokerage_id",
+          "value": "BROKERAGE_005"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_portfolio_1",
+      "name": "Analyze portfolio for brokerage BROKERAGE_001",
+      "objective": "Calculate portfolio metrics including total value, allocation percentages, and risk score",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data from fetch step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "portfolio_analysis",
+          "description": "Analysis results including total value, allocations, and risk score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_portfolio_2",
+      "name": "Analyze portfolio for brokerage BROKERAGE_002",
+      "objective": "Calculate portfolio metrics including total value, allocation percentages, and risk score",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data from fetch step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "portfolio_analysis",
+          "description": "Analysis results including total value, allocations, and risk score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_portfolio_3",
+      "name": "Analyze portfolio for brokerage BROKERAGE_003",
+      "objective": "Calculate portfolio metrics including total value, allocation percentages, and risk score",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data from fetch step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "portfolio_analysis",
+          "description": "Analysis results including total value, allocations, and risk score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_portfolio_4",
+      "name": "Analyze portfolio for brokerage BROKERAGE_004",
+      "objective": "Calculate portfolio metrics including total value, allocation percentages, and risk score",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data from fetch step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "portfolio_analysis",
+          "description": "Analysis results including total value, allocations, and risk score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_portfolio_5",
+      "name": "Analyze portfolio for brokerage BROKERAGE_005",
+      "objective": "Calculate portfolio metrics including total value, allocation percentages, and risk score",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "holdings_data",
+          "description": "Holdings data from fetch step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "portfolio_analysis",
+          "description": "Analysis results including total value, allocations, and risk score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "aggregate_and_rebalance",
+      "name": "Aggregate and rebalance",
+      "objective": "Combine all portfolio analyses and calculate rebalancing trades based on target allocations",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "analysis_results",
+          "description": "Collection of portfolio analysis results from all accounts"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "rebalancing_trades",
+          "description": "List of rebalancing trades with symbols, actions, and amounts"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "generate_trade_orders",
+      "name": "Generate trade orders",
+      "objective": "Create final trade orders CSV file from rebalancing calculations",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "rebalancing_trades",
+          "description": "Rebalancing trades data from aggregation step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "trade_orders_file",
+          "description": "Generated CSV file with trade orders"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Step IDs were generated as function names with numeric suffixes since original code uses same function names for parallel execution",
+      "External system authentication details not specified in code",
+      "Target allocations are hardcoded in the aggregation step"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:36:52.139815Z"
+  }
+}

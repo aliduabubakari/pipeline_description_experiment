@@ -1,0 +1,186 @@
+Pipeline Summary:
+- Pipeline ID: M4TTRX__data-eng-project__global_dag.py
+- Name: global_dag
+- Purpose: ETL pipeline for processing death records and power plant data from French government APIs, with data ingestion, cleansing, and loading to PostgreSQL
+- Execution model: batch
+- Topology pattern: staged_etl
+- Business domain: government_data
+- Notes: Pipeline has two main stages: ingestion and staging, with conditional branching for death data processing
+
+Control Flow:
+- Dependencies (directed edges):
+  - start_global -> ingestion_pipeline
+  - ingestion_pipeline -> staging_pipeline
+  - staging_pipeline -> end_global
+  - ingestion_pipeline.start -> ingestion_pipeline.get_city_code_geo
+  - ingestion_pipeline.start -> ingestion_pipeline.get_nuclear_json
+  - ingestion_pipeline.start -> ingestion_pipeline.get_death_resource_list
+  - ingestion_pipeline.start -> ingestion_pipeline.get_thermal_json
+  - ingestion_pipeline.get_nuclear_json -> ingestion_pipeline.get_nuclear_data
+  - ingestion_pipeline.get_death_resource_list -> ingestion_pipeline.get_death_resources
+  - ingestion_pipeline.get_thermal_json -> ingestion_pipeline.get_thermal_data
+  - ingestion_pipeline.get_nuclear_data -> ingestion_pipeline.end
+  - ingestion_pipeline.get_death_resources -> ingestion_pipeline.end
+  - ingestion_pipeline.get_thermal_data -> ingestion_pipeline.end
+  - ingestion_pipeline.get_city_code_geo -> ingestion_pipeline.end
+  - staging_pipeline.start -> staging_pipeline.import_nuclear_clean_data
+  - staging_pipeline.start -> staging_pipeline.import_thermal_clean_data
+  - staging_pipeline.start -> staging_pipeline.create_power_plants_table
+  - staging_pipeline.start -> staging_pipeline.create_death_table
+  - staging_pipeline.create_death_table -> staging_pipeline.load_data_from_ingestion
+  - staging_pipeline.load_data_from_ingestion -> staging_pipeline.cleanse_death_data
+  - staging_pipeline.cleanse_death_data -> staging_pipeline.death_emptiness_check
+  - staging_pipeline.death_emptiness_check -> staging_pipeline.staging_end
+  - staging_pipeline.death_emptiness_check -> staging_pipeline.store_deaths_in_postgres
+  - staging_pipeline.store_deaths_in_postgres -> staging_pipeline.clean_tmp_death_files
+  - staging_pipeline.import_nuclear_clean_data -> staging_pipeline.import_thermal_clean_data
+  - staging_pipeline.import_thermal_clean_data -> staging_pipeline.create_power_plants_table
+  - staging_pipeline.create_power_plants_table -> staging_pipeline.create_plant_persist_sql_query
+  - staging_pipeline.create_plant_persist_sql_query -> staging_pipeline.store_plants_in_postgres
+  - staging_pipeline.clean_tmp_death_files -> staging_pipeline.staging_end
+  - staging_pipeline.store_plants_in_postgres -> staging_pipeline.staging_end
+
+External Systems:
+- http_api: data.gouv.fr API (https://www.data.gouv.fr/api/1/datasets/)
+- database: PostgreSQL (postgres_default)
+- database: Redis (redis:6379)
+
+Pipeline Steps:
+1. start_global — start_global
+  - Objective: Start the global pipeline
+  - Mechanism: unknown
+2. ingestion_pipeline.start — start
+  - Objective: Start the ingestion stage
+  - Mechanism: unknown
+3. ingestion_pipeline.get_city_code_geo — get_city_code_geo
+  - Objective: Download city geographic location data
+  - Mechanism: shell_command
+  - Step parameters:
+    - bash_command=curl https://static.data.gouv.fr/resources/communes-de-france-base-des-codes-postaux/20200309-131459/communes-departement-region.csv --output /opt/airflow/dags/data/ingestion/city_geo_loc.csv
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+4. ingestion_pipeline.get_nuclear_json — get_nuclear_json
+  - Objective: Download nuclear plant metadata
+  - Mechanism: shell_command
+  - Step parameters:
+    - bash_command=curl https://www.data.gouv.fr/api/1/datasets/63587afc1e8e90e9ce487174/ --output /opt/airflow/dags/data/ingestion/nuclear_plants.json
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+5. ingestion_pipeline.get_nuclear_data — get_nuclear_data
+  - Objective: Extract nuclear plant CSV data from metadata
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+6. ingestion_pipeline.get_death_resource_list — get_death_resource_list
+  - Objective: Fetch list of death data resources
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+7. ingestion_pipeline.get_death_resources — get_death_resources
+  - Objective: Download death data files from resource list
+  - Mechanism: python_callable
+  - Step parameters:
+    - max_resource=5
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+8. ingestion_pipeline.get_thermal_json — get_thermal_plants_json
+  - Objective: Download thermal plant metadata
+  - Mechanism: shell_command
+  - Step parameters:
+    - bash_command=curl https://www.data.gouv.fr/api/1/datasets/63587afb1cc488641390f68e/ --output /opt/airflow/dags/data/ingestion/thermal_plants.json
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+9. ingestion_pipeline.get_thermal_data — get_thermal_data
+  - Objective: Extract thermal plant CSV data from metadata
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+10. ingestion_pipeline.end — end
+  - Objective: End the ingestion stage
+  - Mechanism: unknown
+11. staging_pipeline.start — start
+  - Objective: Start the staging stage
+  - Mechanism: unknown
+12. staging_pipeline.import_nuclear_clean_data — import_nuclear_clean_data
+  - Objective: Clean and transform nuclear plant data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+13. staging_pipeline.import_thermal_clean_data — import_thermal_clean_data
+  - Objective: Clean and transform thermal plant data
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+14. staging_pipeline.create_power_plants_table — create_power_plants_table
+  - Objective: Create power plants table in database
+  - Mechanism: sql_query
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+15. staging_pipeline.create_death_table — create_death_table
+  - Objective: Create <table_name> table in database
+  - Mechanism: sql_query
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+16. staging_pipeline.load_data_from_ingestion — load_data_from_ingestion
+  - Objective: Load death data files and track imports in Redis
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+17. staging_pipeline.cleanse_death_data — cleanse_death_data
+  - Objective: Process raw death data and generate SQL queries
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+18. staging_pipeline.death_emptiness_check — death_emptiness_check
+  - Objective: Check if death SQL file has content and branch accordingly
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+19. staging_pipeline.store_deaths_in_postgres — store_deaths_in_postgres
+  - Objective: Insert death data into database
+  - Mechanism: sql_query
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+20. staging_pipeline.clean_tmp_death_files — clean_tmp_death_files
+  - Objective: Clean up temporary death data files
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+21. staging_pipeline.create_plant_persist_sql_query — create_plant_persist_sql_query
+  - Objective: Generate SQL queries for plant data insertion
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+22. staging_pipeline.store_plants_in_postgres — store_plants_in_postgres
+  - Objective: Insert plant data into database
+  - Mechanism: sql_query
+  - Failure handling:
+    - retries: 1
+    - retry delay: 10 seconds
+23. staging_pipeline.staging_end — staging_end
+  - Objective: End the staging stage
+  - Mechanism: unknown
+24. end_global — end_global
+  - Objective: End the global pipeline
+  - Mechanism: unknown
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

@@ -1,0 +1,99 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py
+- Name: climate_data_fusion_pipeline
+- Purpose: Download and normalize weather station data from 5 meteorological agencies, then merge into unified climate dataset
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: climate
+- Notes: Climate data fusion pipeline that downloads weather station data from 5 meteorological agencies (NOAA, ECMWF, JMA, MetOffice, BOM), normalizes each dataset to standard format, then merges into unified climate dataset
+
+Control Flow:
+- Dependencies (directed edges):
+  - download_noaa -> normalize_noaa
+  - download_ecmwf -> normalize_ecmwf
+  - download_jma -> normalize_jma
+  - download_metoffice -> normalize_metoffice
+  - download_bom -> normalize_bom
+  - normalize_noaa -> merge_climate_data
+  - normalize_ecmwf -> merge_climate_data
+  - normalize_jma -> merge_climate_data
+  - normalize_metoffice -> merge_climate_data
+  - normalize_bom -> merge_climate_data
+
+Data Artifacts / I-O Identifiers:
+- file: noaa_data.csv (Raw NOAA weather station data)
+- file: ecmwf_data.csv (Raw ECMWF weather station data)
+- file: jma_data.csv (Raw JMA weather station data)
+- file: metoffice_data.csv (Raw MetOffice weather station data)
+- file: bom_data.csv (Raw BOM weather station data)
+- file: normalized_noaa_data.csv (Normalized NOAA data in standard format)
+- file: normalized_ecmwf_data.csv (Normalized ECMWF data in standard format)
+- file: normalized_jma_data.csv (Normalized JMA data in standard format)
+- file: normalized_metoffice_data.csv (Normalized MetOffice data in standard format)
+- file: normalized_bom_data.csv (Normalized BOM data in standard format)
+- file: unified_climate_dataset.parquet (Merged unified climate dataset)
+
+External Systems:
+- ftp: NOAA FTP (ftp://noaa.gov/weather/stations.csv)
+- http_api: ECMWF API (https://ecmwf.int/data/stations.csv)
+- http_api: JMA API (https://jma.go.jp/weather/stations.csv)
+- http_api: MetOffice API (https://metoffice.gov.uk/data/stations.csv)
+- http_api: BOM API (https://bom.gov.au/observations/stations.csv)
+
+Pipeline Steps:
+1. download_noaa — download_noaa
+  - Objective: Download NOAA weather station CSV data
+  - Mechanism: python_callable
+  - Outputs: file:noaa_data.csv
+2. download_ecmwf — download_ecmwf
+  - Objective: Download ECMWF weather station CSV data
+  - Mechanism: python_callable
+  - Outputs: file:ecmwf_data.csv
+3. download_jma — download_jma
+  - Objective: Download JMA weather station CSV data
+  - Mechanism: python_callable
+  - Outputs: file:jma_data.csv
+4. download_metoffice — download_metoffice
+  - Objective: Download MetOffice weather station CSV data
+  - Mechanism: python_callable
+  - Outputs: file:metoffice_data.csv
+5. download_bom — download_bom
+  - Objective: Download BOM weather station CSV data
+  - Mechanism: python_callable
+  - Outputs: file:bom_data.csv
+6. normalize_noaa — normalize_noaa
+  - Objective: Normalize NOAA data to standard format
+  - Mechanism: python_callable
+  - Inputs: file:noaa_data.csv
+  - Outputs: file:normalized_noaa_data.csv
+7. normalize_ecmwf — normalize_ecmwf
+  - Objective: Normalize ECMWF data to standard format
+  - Mechanism: python_callable
+  - Inputs: file:ecmwf_data.csv
+  - Outputs: file:normalized_ecmwf_data.csv
+8. normalize_jma — normalize_jma
+  - Objective: Normalize JMA data to standard format
+  - Mechanism: python_callable
+  - Inputs: file:jma_data.csv
+  - Outputs: file:normalized_jma_data.csv
+9. normalize_metoffice — normalize_metoffice
+  - Objective: Normalize MetOffice data to standard format
+  - Mechanism: python_callable
+  - Inputs: file:metoffice_data.csv
+  - Outputs: file:normalized_metoffice_data.csv
+10. normalize_bom — normalize_bom
+  - Objective: Normalize BOM data to standard format
+  - Mechanism: python_callable
+  - Inputs: file:bom_data.csv
+  - Outputs: file:normalized_bom_data.csv
+11. merge_climate_data — merge_climate_data
+  - Objective: Merge all normalized climate data into unified dataset
+  - Mechanism: python_callable
+  - Inputs: file:normalized_noaa_data.csv, file:normalized_ecmwf_data.csv, file:normalized_jma_data.csv, file:normalized_metoffice_data.csv, file:normalized_bom_data.csv
+  - Outputs: file:unified_climate_dataset.parquet
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

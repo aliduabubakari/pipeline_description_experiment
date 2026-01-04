@@ -1,0 +1,71 @@
+Pipeline Summary:
+- Pipeline ID: hejnal__dataform-training__dataform_dag_dynamic_vars.py
+- Name: data-transformation-pipeline
+- Purpose: Data transformation pipeline using Google Cloud Dataform for data processing with parameter parsing, compilation, workflow invocation, and state monitoring
+- Execution model: batch
+- Topology pattern: linear
+- Notes: Pipeline processes data using Google Cloud Dataform with dynamic parameter injection
+
+Control Flow:
+- Dependencies (directed edges):
+  - start -> parse_input_params
+  - parse_input_params -> create_compilation_result
+  - create_compilation_result -> create_workflow_invocation
+  - create_workflow_invocation -> is_workflow_invocation_done
+  - is_workflow_invocation_done -> end
+
+External Systems:
+- cloud_service: Google Cloud Dataform (whejna-modelling-sandbox/training-repo)
+
+Pipeline Steps:
+1. start — start
+  - Objective: Pipeline start marker
+  - Mechanism: unknown
+2. parse_input_params — parse_input_params
+  - Objective: Parse input parameters and prepare compilation configuration
+  - Mechanism: python_callable
+  - Step parameters:
+    - git_commitish=full-version
+  - Failure handling:
+    - retries: 0
+    - retry delay: 0 minutes
+3. create_compilation_result — create_compilation_result
+  - Objective: Create Dataform compilation result with dynamic parameters
+  - Mechanism: python_callable
+  - Step parameters:
+    - project_id=whejna-modelling-sandbox
+    - region=europe-west3
+    - repository_id=training-repo
+  - Failure handling:
+    - retries: 0
+    - retry delay: 0 minutes
+4. create_workflow_invocation — create_workflow_invocation
+  - Objective: Create and trigger Dataform workflow invocation
+  - Mechanism: unknown
+  - Step parameters:
+    - project_id=whejna-modelling-sandbox
+    - region=europe-west3
+    - repository_id=training-repo
+    - asynchronous=true
+    - fully_refresh_incremental_tables_enabled=true
+  - Failure handling:
+    - retries: 0
+    - retry delay: 0 minutes
+5. is_workflow_invocation_done — is_workflow_invocation_done
+  - Objective: Monitor Dataform workflow invocation completion status
+  - Mechanism: wait_poll
+  - Step parameters:
+    - project_id=whejna-modelling-sandbox
+    - region=europe-west3
+    - repository_id=training-repo
+    - expected_statuses=SUCCEEDED, FAILED
+  - Failure handling:
+    - retries: 0
+    - retry delay: 0 minutes
+6. end — end
+  - Objective: Pipeline completion marker
+  - Mechanism: unknown
+
+Scheduling:
+- Schedule type: event_driven
+- Catchup/backfill: False

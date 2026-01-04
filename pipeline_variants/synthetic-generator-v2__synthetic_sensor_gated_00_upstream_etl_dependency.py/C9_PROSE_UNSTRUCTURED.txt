@@ -1,0 +1,5 @@
+executive_sales_dashboard is a workflow with execution model batch and topology pattern sensor_gated. Its purpose is: Wait for daily sales aggregation workflow to complete, then load data and generate executive dashboard.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: wait_for_sales_aggregation→load_sales_csv; load_sales_csv→generate_dashboard.
+
+wait_for_sales_aggregation performs Wait for external daily sales aggregation workflow to complete successfully using mechanism wait_poll. load_sales_csv performs Load aggregated sales CSV data from external workflow output using mechanism python_callable. generate_dashboard performs Generate executive dashboard with sales metrics and visualizations using mechanism python_callable.

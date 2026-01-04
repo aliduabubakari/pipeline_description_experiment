@@ -1,0 +1,368 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "customer_dq_scoring_pipeline",
+  "pipeline_name": "customer_dq_scoring_pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-data-engineering",
+    "file_path": "dags/data_quality/customer_data_quality_scoring_dag.py",
+    "repo_url": "https://github.com/internal/data-processing-scripts",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "a7d0d3cc68b410df759f626bc6ef1eef98b869db0898a2d6c4ca01d662b86b72"
+  },
+  "summary": {
+    "purpose": "Generates, cleans, and scores customer data quality",
+    "business_domain": "data_quality",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Performs end-to-end data quality management on customer data including synthetic data generation, cleaning, quality scoring, feature engineering, and reporting"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "generate_synthetic_data",
+        "to": "explore_raw_data"
+      },
+      {
+        "from": "generate_synthetic_data",
+        "to": "clean_data"
+      },
+      {
+        "from": "clean_data",
+        "to": "calculate_quality_score"
+      },
+      {
+        "from": "clean_data",
+        "to": "feature_engineering"
+      },
+      {
+        "from": "calculate_quality_score",
+        "to": "save_and_report"
+      },
+      {
+        "from": "feature_engineering",
+        "to": "save_and_report"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "parallel_processing",
+        "steps": [
+          "explore_raw_data",
+          "clean_data"
+        ]
+      },
+      {
+        "group_id": "post_clean_parallel",
+        "steps": [
+          "calculate_quality_score",
+          "feature_engineering"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "temporary_storage",
+      "identifier": "/tmp/airflow_dq_processing",
+      "details": [
+        "Local filesystem directory for intermediate and final data storage"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/tmp/airflow_dq_processing/raw_customers.parquet",
+        "description": "Raw synthetic customer data"
+      },
+      {
+        "identifier": "/tmp/airflow_dq_processing/cleaned_customers.parquet",
+        "description": "Cleaned customer data"
+      },
+      {
+        "identifier": "/tmp/airflow_dq_processing/final_customers.parquet",
+        "description": "Final customer data with engineered features"
+      },
+      {
+        "identifier": "/tmp/airflow_dq_processing/cleaned_customers_*.csv",
+        "description": "Final CSV export with timestamp"
+      },
+      {
+        "identifier": "/tmp/airflow_dq_processing/dq_report_*.json",
+        "description": "Data quality report with scores"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "generate_synthetic_data",
+      "name": "generate_synthetic_data",
+      "objective": "Generate synthetic customer data records",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/raw_customers.parquet",
+          "description": "Raw synthetic customer data in parquet format"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_storage",
+          "identifier": "/tmp/airflow_dq_processing"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "num_rows",
+          "value": "3500"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "explore_raw_data",
+      "name": "explore_raw_data",
+      "objective": "Perform exploratory data analysis on raw data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/raw_customers.parquet",
+          "description": "Raw synthetic customer data"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "clean_data",
+      "name": "clean_data",
+      "objective": "Clean and standardize customer data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/raw_customers.parquet",
+          "description": "Raw synthetic customer data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/cleaned_customers.parquet",
+          "description": "Cleaned customer data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_storage",
+          "identifier": "/tmp/airflow_dq_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "calculate_quality_score",
+      "name": "calculate_quality_score",
+      "objective": "Calculate data quality scores (completeness, validity, consistency)",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/cleaned_customers.parquet",
+          "description": "Cleaned customer data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": "dq_scores",
+          "description": "Dictionary containing completeness, validity, consistency, and overall scores"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "feature_engineering",
+      "name": "feature_engineering",
+      "objective": "Add derived features to customer data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/cleaned_customers.parquet",
+          "description": "Cleaned customer data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/final_customers.parquet",
+          "description": "Final customer data with engineered features"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_storage",
+          "identifier": "/tmp/airflow_dq_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save_and_report",
+      "name": "save_and_report",
+      "objective": "Save final data and generate quality report",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/final_customers.parquet",
+          "description": "Final customer data with engineered features"
+        },
+        {
+          "type": "data_object",
+          "identifier": "dq_scores",
+          "description": "Data quality scores"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/cleaned_customers_*.csv",
+          "description": "Final CSV export"
+        },
+        {
+          "type": "file",
+          "identifier": "/tmp/airflow_dq_processing/dq_report_*.json",
+          "description": "Data quality report"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "temporary_storage",
+          "identifier": "/tmp/airflow_dq_processing"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder; actual fingerprint would require file content hash"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:08:08.326942Z"
+  },
+  "variant": {
+    "class_id": "C7",
+    "class_name": "NO_ENV_INFRA_DETAILS",
+    "canonical_pipeline_id": "customer_data_quality_scoring_dag",
+    "spec_pipeline_id": "customer_dq_scoring_pipeline"
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "data-transformation-pipeline",
+  "pipeline_name": "data-transformation-pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "hejnal/dataform-training",
+    "file_path": "integrations/airflow/dataform_dag_dynamic_vars.py",
+    "repo_url": "https://github.com/hejnal/dataform-training",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "02e3fd476cbfb394c8743ab8adac3e74e6b9dfa72048c5a8ce4a277018d2f672"
+  },
+  "summary": {
+    "purpose": "Data transformation pipeline using Google Cloud Dataform for data processing with parameter parsing, compilation, workflow invocation, and state monitoring",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Pipeline processes data using Google Cloud Dataform with dynamic parameter injection"
+  },
+  "schedule": {
+    "schedule_type": "event_driven",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "parse_input_params"
+      },
+      {
+        "from": "parse_input_params",
+        "to": "create_compilation_result"
+      },
+      {
+        "from": "create_compilation_result",
+        "to": "create_workflow_invocation"
+      },
+      {
+        "from": "create_workflow_invocation",
+        "to": "is_workflow_invocation_done"
+      },
+      {
+        "from": "is_workflow_invocation_done",
+        "to": "end"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "cloud_service",
+      "name": "Google Cloud Dataform",
+      "identifier": "whejna-modelling-sandbox/training-repo",
+      "details": [
+        "Dataform repository for data transformations",
+        "Region: europe-west3"
+      ],
+      "auth": [
+        "gcp_conn_id: modelling_cloud_default"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "start",
+      "name": "start",
+      "objective": "Pipeline start marker",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "parse_input_params",
+      "name": "parse_input_params",
+      "objective": "Parse input parameters and prepare compilation configuration",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "description_param",
+          "description": "Job description parameter from trigger"
+        },
+        {
+          "type": "parameter",
+          "identifier": "logical_date",
+          "description": "Execution date"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "parameter",
+          "identifier": "compilation_result",
+          "description": "JSON configuration for Dataform compilation"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "git_commitish",
+          "value": "full-version"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 0,
+        "retry_delay": "0 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "create_compilation_result",
+      "name": "create_compilation_result",
+      "objective": "Create Dataform compilation result with dynamic parameters",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": "compilation_result",
+          "description": "JSON configuration from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "reference",
+          "identifier": "compilation_result_name",
+          "description": "Name/ID of created compilation result"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Google Cloud Dataform",
+          "identifier": "whejna-modelling-sandbox/training-repo"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "project_id",
+          "value": "whejna-modelling-sandbox"
+        },
+        {
+          "key": "region",
+          "value": "europe-west3"
+        },
+        {
+          "key": "repository_id",
+          "value": "training-repo"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 0,
+        "retry_delay": "0 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "create_workflow_invocation",
+      "name": "create_workflow_invocation",
+      "objective": "Create and trigger Dataform workflow invocation",
+      "mechanism": "unknown",
+      "inputs": [
+        {
+          "type": "reference",
+          "identifier": "compilation_result_name",
+          "description": "Compilation result name from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "reference",
+          "identifier": "workflow_invocation_name",
+          "description": "Name/ID of created workflow invocation"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Google Cloud Dataform",
+          "identifier": "whejna-modelling-sandbox/training-repo"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "project_id",
+          "value": "whejna-modelling-sandbox"
+        },
+        {
+          "key": "region",
+          "value": "europe-west3"
+        },
+        {
+          "key": "repository_id",
+          "value": "training-repo"
+        },
+        {
+          "key": "asynchronous",
+          "value": "true"
+        },
+        {
+          "key": "fully_refresh_incremental_tables_enabled",
+          "value": "true"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 0,
+        "retry_delay": "0 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "is_workflow_invocation_done",
+      "name": "is_workflow_invocation_done",
+      "objective": "Monitor Dataform workflow invocation completion status",
+      "mechanism": "wait_poll",
+      "inputs": [
+        {
+          "type": "reference",
+          "identifier": "workflow_invocation_name",
+          "description": "Workflow invocation name from previous step"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Google Cloud Dataform",
+          "identifier": "whejna-modelling-sandbox/training-repo"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "project_id",
+          "value": "whejna-modelling-sandbox"
+        },
+        {
+          "key": "region",
+          "value": "europe-west3"
+        },
+        {
+          "key": "repository_id",
+          "value": "training-repo"
+        },
+        {
+          "key": "expected_statuses",
+          "value": "SUCCEEDED, FAILED"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 0,
+        "retry_delay": "0 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "end",
+      "name": "end",
+      "objective": "Pipeline completion marker",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "medium",
+    "extraction_warnings": [
+      "Dataset trigger mechanism referenced but not fully specified in control flow",
+      "Some step mechanisms inferred from context (create_workflow_invocation, is_workflow_invocation_done)",
+      "Dataform-specific operators mapped to generic mechanisms",
+      "XCom data passing pattern detected but abstracted to parameter/reference passing"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:12:24.031935Z"
+  },
+  "variant": {
+    "class_id": "C7",
+    "class_name": "NO_ENV_INFRA_DETAILS",
+    "canonical_pipeline_id": "hejnal__dataform-training__dataform_dag_dynamic_vars.py",
+    "spec_pipeline_id": "data-transformation-pipeline"
+  }
+}

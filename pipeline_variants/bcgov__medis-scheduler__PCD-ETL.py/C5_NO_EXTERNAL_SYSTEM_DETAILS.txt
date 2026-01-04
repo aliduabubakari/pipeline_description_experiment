@@ -1,0 +1,171 @@
+Pipeline Summary:
+- Pipeline ID: bcgov__medis-scheduler__PCD-ETL.py
+- Name: pcd-etl
+- Purpose: ETL pipeline for PCD data with multiple HTTP API calls and <cloud_service> job, ending with email notification
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: healthcare
+- Notes: Pipeline extracts PCD data via HTTP APIs, processes with <cloud_service> job, and sends email notifications on success/failure
+
+Control Flow:
+- Dependencies (directed edges):
+  - Check_PCD_SFTP_Folder -> Check_PCD_Shared_Folder
+  - Check_PCD_Shared_Folder -> Start_PCD_Extract_1
+  - Start_PCD_Extract_1 -> Status_Tracker
+  - Start_PCD_Extract_1 -> Financial_Expense
+  - Start_PCD_Extract_1 -> UPCC_Financial_Reportingr
+  - Start_PCD_Extract_1 -> CHC_Financial_reporting
+  - Start_PCD_Extract_1 -> PCN_Financial_Reporting
+  - Start_PCD_Extract_1 -> NPPCC_Financial_Reporting
+  - Start_PCD_Extract_1 -> Fiscal_Year_Reporting_Dates
+  - Start_PCD_Extract_1 -> UPCC_Primary_Care_Patient_Services
+  - Start_PCD_Extract_1 -> CHC_Primary_Care_Patient_Services
+  - Start_PCD_Extract_1 -> Practitioner_Role_Mapping
+  - Status_Tracker -> Start_PCD_Extract_2
+  - Financial_Expense -> Start_PCD_Extract_2
+  - UPCC_Financial_Reportingr -> Start_PCD_Extract_2
+  - CHC_Financial_reporting -> Start_PCD_Extract_2
+  - PCN_Financial_Reporting -> Start_PCD_Extract_2
+  - NPPCC_Financial_Reporting -> Start_PCD_Extract_2
+  - Fiscal_Year_Reporting_Dates -> Start_PCD_Extract_2
+  - UPCC_Primary_Care_Patient_Services -> Start_PCD_Extract_2
+  - CHC_Primary_Care_Patient_Services -> Start_PCD_Extract_2
+  - Practitioner_Role_Mapping -> Start_PCD_Extract_2
+  - Start_PCD_Extract_2 -> Provincial_Risk_Tracking
+  - Start_PCD_Extract_2 -> Decision_Log
+  - Start_PCD_Extract_2 -> HA_Hierarchy
+  - Start_PCD_Extract_2 -> HR_Records
+  - Start_PCD_Extract_2 -> UPPC_Budget
+  - Start_PCD_Extract_2 -> CHC_Budget
+  - Start_PCD_Extract_2 -> PCN_Budget
+  - Start_PCD_Extract_2 -> NPPCC_Budget
+  - Provincial_Risk_Tracking -> PCD_file_upload
+  - Decision_Log -> PCD_file_upload
+  - HA_Hierarchy -> PCD_file_upload
+  - HR_Records -> PCD_file_upload
+  - UPPC_Budget -> PCD_file_upload
+  - CHC_Budget -> PCD_file_upload
+  - PCN_Budget -> PCD_file_upload
+  - NPPCC_Budget -> PCD_file_upload
+  - PCD_file_upload -> ETL_Notification
+
+Pipeline Steps:
+1. Check_PCD_SFTP_Folder — Check_PCD_SFTP_Folder
+  - Objective: Check <ftp> for data availability
+  - Mechanism: kubernetes_job
+  - Step parameters:
+    - job_template_file={{var.value.pcd_emtysftp_job}}
+2. Check_PCD_Shared_Folder — Check_PCD_Shared_Folder
+  - Objective: Check <filesystem> for data availability
+  - Mechanism: kubernetes_job
+  - Step parameters:
+    - job_template_file={{var.value.pcd_emtydir_job}}
+3. Start_PCD_Extract_1 — Start_PCD_Extract_1
+  - Objective: Start first phase of PCD data extraction
+  - Mechanism: unknown
+4. Start_PCD_Extract_2 — Start_PCD_Extract_2
+  - Objective: Start second phase of PCD data extraction
+  - Mechanism: unknown
+5. Financial_Expense — Financial_Expense
+  - Objective: Extract financial expense data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_financial_expense_url}}
+6. UPCC_Financial_Reportingr — UPCC_Financial_Reportingr
+  - Objective: Extract UPCC financial reporting data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_upcc_financial_reporting_url}}
+7. CHC_Financial_reporting — CHC_Financial_reporting
+  - Objective: Extract CHC financial reporting data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_chc_financial_reporting_url}}
+8. PCN_Financial_Reporting — PCN_Financial_Reporting
+  - Objective: Extract PCN financial reporting data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_pcn_financial_reporting_url}}
+9. NPPCC_Financial_Reporting — NPPCC_Financial_Reporting
+  - Objective: Extract NPPCC financial reporting data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_nppcc_financial_reporting_url}}
+10. Fiscal_Year_Reporting_Dates — Fiscal_Year_Reporting_Dates
+  - Objective: Extract fiscal year reporting dates from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_fiscal_year_reporting_dates_url}}
+11. UPCC_Primary_Care_Patient_Services — UPCC_Primary_Care_Patient_Services
+  - Objective: Extract UPCC primary care patient services data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_upcc_pcps_url}}
+12. CHC_Primary_Care_Patient_Services — CHC_Primary_Care_Patient_Services
+  - Objective: Extract CHC primary care patient services data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_chc_pcps_url}}
+13. Practitioner_Role_Mapping — Practitioner_Role_Mapping
+  - Objective: Extract practitioner role mapping data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_practitioner_role_mapping_url}}
+14. Status_Tracker — Status_Tracker
+  - Objective: Extract status tracker data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_status_tracker_url}}
+15. HR_Records — HR_Records
+  - Objective: Extract HR records data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_hr_records_url}}
+16. Provincial_Risk_Tracking — Provincial_Risk_Tracking
+  - Objective: Extract provincial risk tracking data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_provincial_risk_tracking_url}}
+17. Decision_Log — Decision_Log
+  - Objective: Extract decision log data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_decision_log_url}}
+18. HA_Hierarchy — HA_Hierarchy
+  - Objective: Extract health authority hierarchy data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_ha_hierarchy_url}}
+19. UPPC_Budget — UPPC_Budget
+  - Objective: Extract UPCC budget data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_upcc_budget_url}}
+20. CHC_Budget — CHC_Budget
+  - Objective: Extract CHC budget data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_chc_budget_url}}
+21. PCN_Budget — PCN_Budget
+  - Objective: Extract PCN budget data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_pcn_budget_url}}
+22. NPPCC_Budget — NPPCC_Budget
+  - Objective: Extract NPPCC budget data from PCD API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint={{var.value.pcd_nppcc_budget_url}}
+23. PCD_file_upload — PCD_file_upload
+  - Objective: Upload and process PCD files using <cloud_service> job
+  - Mechanism: kubernetes_job
+  - Step parameters:
+    - job_template_file={{var.value.pcd_job}}
+24. ETL_Notification — ETL_Notification
+  - Objective: Send email notification based on pipeline execution results
+  - Mechanism: notification
+
+Scheduling:
+- Schedule type: unknown
+- Start date: 2021-01-01T00:00:00Z
+- Catchup/backfill: False

@@ -1,0 +1,5 @@
+assignment_solution is a workflow with execution model batch and topology pattern linear. Its purpose is: Fetches user data from API, processes it, creates PostgreSQL table, and inserts processed data.
+
+Scheduling: schedule type is cron, expression is @daily. Control flow includes dependencies such as: get_user→process_user; process_user→create_table; create_table→insert_data.
+
+get_user performs Fetch user data from external API using mechanism http_request. process_user performs Process and transform user data from API response using mechanism python_callable. create_table performs Create PostgreSQL table for storing user data using mechanism sql_query. insert_data performs Insert processed user data into PostgreSQL table using mechanism sql_query.

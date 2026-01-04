@@ -1,0 +1,5 @@
+daily_sales_report is a workflow with execution model batch and topology pattern linear. Its purpose is: Daily sales reporting pipeline: Query PostgreSQL → Transform to CSV → Generate PDF chart → Email report.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: query_sales_data→transform_to_csv; transform_to_csv→generate_pdf_chart; generate_pdf_chart→email_sales_report.
+
+query_sales_data performs Query PostgreSQL database for daily sales data using mechanism sql_query. transform_to_csv performs Transform query results to CSV format using mechanism python_callable. generate_pdf_chart performs Generate PDF chart from sales data using mechanism python_callable. email_sales_report performs Email sales report to management using mechanism notification.

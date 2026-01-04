@@ -1,0 +1,100 @@
+Pipeline Summary:
+- Pipeline ID: synthetic_docker_pipeline_01_intertwino
+- Name: pipeline_execution_dag
+- Purpose: Sequential data processing pipeline executing containerized tasks to ingest CSVs, perform reconciliation and weather enrichment, extend columns, and save the final output
+- Execution model: batch
+- Topology pattern: linear
+- Notes: All steps run as Docker containers with shared data mount and network
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_and_modify -> reconciliation
+  - reconciliation -> openmeteo_extension
+  - openmeteo_extension -> column_extension
+  - column_extension -> save
+
+Data Artifacts / I-O Identifiers:
+- file: *.csv (Input CSV files)
+- file: table_data_*.json (Modified table data)
+- file: reconciliated_data_*.json (Reconciled data)
+- file: openmeteo_extended_data_*.json (Weather-enriched data)
+- file: column_extended_data_*.json (Column-extended data)
+- file: final_output.csv (Final output file)
+
+External Systems:
+- http_api: Load and Modify API (http://load-and-modify:3003/api/)
+- http_api: Reconciliation API (http://reconciliation:3000/api/reconciliation)
+- http_api: OpenMeteo API (http://openmeteo:3000/api/extension)
+- http_api: Column Extension API (http://column-extension:3000/api/extension)
+- filesystem: Data directory (/app/data)
+- cloud_service: Docker (unix://var/run/docker.sock)
+
+Pipeline Steps:
+1. load_and_modify — load_and_modify
+  - Objective: Load CSV files and modify data structure
+  - Mechanism: container_run
+  - Inputs: file:*.csv
+  - Outputs: file:table_data_*.json
+  - Step parameters:
+    - api_url=http://load-and-modify:3003/api/
+    - input_pattern=*.csv
+    - output_pattern=table_data_{}.json
+    - dataset_id=2
+    - date_column=Fecha_id
+    - table_name=JOT_{}
+  - Failure handling:
+    - retries: 1
+2. reconciliation — reconciliation
+  - Objective: Reconcile data using external service
+  - Mechanism: container_run
+  - Inputs: file:table_data_*.json
+  - Outputs: file:reconciliated_data_*.json
+  - Step parameters:
+    - api_url=http://reconciliation:3000/api/reconciliation
+    - reconciliator_id=1
+    - column_name=column_to_reconcile
+    - input_pattern=table_data_*.json
+    - output_pattern=reconciliated_data_{}.json
+  - Failure handling:
+    - retries: 1
+3. openmeteo_extension — openmeteo_extension
+  - Objective: Enrich data with weather information
+  - Mechanism: container_run
+  - Inputs: file:reconciliated_data_*.json
+  - Outputs: file:openmeteo_extended_data_*.json
+  - Step parameters:
+    - api_url=http://openmeteo:3000/api/extension
+    - extender_id=1
+    - properties=temperature,humidity
+    - input_pattern=reconciliated_data_*.json
+    - output_pattern=openmeteo_extended_data_{}.json
+  - Failure handling:
+    - retries: 1
+4. column_extension — column_extension
+  - Objective: Extend data with additional columns
+  - Mechanism: container_run
+  - Inputs: file:openmeteo_extended_data_*.json
+  - Outputs: file:column_extended_data_*.json
+  - Step parameters:
+    - api_url=http://column-extension:3000/api/extension
+    - id_extender=1
+    - properties=property1,property2
+    - input_pattern=openmeteo_extended_data_*.json
+    - output_pattern=column_extended_data_{}.json
+  - Failure handling:
+    - retries: 1
+5. save — save
+  - Objective: Save processed data to final output file
+  - Mechanism: container_run
+  - Inputs: file:column_extended_data_*.json
+  - Outputs: file:final_output.csv
+  - Step parameters:
+    - input_pattern=column_extended_data_*.json
+    - output_filename=final_output.csv
+    - data_directory=/app/data
+  - Failure handling:
+    - retries: 1
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

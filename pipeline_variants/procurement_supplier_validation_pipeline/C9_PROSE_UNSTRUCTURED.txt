@@ -1,0 +1,5 @@
+procurement_supplier_validation_v1 is a workflow with execution model batch and topology pattern linear. Its purpose is: Validates and standardizes supplier data using Wikidata entity reconciliation.
+
+Scheduling: schedule type is manual, catchup/backfill is False. Control flow includes dependencies such as: load_and_modify_suppliers→reconcile_supplier_entities; reconcile_supplier_entities→save_validated_suppliers.
+
+load_and_modify_suppliers performs Ingest and standardize supplier CSV data into structured JSON format using mechanism container_run. reconcile_supplier_entities performs Reconcile supplier names against Wikidata entities using mechanism container_run. save_validated_suppliers performs Export enriched supplier data to CSV format using mechanism container_run.

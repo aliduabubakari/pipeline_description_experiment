@@ -1,0 +1,289 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "database_replication_fanout",
+  "pipeline_name": "database_replication_fanout",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_fan_out_only_01_data_replication_to_environments.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "3bfd77ea906f1f825dac6c55f1e9e8d3b38f9e8e63dab5eceeba43f525f20bc1"
+  },
+  "summary": {
+    "purpose": "Dump production database snapshot and copy to multiple environments (Dev, Staging, QA) in parallel using fan-out pattern",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_only",
+    "notes": "Database replication from production to multiple environments with no synchronization point after copying - each environment copy is independent"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "dump_prod_csv",
+        "to": "copy_dev"
+      },
+      {
+        "from": "dump_prod_csv",
+        "to": "copy_staging"
+      },
+      {
+        "from": "dump_prod_csv",
+        "to": "copy_qa"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "parallel_copy_group",
+        "steps": [
+          "copy_dev",
+          "copy_staging",
+          "copy_qa"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "Production Database",
+      "identifier": null,
+      "details": [
+        "Source database for CSV snapshot"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "Development Database",
+      "identifier": "Dev_DB",
+      "details": [
+        "Target database for development environment"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "Staging Database",
+      "identifier": "Staging_DB",
+      "details": [
+        "Target database for staging environment"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "QA Database",
+      "identifier": "QA_DB",
+      "details": [
+        "Target database for QA environment"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/tmp/prod_snapshot_$(date +%Y%m%d).csv",
+        "description": "CSV snapshot of production database"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "dump_prod_csv",
+      "name": "dump_prod_csv",
+      "objective": "Dump production database to CSV snapshot",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "database",
+          "identifier": null,
+          "description": "Production database"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/prod_snapshot_$(date +%Y%m%d).csv",
+          "description": "CSV snapshot of production database"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Production Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "copy_dev",
+      "name": "copy_dev",
+      "objective": "Copy CSV snapshot to Development database",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/prod_snapshot_$(date +%Y%m%d).csv",
+          "description": "CSV snapshot of production database"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "database",
+          "identifier": "Dev_DB",
+          "description": "Development database with loaded data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Development Database",
+          "identifier": "Dev_DB"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "copy_staging",
+      "name": "copy_staging",
+      "objective": "Copy CSV snapshot to Staging database",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/prod_snapshot_$(date +%Y%m%d).csv",
+          "description": "CSV snapshot of production database"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "database",
+          "identifier": "Staging_DB",
+          "description": "Staging database with loaded data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Staging Database",
+          "identifier": "Staging_DB"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "copy_qa",
+      "name": "copy_qa",
+      "objective": "Copy CSV snapshot to QA database",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/tmp/prod_snapshot_$(date +%Y%m%d).csv",
+          "description": "CSV snapshot of production database"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "database",
+          "identifier": "QA_DB",
+          "description": "QA database with loaded data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "QA Database",
+          "identifier": "QA_DB"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Database identifiers (Dev_DB, Staging_DB, QA_DB) extracted from echo commands, may not be actual connection identifiers",
+      "File path uses shell variable substitution $(date +%Y%m%d), actual filename varies by execution date"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:38:58.868371Z"
+  },
+  "variant": {
+    "class_id": "C3",
+    "class_name": "NO_EXECUTION_MECHANISM",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py",
+    "spec_pipeline_id": "database_replication_fanout"
+  }
+}

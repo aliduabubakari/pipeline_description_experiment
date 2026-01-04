@@ -1,0 +1,290 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "multi_channel_marketing_campaign",
+  "pipeline_name": "multi_channel_marketing_campaign",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "c02f79d115f9555f69f74f968ef541557c59a2e8a67cde3bf7b44019be91b8a5"
+  },
+  "summary": {
+    "purpose": "Multi-channel marketing campaign that loads customer segments and triggers parallel email, SMS, and push notification campaigns",
+    "business_domain": "marketing",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_only",
+    "notes": "Loads customer segment data then triggers three parallel marketing campaigns"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "load_customer_segment_csv",
+        "to": "send_email_campaign"
+      },
+      {
+        "from": "load_customer_segment_csv",
+        "to": "send_sms_campaign"
+      },
+      {
+        "from": "load_customer_segment_csv",
+        "to": "send_push_notification"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "campaigns_parallel",
+        "steps": [
+          "send_email_campaign",
+          "send_sms_campaign",
+          "send_push_notification"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "CSV file system",
+      "identifier": null,
+      "details": [
+        "CSV file containing customer segment data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "email",
+      "name": "Email service",
+      "identifier": null,
+      "details": [
+        "Email campaign delivery system"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "SMS service",
+      "identifier": null,
+      "details": [
+        "SMS campaign delivery API"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "Push notification service",
+      "identifier": null,
+      "details": [
+        "Push notification delivery API"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "customer_segment_csv",
+        "description": "CSV file containing customer segment data with columns: customer_id, segment, email, phone, device_token"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_customer_segment_csv",
+      "name": "load_customer_segment_csv",
+      "objective": "Load customer segment data from CSV file",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "customer_segment_csv",
+          "description": "CSV file containing customer segment data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "customer_segments",
+          "description": "Loaded customer segment data (1,500 records) with segments: premium, regular, new"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "CSV file system",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_email_campaign",
+      "name": "send_email_campaign",
+      "objective": "Send email campaign to customer segment",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "customer_segments",
+          "description": "Customer segment data loaded from CSV"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": "email_campaign_results",
+          "description": "Email campaign sent to 500 customers using 'Special Offer for Premium Customers' template"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email service",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_sms_campaign",
+      "name": "send_sms_campaign",
+      "objective": "Send SMS campaign to customer segment",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "customer_segments",
+          "description": "Customer segment data loaded from CSV"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": "sms_campaign_results",
+          "description": "SMS campaign sent to 800 customers using 'Exclusive Deal - Limited Time!' template"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "SMS service",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_push_notification",
+      "name": "send_push_notification",
+      "objective": "Send push notification campaign to customer segment",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "customer_segments",
+          "description": "Customer segment data loaded from CSV"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": "push_notification_campaign_results",
+          "description": "Push notifications sent to 200 mobile app users with message: 'Don't miss out on our latest offer!'"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Push notification service",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Source fingerprint SHA256 is placeholder (empty file hash) - actual code hash would differ",
+      "External system identifiers are inferred from function descriptions as not explicitly defined in code",
+      "Email alert configuration mentioned in default_args but not modeled in failure_handling.alerts"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:37:57.706511Z"
+  },
+  "variant": {
+    "class_id": "C4",
+    "class_name": "NO_STEP_PARAMETERS",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+    "spec_pipeline_id": "multi_channel_marketing_campaign"
+  }
+}

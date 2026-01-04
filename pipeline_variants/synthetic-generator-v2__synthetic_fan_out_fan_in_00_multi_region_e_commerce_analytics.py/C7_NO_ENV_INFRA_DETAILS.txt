@@ -1,0 +1,140 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py
+- Name: multi_region_ecommerce_analytics
+- Purpose: Ingest regional sales data, convert currencies to USD, and generate global revenue report
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: ecommerce
+- Notes: Multi-region ecommerce analytics pipeline that ingests sales data from 4 regions in parallel, converts currencies to USD, and aggregates into a global revenue report
+
+Control Flow:
+- Dependencies (directed edges):
+  - start_pipeline -> ingest_us_east
+  - start_pipeline -> ingest_us_west
+  - start_pipeline -> ingest_eu
+  - start_pipeline -> ingest_apac
+  - ingest_us_east -> convert_currency_us_east
+  - ingest_us_west -> convert_currency_us_west
+  - ingest_eu -> convert_currency_eu
+  - ingest_apac -> convert_currency_apac
+  - convert_currency_us_east -> aggregate_global_revenue
+  - convert_currency_us_west -> aggregate_global_revenue
+  - convert_currency_eu -> aggregate_global_revenue
+  - convert_currency_apac -> aggregate_global_revenue
+  - aggregate_global_revenue -> end_pipeline
+
+Data Artifacts / I-O Identifiers:
+- file: sales_data_US-East (Regional sales data for US-East)
+- file: sales_data_US-West (Regional sales data for US-West)
+- file: sales_data_EU (Regional sales data for EU)
+- file: sales_data_APAC (Regional sales data for APAC)
+- file: global_revenue_report_{date}.csv (Final global revenue report)
+
+External Systems:
+- database: regional_sales_databases
+
+Pipeline Steps:
+1. start_pipeline — start_pipeline
+  - Objective: Start the pipeline execution
+  - Mechanism: unknown
+2. ingest_us_east — ingest_us_east
+  - Objective: Ingest sales data from US-East region
+  - Mechanism: python_callable
+  - Inputs: regional_database:US-East
+  - Outputs: file:sales_data_US-East
+  - Step parameters:
+    - region=US-East
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+3. ingest_us_west — ingest_us_west
+  - Objective: Ingest sales data from US-West region
+  - Mechanism: python_callable
+  - Inputs: regional_database:US-West
+  - Outputs: file:sales_data_US-West
+  - Step parameters:
+    - region=US-West
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+4. ingest_eu — ingest_eu
+  - Objective: Ingest sales data from EU region
+  - Mechanism: python_callable
+  - Inputs: regional_database:EU
+  - Outputs: file:sales_data_EU
+  - Step parameters:
+    - region=EU
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+5. ingest_apac — ingest_apac
+  - Objective: Ingest sales data from APAC region
+  - Mechanism: python_callable
+  - Inputs: regional_database:APAC
+  - Outputs: file:sales_data_APAC
+  - Step parameters:
+    - region=APAC
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+6. convert_currency_us_east — convert_currency_us_east
+  - Objective: Convert US-East sales data currency to USD
+  - Mechanism: python_callable
+  - Inputs: file:sales_data_US-East
+  - Outputs: file:converted_data_US-East
+  - Step parameters:
+    - region=US-East
+    - data=sales_data_US-East
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+7. convert_currency_us_west — convert_currency_us_west
+  - Objective: Convert US-West sales data currency to USD
+  - Mechanism: python_callable
+  - Inputs: file:sales_data_US-West
+  - Outputs: file:converted_data_US-West
+  - Step parameters:
+    - region=US-West
+    - data=sales_data_US-West
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+8. convert_currency_eu — convert_currency_eu
+  - Objective: Convert EU sales data currency to USD
+  - Mechanism: python_callable
+  - Inputs: file:sales_data_EU
+  - Outputs: file:converted_data_EU
+  - Step parameters:
+    - region=EU
+    - data=sales_data_EU
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+9. convert_currency_apac — convert_currency_apac
+  - Objective: Convert APAC sales data currency to USD
+  - Mechanism: python_callable
+  - Inputs: file:sales_data_APAC
+  - Outputs: file:converted_data_APAC
+  - Step parameters:
+    - region=APAC
+    - data=sales_data_APAC
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+10. aggregate_global_revenue — aggregate_global_revenue
+  - Objective: Aggregate all regional converted data into global revenue report
+  - Mechanism: python_callable
+  - Inputs: file:converted_data_US-East, file:converted_data_US-West, file:converted_data_EU, file:converted_data_APAC
+  - Outputs: file:global_revenue_report_{date}.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+11. end_pipeline — end_pipeline
+  - Objective: End the pipeline execution
+  - Mechanism: unknown
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

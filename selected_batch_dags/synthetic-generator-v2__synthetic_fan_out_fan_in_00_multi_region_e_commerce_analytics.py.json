@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/fan_out_fan_in:synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.operators.empty import EmptyOperator\n\ndefault_args = {\n    'owner': 'analytics_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': True,\n    'email_on_retry': False\n}\n\ndef ingest_sales_data(region):\n    \"\"\"Mock function to ingest sales data from regional databases\"\"\"\n    print(f\"Ingesting sales data from {region} region\")\n    print(f\"Found CSV file with sales data for {region}\")\n    print(f\"Data includes currency columns specific to {region}\")\n    return f\"sales_data_{region}\"\n\ndef convert_currency_to_usd(region, data):\n    \"\"\"Mock function to convert regional currency to USD\"\"\"\n    print(f\"Converting {region} currency to USD\")\n    if region == \"US-East\" or region == \"US-West\":\n        print(\"Currency already in USD, no conversion needed\")\n    elif region == \"EU\":\n        print(\"Converting EUR to USD using daily exchange rate\")\n        print(\"Applied exchange rate: 1 EUR = 1.08 USD\")\n    elif region == \"APAC\":\n        print(\"Converting JPY to USD using daily exchange rate\") \n        print(\"Applied exchange rate: 1 JPY = 0.0067 USD\")\n    print(f\"Completed currency conversion for {region}\")\n    return f\"converted_data_{region}\"\n\ndef aggregate_global_revenue(**kwargs):\n    \"\"\"Mock function to aggregate all regional data into global report\"\"\"\n    ti = kwargs['ti']\n    regions = [\"US-East\", \"US-West\", \"EU\", \"APAC\"]\n    \n    print(\"Starting global revenue aggregation\")\n    total_revenue = 0\n    \n    for region in regions:\n        converted_data = ti.xcom_pull(task_ids=f'convert_currency_{region.lower().replace(\"-\", \"_\")}')\n        print(f\"Processing converted data from {region}: {converted_data}\")\n        # Mock revenue calculation\n        region_revenue = 100000 + (regions.index(region) * 25000)\n        total_revenue += region_revenue\n        print(f\"{region} revenue (USD): ${region_revenue:,.2f}\")\n    \n    print(f\"TOTAL GLOBAL REVENUE: ${total_revenue:,.2f}\")\n    print(\"Generating final global revenue report CSV\")\n    return f\"global_revenue_report_{datetime.now().strftime('%Y%m%d')}.csv\"\n\nwith DAG(\n    'multi_region_ecommerce_analytics',\n    default_args=default_args,\n    description='Ingest regional sales data, convert currencies to USD, and generate global revenue report',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['ecommerce', 'analytics', 'multi-region']\n) as dag:\n    \n    start = EmptyOperator(task_id='start_pipeline')\n    \n    end = EmptyOperator(task_id='end_pipeline')\n    \n    # Fan out: Ingest data from 4 regions in parallel\n    ingest_us_east = PythonOperator(\n        task_id='ingest_us_east',\n        python_callable=ingest_sales_data,\n        op_kwargs={'region': 'US-East'}\n    )\n    \n    ingest_us_west = PythonOperator(\n        task_id='ingest_us_west',\n        python_callable=ingest_sales_data,\n        op_kwargs={'region': 'US-West'}\n    )\n    \n    ingest_eu = PythonOperator(\n        task_id='ingest_eu',\n        python_callable=ingest_sales_data,\n        op_kwargs={'region': 'EU'}\n    )\n    \n    ingest_apac = PythonOperator(\n        task_id='ingest_apac',\n        python_callable=ingest_sales_data,\n        op_kwargs={'region': 'APAC'}\n    )\n    \n    # Fan out: Convert currencies in parallel\n    convert_currency_us_east = PythonOperator(\n        task_id='convert_currency_us_east',\n        python_callable=convert_currency_to_usd,\n        op_kwargs={'region': 'US-East', 'data': \"{{ ti.xcom_pull(task_ids='ingest_us_east') }}\"}\n    )\n    \n    convert_currency_us_west = PythonOperator(\n        task_id='convert_currency_us_west',\n        python_callable=convert_currency_to_usd,\n        op_kwargs={'region': 'US-West', 'data': \"{{ ti.xcom_pull(task_ids='ingest_us_west') }}\"}\n    )\n    \n    convert_currency_eu = PythonOperator(\n        task_id='convert_currency_eu',\n        python_callable=convert_currency_to_usd,\n        op_kwargs={'region': 'EU', 'data': \"{{ ti.xcom_pull(task_ids='ingest_eu') }}\"}\n    )\n    \n    convert_currency_apac = PythonOperator(\n        task_id='convert_currency_apac',\n        python_callable=convert_currency_to_usd,\n        op_kwargs={'region': 'APAC', 'data': \"{{ ti.xcom_pull(task_ids='ingest_apac') }}\"}\n    )\n    \n    # Fan in: Aggregate all converted data\n    aggregate_revenue = PythonOperator(\n        task_id='aggregate_global_revenue',\n        python_callable=aggregate_global_revenue,\n        provide_context=True\n    )\n    \n    # Define dependencies to match FAN OUT FAN IN pattern\n    start >> [ingest_us_east, ingest_us_west, ingest_eu, ingest_apac]\n    \n    ingest_us_east >> convert_currency_us_east\n    ingest_us_west >> convert_currency_us_west  \n    ingest_eu >> convert_currency_eu\n    ingest_apac >> convert_currency_apac\n    \n    [convert_currency_us_east, convert_currency_us_west, convert_currency_eu, convert_currency_apac] >> aggregate_revenue\n    \n    aggregate_revenue >> end"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:33:17Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 4,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 10,
+      "operator_types": [
+        "EmptyOperator",
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Multi-region ecommerce analytics pipeline that ingests sales data from 4 regions in parallel, converts currencies to USD, and aggregates into a global revenue report",
+    "complexity_score": 6
+  }
+}

@@ -1,0 +1,47 @@
+{
+    "unique_key": "synthetic/docker_pipelines:medical_facility_accessibility_pipeline.py",
+    "repo": "synthetic-generator-v2",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "stars": 0,
+    "license": "MIT",
+    "file_path": "synthetic/medical_facility_accessibility_pipeline.py",
+    "detected_airflow_version": "2.x",
+    "sampled_versions": [
+      {
+        "version": "latest",
+        "commit": "synthetic_generation",
+        "code": "from airflow import DAG\nfrom airflow.providers.docker.operators.docker import DockerOperator\nfrom airflow.utils.dates import days_ago\nfrom docker.types import Mount\nimport os\n\n# Define default arguments\ndefault_args = {\n    'owner': 'urban_planning_team',\n    'depends_on_past': False,\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 1,\n}\n\n# Shared infrastructure configuration\nhost_data_dir = os.getenv('DATA_DIR', '/tmp/medical/data')\nnetwork_name = 'app_network'\n\nwith DAG(\n    dag_id='medical_facility_accessibility_v1',\n    default_args=default_args,\n    description='Geospatial pipeline analyzing medical facility accessibility',\n    schedule_interval=None,\n    start_date=days_ago(1),\n    catchup=False,\n) as dag:\n\n    # Step 1: Ingest and Format\n    load_and_modify = DockerOperator(\n        task_id='load_and_modify_facilities',\n        image='i2t-backendwithintertwino6-load-and-modify:latest',\n        command=[\n            'python', '/app/scripts/load_and_modify.py',\n            '--input_pattern', 'facilities.csv',\n            '--output_pattern', 'table_data_2.json',\n            '--dataset_id', '2',\n            '--table_name', 'JOT_'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 2: Geocoding (HERE API)\n    reconciliation = DockerOperator(\n        task_id='geocode_facilities',\n        image='i2t-backendwithintertwino6-reconciliation:latest',\n        command=[\n            'python', '/app/scripts/reconciliation.py',\n            '--input_pattern', 'table_data_2.json',\n            '--output_pattern', 'reconciled_table_2.json',\n            '--column_name', 'address',\n            '--reconciliator_id', 'geocodingHere',\n            '--api_token', os.environ.get('HERE_API_TOKEN', ''),\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 3: Distance to Public Transport\n    distance_pt = DockerOperator(\n        task_id='calc_distance_public_transport',\n        image='i2t-backendwithintertwino6-column-extension:latest',\n        command=[\n            'python', '/app/scripts/column_extension.py',\n            '--input_pattern', 'reconciled_table_2.json',\n            '--output_pattern', 'distance_pt_2.json',\n            '--extender_id', 'spatialDistanceCalculator',\n            '--lat_column', 'latitude',\n            '--lon_column', 'longitude',\n            '--target_layer', 'public_transport',\n            '--target_data_source', '/app/data/transport_stops.geojson',\n            '--output_column', 'distance_to_pt'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 4: Distance to Residential Areas\n    distance_residential = DockerOperator(\n        task_id='calc_distance_residential',\n        image='i2t-backendwithintertwino6-column-extension:latest',\n        command=[\n            'python', '/app/scripts/column_extension.py',\n            '--input_pattern', 'distance_pt_2.json',\n            '--output_pattern', 'column_extended_2.json',\n            '--extender_id', 'spatialDistanceCalculator',\n            '--lat_column', 'latitude',\n            '--lon_column', 'longitude',\n            '--target_layer', 'residential_areas',\n            '--target_data_source', '/app/data/residential_areas.geojson',\n            '--output_column', 'distance_to_residential'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 5: Save Final CSV\n    save_data = DockerOperator(\n        task_id='save_accessibility_data',\n        image='i2t-backendwithintertwino6-save:latest',\n        command=[\n            'python', '/app/scripts/save.py',\n            '--input_pattern', 'column_extended_2.json',\n            '--output_filename', 'enriched_data_2.csv',\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    load_and_modify >> reconciliation >> distance_pt >> distance_residential >> save_data\n"
+      }
+    ],
+    "sampled_time": "2025-12-15T20:45:00Z",
+    "analysis": {
+      "is_valid_dag_file": true,
+      "is_production_dag": true,
+      "is_airflow_2": true,
+      "processing_type": "batch",
+      "has_streaming_operators": false,
+      "has_ml_operators": false,
+      "topology": {
+        "pattern": "linear",
+        "has_sensors": false,
+        "has_branches": false,
+        "has_fan_out": false,
+        "has_fan_in": false,
+        "estimated_max_parallel_width": 1,
+        "estimated_branch_depth": 0,
+        "has_cycles": false,
+        "has_subdags": false,
+        "has_task_groups": false
+      },
+      "tasks": {
+        "total_count": 5,
+        "operator_types": [
+          "DockerOperator"
+        ],
+        "has_dynamic_mapping": false,
+        "has_external_task_sensor": false
+      },
+      "description": "Geospatial analysis pipeline that processes medical facility locations, geocodes them using HERE maps, and calculates spatial proximity to public transport and residential zones.",
+      "complexity_score": 4
+    }
+  }

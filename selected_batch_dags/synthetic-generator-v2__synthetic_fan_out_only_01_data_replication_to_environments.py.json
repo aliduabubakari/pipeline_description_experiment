@@ -1,0 +1,47 @@
+{
+  "unique_key": "synthetic/fan_out_only:synthetic_fan_out_only_01_data_replication_to_environments.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_only_01_data_replication_to_environments.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.bash import BashOperator\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\nwith DAG(\n    'database_replication_fanout',\n    default_args=default_args,\n    description='Dump production database snapshot and copy to multiple environments',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['replication', 'database', 'fanout']\n) as dag:\n    \n    \"\"\"\n    Database Replication DAG with Fan-Out Pattern\n    \n    This DAG performs database replication from production to multiple environments:\n    1. Dump production database to CSV snapshot\n    2. Copy the snapshot to three environments simultaneously (Dev, Staging, QA)\n    3. No synchronization point after copying - each environment copy is independent\n    \n    Pattern: FAN OUT ONLY - One task splits to multiple parallel tasks with no merge\n    \"\"\"\n    \n    # Task 1: Dump production database to CSV\n    dump_prod_csv = BashOperator(\n        task_id='dump_prod_csv',\n        bash_command='echo \"Dumping production database to CSV snapshot...\" && '\n                    'echo \"Exporting tables to /tmp/prod_snapshot_$(date +%Y%m%d).csv\" && '\n                    'sleep 5 && '\n                    'echo \"Production database dump completed successfully\"'\n    )\n    \n    # Task 2: Copy to Development environment\n    copy_dev = BashOperator(\n        task_id='copy_dev',\n        bash_command='echo \"Copying CSV snapshot to Development database...\" && '\n                    'echo \"Loading /tmp/prod_snapshot_$(date +%Y%m%d).csv to Dev_DB\" && '\n                    'sleep 10 && '\n                    'echo \"Development database copy completed successfully\"'\n    )\n    \n    # Task 3: Copy to Staging environment\n    copy_staging = BashOperator(\n        task_id='copy_staging',\n        bash_command='echo \"Copying CSV snapshot to Staging database...\" && '\n                    'echo \"Loading /tmp/prod_snapshot_$(date +%Y%m%d).csv to Staging_DB\" && '\n                    'sleep 8 && '\n                    'echo \"Staging database copy completed successfully\"'\n    )\n    \n    # Task 4: Copy to QA environment\n    copy_qa = BashOperator(\n        task_id='copy_qa',\n        bash_command='echo \"Copying CSV snapshot to QA database...\" && '\n                    'echo \"Loading /tmp/prod_snapshot_$(date +%Y%m%d).csv to QA_DB\" && '\n                    'sleep 7 && '\n                    'echo \"QA database copy completed successfully\"'\n    )\n    \n    # Set up dependencies: FAN OUT ONLY pattern\n    # Dump_Prod_CSV → [Copy_Dev | Copy_Staging | Copy_QA]\n    dump_prod_csv >> [copy_dev, copy_staging, copy_qa]"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:46:02Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 3,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 4,
+      "operator_types": [
+        "BashOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Database replication DAG that dumps production database to CSV and copies to multiple environments (Dev, Staging, QA) in parallel using fan-out pattern",
+    "complexity_score": 3
+  }
+}

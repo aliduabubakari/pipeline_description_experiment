@@ -1,0 +1,42 @@
+Pipeline Summary:
+- Pipeline ID: technoavengers-com__airflow-training-private__assignment_template.py
+- Name: assignment_solution
+- Purpose: Fetches user data from API, processes it, creates PostgreSQL table, and inserts processed data
+- Execution model: batch
+- Topology pattern: linear
+- Notes: Template code with incomplete implementation - Python function and SQL queries need completion
+
+Control Flow:
+- Dependencies (directed edges):
+  - get_user -> process_user
+  - process_user -> create_table
+  - create_table -> insert_data
+
+External Systems:
+- http_api: reqres API (reqres)
+- database: PostgreSQL (postgres)
+
+Pipeline Steps:
+1. get_user — get_user
+  - Objective: Fetch user data from external API
+  - Mechanism: http_request
+  - Step parameters:
+    - endpoint=api/users/2
+    - method=GET
+2. process_user — process_user
+  - Objective: Process and transform user data from API response
+  - Mechanism: python_callable
+3. create_table — create_table
+  - Objective: Create PostgreSQL table for storing user data
+  - Mechanism: sql_query
+4. insert_data — insert_data
+  - Objective: Insert processed user data into PostgreSQL table
+  - Mechanism: sql_query
+  - Step parameters:
+    - firstname=dynamic_parameter
+    - lastname=dynamic_parameter
+    - email=dynamic_parameter
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily

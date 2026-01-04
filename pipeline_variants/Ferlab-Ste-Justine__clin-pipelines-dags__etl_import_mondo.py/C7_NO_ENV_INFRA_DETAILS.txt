@@ -1,0 +1,78 @@
+Pipeline Summary:
+- Pipeline ID: Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py
+- Name: etl_import_mondo
+- Purpose: ETL pipeline for importing Mondo ontology data - downloads Mondo OBO file, normalizes terms using Spark, indexes to Elasticsearch, publishes results, and sends notification
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: bioinformatics/clinical genomics
+- Notes: Pipeline includes version checking to skip processing if data is already up-to-date
+
+Control Flow:
+- Dependencies (directed edges):
+  - params_validate -> download_mondo_terms
+  - download_mondo_terms -> normalized_mondo_terms
+  - normalized_mondo_terms -> index_mondo_terms
+  - index_mondo_terms -> publish_mondo
+  - publish_mondo -> slack
+
+Data Artifacts / I-O Identifiers:
+- file: mondo-base.obo (Source Mondo ontology file)
+- file: mondo.obo (Downloaded Mondo file name)
+- file: mondo_terms_template.json (Elasticsearch index template)
+- bucket: cqgc-{env}-app-datalake/raw/landing/mondo (Raw Mondo file storage)
+- bucket: cqgc-{env}-app-datalake/public/mondo_terms (Processed Mondo terms)
+
+External Systems:
+- http_api: GitHub Mondo Releases (https://github.com/monarch-initiative/mondo/releases)
+- object_storage: S3 Data Lake (cqgc-{env}-app-datalake)
+- database: Elasticsearch
+- cloud_service: Kubernetes
+- other: Slack
+
+Pipeline Steps:
+1. params_validate — params_validate
+  - Objective: Validate pipeline parameters
+  - Mechanism: python_callable
+  - Inputs: parameter:color
+  - Step parameters:
+    - color
+2. download_mondo_terms — download_mondo_terms
+  - Objective: Download Mondo OBO file from GitHub releases and upload to S3
+  - Mechanism: python_callable
+  - Inputs: external_api:https://github.com/monarch-initiative/mondo/releases
+  - Outputs: file:mondo.obo, metadata:mondo.obo.version
+3. normalized_mondo_terms — normalized_mondo_terms
+  - Objective: Normalize Mondo terms using Spark processing
+  - Mechanism: spark_job
+  - Inputs: file:mondo-base.obo, metadata:mondo.obo.version
+  - Outputs: processed_data:public/mondo_terms
+  - Step parameters:
+    - spark_class=bio.ferlab.HPOMain
+    - spark_config=config-etl-medium
+    - k8s_context=ETL
+    - exclude_root=MONDO:0700096
+4. index_mondo_terms — index_mondo_terms
+  - Objective: Index normalized Mondo terms to Elasticsearch
+  - Mechanism: spark_job
+  - Inputs: processed_data:public/mondo_terms, metadata:mondo.obo.version, template:mondo_terms_template.json
+  - Outputs: index:mondo
+  - Step parameters:
+    - spark_class=bio.ferlab.clin.etl.es.Indexer
+    - spark_config=config-etl-singleton
+    - index_name=mondo
+    - index_type=mondo_terms
+    - config_file=config/{env}.conf
+5. publish_mondo — publish_mondo
+  - Objective: Publish indexed Mondo data
+  - Mechanism: spark_job
+  - Inputs: metadata:mondo.obo.version, index:mondo
+  - Outputs: published_data:Published Mondo index
+  - Step parameters:
+    - color={color}
+6. slack — slack
+  - Objective: Send completion notification
+  - Mechanism: notification
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2022-01-01

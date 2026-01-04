@@ -1,0 +1,151 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py
+- Name: retail_inventory_reconciliation
+- Purpose: Reconcile retail inventory across multiple warehouse systems by fetching CSVs, normalizing SKU formats, reconciling discrepancies, and generating final report
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: retail
+- Notes: Implements fan-out fan-in pattern: 4 CSVs → 4 SKU normalizers → 1 reconciler → discrepancy report
+
+Control Flow:
+- Dependencies (directed edges):
+  - fetch_north_warehouse_csv -> normalize_north_skus
+  - fetch_south_warehouse_csv -> normalize_south_skus
+  - fetch_east_warehouse_csv -> normalize_east_skus
+  - fetch_west_warehouse_csv -> normalize_west_skus
+  - fetch_north_warehouse_csv -> normalize_south_skus
+  - fetch_south_warehouse_csv -> normalize_south_skus
+  - fetch_east_warehouse_csv -> normalize_south_skus
+  - fetch_west_warehouse_csv -> normalize_south_skus
+  - fetch_north_warehouse_csv -> normalize_east_skus
+  - fetch_south_warehouse_csv -> normalize_east_skus
+  - fetch_east_warehouse_csv -> normalize_east_skus
+  - fetch_west_warehouse_csv -> normalize_east_skus
+  - fetch_north_warehouse_csv -> normalize_west_skus
+  - fetch_south_warehouse_csv -> normalize_west_skus
+  - fetch_east_warehouse_csv -> normalize_west_skus
+  - fetch_west_warehouse_csv -> normalize_west_skus
+  - normalize_north_skus -> reconcile_all_inventories
+  - normalize_south_skus -> reconcile_all_inventories
+  - normalize_east_skus -> reconcile_all_inventories
+  - normalize_west_skus -> reconcile_all_inventories
+  - reconcile_all_inventories -> generate_final_report
+
+Data Artifacts / I-O Identifiers:
+- file: warehouse_north_inventory.csv (Inventory CSV from north warehouse)
+- file: warehouse_south_inventory.csv (Inventory CSV from south warehouse)
+- file: warehouse_east_inventory.csv (Inventory CSV from east warehouse)
+- file: warehouse_west_inventory.csv (Inventory CSV from west warehouse)
+- file: normalized_north_inventory.csv (Normalized SKU format for north warehouse)
+- file: normalized_south_inventory.csv (Normalized SKU format for south warehouse)
+- file: normalized_east_inventory.csv (Normalized SKU format for east warehouse)
+- file: normalized_west_inventory.csv (Normalized SKU format for west warehouse)
+- file: inventory_discrepancies_report.csv (Report of SKU discrepancies across warehouses)
+- file: retail_inventory_reconciliation_final.pdf (Final reconciliation report with recommendations)
+
+External Systems:
+- other: warehouse management system
+
+Pipeline Steps:
+1. fetch_north_warehouse_csv — fetch_north_warehouse_csv
+  - Objective: Fetch inventory CSV from north warehouse management system
+  - Mechanism: python_callable
+  - Outputs: file:warehouse_north_inventory.csv
+  - Step parameters:
+    - warehouse_id=north
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. fetch_south_warehouse_csv — fetch_south_warehouse_csv
+  - Objective: Fetch inventory CSV from south warehouse management system
+  - Mechanism: python_callable
+  - Outputs: file:warehouse_south_inventory.csv
+  - Step parameters:
+    - warehouse_id=south
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. fetch_east_warehouse_csv — fetch_east_warehouse_csv
+  - Objective: Fetch inventory CSV from east warehouse management system
+  - Mechanism: python_callable
+  - Outputs: file:warehouse_east_inventory.csv
+  - Step parameters:
+    - warehouse_id=east
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. fetch_west_warehouse_csv — fetch_west_warehouse_csv
+  - Objective: Fetch inventory CSV from west warehouse management system
+  - Mechanism: python_callable
+  - Outputs: file:warehouse_west_inventory.csv
+  - Step parameters:
+    - warehouse_id=west
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+5. normalize_north_skus — normalize_north_skus
+  - Objective: Standardize SKU formats for north warehouse inventory data
+  - Mechanism: python_callable
+  - Inputs: file:warehouse_north_inventory.csv
+  - Outputs: file:normalized_north_inventory.csv
+  - Step parameters:
+    - warehouse_id=north
+    - csv_file=warehouse_north_inventory.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+6. normalize_south_skus — normalize_south_skus
+  - Objective: Standardize SKU formats for south warehouse inventory data
+  - Mechanism: python_callable
+  - Inputs: file:warehouse_south_inventory.csv
+  - Outputs: file:normalized_south_inventory.csv
+  - Step parameters:
+    - warehouse_id=south
+    - csv_file=warehouse_south_inventory.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+7. normalize_east_skus — normalize_east_skus
+  - Objective: Standardize SKU formats for east warehouse inventory data
+  - Mechanism: python_callable
+  - Inputs: file:warehouse_east_inventory.csv
+  - Outputs: file:normalized_east_inventory.csv
+  - Step parameters:
+    - warehouse_id=east
+    - csv_file=warehouse_east_inventory.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+8. normalize_west_skus — normalize_west_skus
+  - Objective: Standardize SKU formats for west warehouse inventory data
+  - Mechanism: python_callable
+  - Inputs: file:warehouse_west_inventory.csv
+  - Outputs: file:normalized_west_inventory.csv
+  - Step parameters:
+    - warehouse_id=west
+    - csv_file=warehouse_west_inventory.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+9. reconcile_all_inventories — reconcile_all_inventories
+  - Objective: Reconcile all normalized inventories and identify discrepancies
+  - Mechanism: python_callable
+  - Inputs: file:normalized_north_inventory.csv, file:normalized_south_inventory.csv, file:normalized_east_inventory.csv, file:normalized_west_inventory.csv
+  - Outputs: file:inventory_discrepancies_report.csv
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+10. generate_final_report — generate_final_report
+  - Objective: Generate final reconciliation report with recommendations
+  - Mechanism: python_callable
+  - Inputs: file:inventory_discrepancies_report.csv
+  - Outputs: file:retail_inventory_reconciliation_final.pdf
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

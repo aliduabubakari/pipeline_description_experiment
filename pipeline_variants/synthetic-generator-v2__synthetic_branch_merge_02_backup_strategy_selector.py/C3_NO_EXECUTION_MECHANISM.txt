@@ -1,0 +1,58 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py
+- Name: backup_strategy_selector
+- Purpose: Selects database backup strategy based on day of week (full backup on Saturday, incremental backup on weekdays)
+- Execution model: batch
+- Topology pattern: branch_merge
+- Business domain: database maintenance
+- Notes: Implements a branch-merge pattern for database backups with conditional routing
+
+Control Flow:
+- Dependencies (directed edges):
+  - start_backup_process -> date_check_task
+  - date_check_task -> full_backup_task
+  - date_check_task -> incremental_backup_task
+  - full_backup_task -> verify_backup_task
+  - incremental_backup_task -> verify_backup_task
+  - verify_backup_task -> backup_complete
+
+External Systems:
+- database: database
+
+Pipeline Steps:
+1. start_backup_process — start_backup_process
+  - Objective: Initialize backup workflow
+2. date_check_task — date_check_task
+  - Objective: Determine day of week and select backup strategy
+  - Inputs: execution_date:Workflow execution date
+  - Outputs: branch_decision:Selected backup strategy branch
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+3. full_backup_task — full_backup_task
+  - Objective: Perform full database backup
+  - Outputs: backup_file:Full database backup
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+4. incremental_backup_task — incremental_backup_task
+  - Objective: Perform incremental database backup
+  - Outputs: backup_file:Incremental database backup
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+5. verify_backup_task — verify_backup_task
+  - Objective: Verify backup integrity and completeness
+  - Inputs: backup_file:Backup file to verify
+  - Outputs: verification_result:Backup verification status
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+6. backup_complete — backup_complete
+  - Objective: Finalize backup workflow
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

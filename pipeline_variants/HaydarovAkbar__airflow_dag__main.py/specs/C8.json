@@ -1,0 +1,513 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "WF_MAIN_DATASETS_LOAD_L2_TO_L2",
+  "pipeline_name": "WF_MAIN_DATASETS_LOAD_L2_TO_L2",
+  "source": {
+    "unique_key": null,
+    "repo": "HaydarovAkbar/airflow_dag",
+    "file_path": "main.py",
+    "repo_url": "https://github.com/HaydarovAkbar/airflow_dag",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "1f0929594ed277f7894f30b43d8b01289327da3818241dbc8d7da48e914c025b"
+  },
+  "summary": {
+    "purpose": "Main workflow for loading datasets from DWH L2 to L2 with segmentation processing and SAP integration",
+    "business_domain": "data_warehouse",
+    "execution_model": "batch",
+    "topology_pattern": "mixed",
+    "notes": "Includes wait conditions, parallel execution, and failure notifications"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": "Asia/Tashkent",
+    "start_date": "2024-12-22",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "wait_for_l2_full_load",
+        "to": "get_load_id"
+      },
+      {
+        "from": "get_load_id",
+        "to": "workflow_registration"
+      },
+      {
+        "from": "workflow_registration",
+        "to": "wait_for_success_end"
+      },
+      {
+        "from": "wait_for_success_end",
+        "to": "run_sys_kill_all_session_pg"
+      },
+      {
+        "from": "run_sys_kill_all_session_pg",
+        "to": "run_wf_data_preparation_for_reports"
+      },
+      {
+        "from": "run_sys_kill_all_session_pg",
+        "to": "segmentation_group"
+      },
+      {
+        "from": "run_wf_data_preparation_for_reports",
+        "to": "end"
+      },
+      {
+        "from": "segmentation_group",
+        "to": "end"
+      },
+      {
+        "from": "end",
+        "to": "email_on_failure"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "parallel_group_1",
+        "steps": [
+          "run_wf_data_preparation_for_reports",
+          "segmentation_group"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": [
+      {
+        "type": "sql_sensor",
+        "step": "wait_for_l2_full_load",
+        "waits_for": "external_database_flag"
+      },
+      {
+        "type": "external_task_sensor",
+        "step": "wait_for_success_end",
+        "waits_for": "WF_MAIN_DATASETS_LOAD_L2_TO_L2.end"
+      }
+    ]
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "DWH database",
+      "identifier": "dwh",
+      "details": [
+        "PostgreSQL database for data warehouse"
+      ],
+      "auth": [
+        "connection_parameters"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "SAP system",
+      "identifier": "sap_conn",
+      "details": [
+        "SAP integration endpoint"
+      ],
+      "auth": [
+        "http_connection"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [
+      {
+        "identifier": "wk_export.ds_client_segmentation_last_v",
+        "description": "Client segmentation dataset view"
+      },
+      {
+        "identifier": "md.dwh_flag",
+        "description": "Data warehouse flag table"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "get_load_id",
+      "name": "get_load_id",
+      "objective": "Generate load identifier for the session",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "internal",
+          "identifier": "load_id",
+          "description": "Session load identifier"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "workflow_registration",
+      "name": "workflow_registration",
+      "objective": "Register workflow session in metadata system",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "internal",
+          "identifier": "load_id",
+          "description": "Session load identifier"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "DWH database",
+          "identifier": "dwh"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "end",
+      "name": "end",
+      "objective": "Finalize workflow session with success status",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "internal",
+          "identifier": "load_id",
+          "description": "Session load identifier"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "DWH database",
+          "identifier": "dwh"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "wait_for_l2_full_load",
+      "name": "wait_for_l2_full_load",
+      "objective": "Wait for L1 to L2 data load completion flag",
+      "mechanism": "wait_poll",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "DWH database",
+          "identifier": "dwh"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "sql_query",
+          "value": "select * from md.dwh_flag where flag_cd = 'l1_to_l2_load_successfull' and bussines_date = current_date - 1"
+        },
+        {
+          "key": "poke_interval",
+          "value": "60"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "wait_for_success_end",
+      "name": "wait_for_success_end",
+      "objective": "Wait for previous successful execution completion",
+      "mechanism": "wait_poll",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "external_workflow_id",
+          "value": "WF_MAIN_DATASETS_LOAD_L2_TO_L2"
+        },
+        {
+          "key": "external_step_id",
+          "value": "end"
+        },
+        {
+          "key": "poke_interval",
+          "value": "100"
+        },
+        {
+          "key": "execution_delta",
+          "value": "1 day"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "run_sys_kill_all_session_pg",
+      "name": "run_sys_kill_all_session_pg",
+      "objective": "Trigger session cleanup workflow",
+      "mechanism": "external_workflow_trigger",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "target_workflow_id",
+          "value": "sys_kill_all_session_pg"
+        },
+        {
+          "key": "wait_for_completion",
+          "value": "true"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "run_wf_data_preparation_for_reports",
+      "name": "run_wf_data_preparation_for_reports",
+      "objective": "Trigger data preparation for reports workflow",
+      "mechanism": "external_workflow_trigger",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "target_workflow_id",
+          "value": "wf_data_preparation_for_reports"
+        },
+        {
+          "key": "wait_for_completion",
+          "value": "true"
+        },
+        {
+          "key": "pool",
+          "value": "dwh_l2"
+        },
+        {
+          "key": "pool_slots",
+          "value": "1"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "email_on_failure",
+      "name": "email_on_failure",
+      "objective": "Send notification email on workflow failure",
+      "mechanism": "notification",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email service",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "recipients",
+          "value": "test@gmail.com"
+        },
+        {
+          "key": "subject",
+          "value": "Airflow DAG Execution Failure"
+        },
+        {
+          "key": "trigger_condition",
+          "value": "on_failure"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_ds_client_segmentation",
+      "name": "load_ds_client_segmentation",
+      "objective": "Trigger client segmentation data load workflow",
+      "mechanism": "external_workflow_trigger",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "target_workflow_id",
+          "value": "l1_to_l2_p_load_data_ds_client_segmentation_full"
+        },
+        {
+          "key": "wait_for_completion",
+          "value": "true"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_flg_to_sap",
+      "name": "send_flg_to_sap",
+      "objective": "Send completion flag to SAP system",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "table",
+          "identifier": "wk_export.ds_client_segmentation_last_v",
+          "description": "Client segmentation data"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "DWH database",
+          "identifier": "dwh"
+        },
+        {
+          "type": "http_api",
+          "name": "SAP system",
+          "identifier": "sap_conn"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Step 'segmentation_group' is a group containing multiple steps; decomposed into individual steps",
+      "Commented-out step 'create_dwh_flag' not included in specification",
+      "Some Airflow-specific parameters converted to neutral equivalents"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:48:27.179777Z"
+  },
+  "variant": {
+    "class_id": "C8",
+    "class_name": "NO_FAILURE_HANDLING_DETAILS",
+    "canonical_pipeline_id": "HaydarovAkbar__airflow_dag__main.py",
+    "spec_pipeline_id": "WF_MAIN_DATASETS_LOAD_L2_TO_L2"
+  }
+}

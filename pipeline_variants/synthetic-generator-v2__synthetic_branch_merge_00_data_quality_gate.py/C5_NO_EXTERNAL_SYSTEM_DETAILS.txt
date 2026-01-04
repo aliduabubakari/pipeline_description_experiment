@@ -1,0 +1,77 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py
+- Name: Data Quality Gate
+- Purpose: Data quality gate for customer CSV data that routes data based on quality scores
+- Execution model: batch
+- Topology pattern: branch_merge
+- Business domain: data_quality
+- Notes: Routes customer data to production or quarantine based on quality assessment
+
+Control Flow:
+- Dependencies (directed edges):
+  - ingest_csv -> quality_check
+  - quality_check -> production_load
+  - quality_check -> quarantine_and_alert
+  - quarantine_and_alert -> send_alert_email
+  - production_load -> cleanup
+  - send_alert_email -> cleanup
+
+Data Artifacts / I-O Identifiers:
+- file: /data/raw/customers_20240101.csv (Raw customer CSV data)
+
+Pipeline Steps:
+1. ingest_csv — Ingest CSV
+  - Objective: Load raw customer CSV data from source location
+  - Mechanism: python_callable
+  - Inputs: file:/data/raw/customers_20240101.csv
+  - Outputs: data_object:ingest_data
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+2. quality_check — Quality Check
+  - Objective: Calculate data quality score based on completeness and validity metrics
+  - Mechanism: python_callable
+  - Inputs: data_object:ingest_data
+  - Outputs: decision:quality_decision
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+3. production_load — Production Load
+  - Objective: Load high-quality data to production database
+  - Mechanism: python_callable
+  - Inputs: data_object:ingest_data
+  - Outputs: status:Production load completion status
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+4. quarantine_and_alert — Quarantine and Alert
+  - Objective: Move low-quality data to quarantine zone
+  - Mechanism: python_callable
+  - Inputs: data_object:ingest_data
+  - Outputs: status:Quarantine completion status
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+5. send_alert_email — Send Alert Email
+  - Objective: Send data quality alert to data stewards
+  - Mechanism: notification
+  - Outputs: notification:Email alert sent confirmation
+  - Step parameters:
+    - to=data-stewards@company.com
+    - subject=Data Quality Alert - Customer Data
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+6. cleanup — Cleanup
+  - Objective: Perform cleanup operations on temporary files and resources
+  - Mechanism: python_callable
+  - Outputs: status:Cleanup completion status
+  - Failure handling:
+    - retries: 1
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

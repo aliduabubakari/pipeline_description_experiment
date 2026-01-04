@@ -1,0 +1,888 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "airflow_db_cleanup",
+  "pipeline_name": "airflow_db_cleanup",
+  "source": {
+    "unique_key": null,
+    "repo": "nazzang49/gcp-tutorials",
+    "file_path": "composer/workflows/airflow_db_cleanup.py",
+    "repo_url": "https://github.com/nazzang49/gcp-tutorials",
+    "detected_airflow_version": null,
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "a7b8d02e5882727a5f4bcaadc0356a3b77ac632021b9fa6f2c7cb030512cbfe3"
+  },
+  "summary": {
+    "purpose": "Periodically clean out old metadata entries from various database tables to prevent excessive data accumulation in the metadata store.",
+    "business_domain": "data_platform_maintenance",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Maintenance workflow for database cleanup. Originally forked from teamclairvoyant repository."
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "print_configuration",
+        "to": "cleanup_DagRun"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_TaskInstance"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_Log"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_XCom"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_SlaMiss"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_DagModel"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_TaskReschedule"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_TaskFail"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_RenderedTaskInstanceFields"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_ImportError"
+      },
+      {
+        "from": "print_configuration",
+        "to": "cleanup_BaseJob"
+      },
+      {
+        "from": "cleanup_DagRun",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_TaskInstance",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_Log",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_XCom",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_SlaMiss",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_DagModel",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_TaskReschedule",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_TaskFail",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_RenderedTaskInstanceFields",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_ImportError",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_BaseJob",
+        "to": "analyze_query"
+      },
+      {
+        "from": "cleanup_sessions",
+        "to": "analyze_query"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "cleanup_tasks",
+        "steps": [
+          "cleanup_DagRun",
+          "cleanup_TaskInstance",
+          "cleanup_Log",
+          "cleanup_XCom",
+          "cleanup_SlaMiss",
+          "cleanup_DagModel",
+          "cleanup_TaskReschedule",
+          "cleanup_TaskFail",
+          "cleanup_RenderedTaskInstanceFields",
+          "cleanup_ImportError",
+          "cleanup_BaseJob"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "Airflow Metadata Database",
+      "identifier": null,
+      "details": [
+        "SQL database storing workflow metadata"
+      ],
+      "auth": [
+        "database session/connection"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "print_configuration",
+      "name": "print_configuration",
+      "objective": "Load and validate configuration parameters for the cleanup process",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Maximum age of database entries to retain (from configuration)"
+        },
+        {
+          "type": "variable",
+          "identifier": null,
+          "description": "Default maximum age variable"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Calculated cutoff date for deletion"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "DEFAULT_MAX_DB_ENTRY_AGE_IN_DAYS",
+          "value": "30"
+        },
+        {
+          "key": "ENABLE_DELETE",
+          "value": "True"
+        },
+        {
+          "key": "PRINT_DELETES",
+          "value": "False"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_DagRun",
+      "name": "cleanup_DagRun",
+      "objective": "Clean up old <table_name>Run entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name>Run model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "execution_date column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "True"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "[external_trigger is False]"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name>_id"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_TaskInstance",
+      "name": "cleanup_TaskInstance",
+      "objective": "Clean up old TaskInstance entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "TaskInstance model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "start_date column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_Log",
+      "name": "cleanup_Log",
+      "objective": "Clean up old <table_name> entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name> model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "dttm column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_XCom",
+      "name": "cleanup_XCom",
+      "objective": "Clean up old <table_name> entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name> model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "execution_date or timestamp column based on version"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_SlaMiss",
+      "name": "cleanup_SlaMiss",
+      "objective": "Clean up old SlaMiss entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "SlaMiss model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "execution_date column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_DagModel",
+      "name": "cleanup_DagModel",
+      "objective": "Clean up old <table_name>Model entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name>Model model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "last_parsed_time column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_TaskReschedule",
+      "name": "cleanup_TaskReschedule",
+      "objective": "Clean up old TaskReschedule entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "TaskReschedule model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "execution_date or start_date column based on version"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_TaskFail",
+      "name": "cleanup_TaskFail",
+      "objective": "Clean up old TaskFail entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "TaskFail model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "start_date column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_RenderedTaskInstanceFields",
+      "name": "cleanup_RenderedTaskInstanceFields",
+      "objective": "Clean up old RenderedTaskInstanceFields entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "RenderedTaskInstanceFields model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "execution_date column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_ImportError",
+      "name": "cleanup_ImportError",
+      "objective": "Clean up old ImportError entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "ImportError model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "timestamp column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "True"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_BaseJob",
+      "name": "cleanup_BaseJob",
+      "objective": "Clean up old <table_name>/Base<table_name> entries from the metadata database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "Cutoff date for deletion"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "<table_name>/Base<table_name> model"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "latest_heartbeat column"
+        },
+        {
+          "type": "parameter",
+          "identifier": null,
+          "description": "False"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup_sessions",
+      "name": "cleanup_sessions",
+      "objective": "Clean up expired <table_name>s from the <table_name> table",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "analyze_query",
+      "name": "analyze_query",
+      "objective": "Run database analyze to update statistics after cleanup operations",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Airflow Metadata Database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "1 minute",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Some cleanup tasks may be conditional based on Airflow version (e.g., TaskReschedule, RenderedTaskInstanceFields, Base<table_name>/<table_name>)",
+      "Actual table/model names are Airflow-specific but included as data artifacts for clarity",
+      "Step IDs derived from Airflow task_id values"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:18:51.654669Z"
+  },
+  "variant": {
+    "class_id": "C6",
+    "class_name": "NO_DATA_ARTIFACT_DETAILS",
+    "canonical_pipeline_id": "nazzang49__gcp-tutorials__airflow_db_cleanup.py",
+    "spec_pipeline_id": "airflow_db_cleanup"
+  }
+}

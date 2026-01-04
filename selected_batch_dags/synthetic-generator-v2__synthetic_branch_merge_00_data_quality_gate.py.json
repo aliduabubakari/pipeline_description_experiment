@@ -1,0 +1,49 @@
+{
+  "unique_key": "synthetic/branch_merge:synthetic_branch_merge_00_data_quality_gate.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_branch_merge_00_data_quality_gate.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import BranchPythonOperator, PythonOperator\nfrom airflow.operators.email import EmailOperator\nfrom airflow.utils.task_group import TaskGroup\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 1,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef ingest_csv():\n    \"\"\"Mock function to ingest raw customer CSV data\"\"\"\n    print(\"Ingesting raw customer CSV data from source location...\")\n    print(\"CSV file loaded successfully with 1000 records\")\n    return {\"file_path\": \"/data/raw/customers_20240101.csv\", \"record_count\": 1000}\n\ndef quality_check(**kwargs):\n    \"\"\"Mock function to calculate data quality score\"\"\"\n    ti = kwargs['ti']\n    ingest_data = ti.xcom_pull(task_ids='ingest_csv')\n    \n    print(f\"Performing quality check on {ingest_data['file_path']}\")\n    \n    # Mock quality metrics\n    completeness_score = 97.5  # 97.5% complete\n    validity_score = 92.3     # 92.3% valid\n    overall_score = (completeness_score + validity_score) / 2\n    \n    print(f\"Quality scores - Completeness: {completeness_score}%, Validity: {validity_score}%\")\n    print(f\"Overall quality score: {overall_score}%\")\n    \n    if overall_score >= 95:\n        return \"production_load\"\n    else:\n        return \"quarantine_and_alert\"\n\ndef production_load():\n    \"\"\"Mock function to load data to production\"\"\"\n    print(\"Loading high-quality data to production database...\")\n    print(\"Data successfully loaded to production tables\")\n    return \"Production load completed\"\n\ndef quarantine_data():\n    \"\"\"Mock function to quarantine low-quality data\"\"\"\n    print(\"Moving low-quality data to quarantine zone...\")\n    print(\"Data quarantined for manual review\")\n    return \"Data quarantined\"\n\ndef send_quality_alert():\n    \"\"\"Mock function to send quality alert\"\"\"\n    print(\"Sending data quality alert to data stewards...\")\n    return \"Alert sent\"\n\ndef cleanup():\n    \"\"\"Mock function to perform cleanup operations\"\"\"\n    print(\"Cleaning up temporary files and resources...\")\n    print(\"Cleanup completed successfully\")\n    return \"Cleanup finished\"\n\nwith DAG(\n    'data_quality_gate',\n    default_args=default_args,\n    description='Data quality gate DAG that routes customer data based on quality scores',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['data_quality', 'customer_data']\n) as dag:\n    \n    dag.doc_md = \"\"\"\n    # Data Quality Gate DAG\n    \n    This DAG implements a data quality gate for customer CSV data:\n    1. **Ingest**: Load raw customer CSV data\n    2. **Quality Check**: Calculate data quality score (completeness + validity)\n    3. **Branch**: Route based on quality score:\n       - Score ≥ 95% → Production Load\n       - Score < 95% → Quarantine and Alert\n    4. **Merge**: Both paths converge to Cleanup task\n    \n    Pattern: Branch Merge with conditional routing\n    \"\"\"\n    \n    # Stage 1: Data Ingestion\n    ingest_csv_task = PythonOperator(\n        task_id='ingest_csv',\n        python_callable=ingest_csv\n    )\n    \n    # Stage 2: Quality Assessment & Branching\n    quality_check_task = BranchPythonOperator(\n        task_id='quality_check',\n        python_callable=quality_check\n    )\n    \n    # Stage 3: Conditional Paths\n    production_load_task = PythonOperator(\n        task_id='production_load',\n        python_callable=production_load\n    )\n    \n    quarantine_task = PythonOperator(\n        task_id='quarantine_and_alert',\n        python_callable=quarantine_data\n    )\n    \n    alert_task = EmailOperator(\n        task_id='send_alert_email',\n        to='data-stewards@company.com',\n        subject='Data Quality Alert - Customer Data',\n        html_content=\"\"\"\n        <h3>Data Quality Alert</h3>\n        <p>Customer data failed quality gate with score below 95% threshold.</p>\n        <p>Data has been quarantined for manual review.</p>\n        <p>Please investigate and take appropriate action.</p>\n        \"\"\"\n    )\n    \n    # Stage 4: Merge and Cleanup\n    cleanup_task = PythonOperator(\n        task_id='cleanup',\n        python_callable=cleanup\n    )\n    \n    # Define dependencies\n    ingest_csv_task >> quality_check_task\n    \n    quality_check_task >> production_load_task\n    quality_check_task >> quarantine_task\n    \n    quarantine_task >> alert_task\n    \n    production_load_task >> cleanup_task\n    alert_task >> cleanup_task"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:40:18Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "branch_merge",
+      "has_sensors": false,
+      "has_branches": true,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 1,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 6,
+      "operator_types": [
+        "PythonOperator",
+        "BranchPythonOperator",
+        "EmailOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Data quality gate DAG that ingests customer CSV data, performs quality assessment, and routes to production load or quarantine based on quality scores",
+    "complexity_score": 4
+  }
+}

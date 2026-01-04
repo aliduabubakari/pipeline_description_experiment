@@ -1,0 +1,5 @@
+RunELT_Alert is a workflow with execution model batch and topology pattern linear. Its purpose is: Builds ELT tables using SQL CTAS with Snowflake, validates data, and sends Slack alerts on failures.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2025-01-10, catchup/backfill is False. Control flow includes dependencies such as: .
+
+runCTAS_mau_summary performs Create or replace analytics table using CTAS with validation using mechanism python_callable.

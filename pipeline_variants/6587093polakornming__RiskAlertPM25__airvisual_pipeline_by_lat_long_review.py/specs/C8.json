@@ -1,0 +1,315 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "airvisual_pipeline_lat_long_v1",
+  "pipeline_name": "airvisual_pipeline_lat_long_v1",
+  "source": {
+    "unique_key": null,
+    "repo": "6587093polakornming/RiskAlertPM25",
+    "file_path": "code_review/airvisual_pipeline_by_lat_long_review.py",
+    "repo_url": "https://github.com/6587093polakornming/RiskAlertPM25",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "a0f2bafd3c05c75f6938c3df320672c042a89b2407d152f68f9ed18741605e08"
+  },
+  "summary": {
+    "purpose": "Air quality data pipeline that fetches data from AirVisual API, processes JSON data, and loads into PostgreSQL database with ETL operations",
+    "business_domain": "environmental monitoring",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Pipeline checks for existing data in database before processing to avoid duplicates"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": "2025-03-20",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "get_airvisual_data_hourly",
+        "to": "read_data_airvisual"
+      },
+      {
+        "from": "read_data_airvisual",
+        "to": "load_data_airvisual_to_postgresql"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "AirVisual API",
+      "identifier": "http://api.airvisual.com/v2/nearest_city",
+      "details": [
+        "Air quality data API",
+        "Returns JSON response with pollution and weather data"
+      ],
+      "auth": [
+        "API key from config file"
+      ]
+    },
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "postgres_conn",
+      "details": [
+        "Stores air quality data in dimensional model",
+        "Tables: factairvisualtable, dimDateTimeTable, dimLocationTable, dimMainPollutionTable"
+      ],
+      "auth": [
+        "Connection credentials"
+      ]
+    },
+    {
+      "type": "filesystem",
+      "name": "Local filesystem",
+      "identifier": null,
+      "details": [
+        "Stores temporary JSON data",
+        "Stores configuration and mapping files"
+      ],
+      "auth": [
+        "File system access"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/opt/airflow/config/mapping_main_pollution.json",
+        "description": "Pollution code mapping configuration"
+      },
+      {
+        "identifier": "/opt/airflow/config/mapping_weather_code.json",
+        "description": "Weather code mapping configuration"
+      },
+      {
+        "identifier": "/opt/airflow/data/tmp_airvisual.json",
+        "description": "Temporary JSON data file from API response"
+      },
+      {
+        "identifier": "config/config.conf",
+        "description": "Configuration file containing API key"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "factairvisualtable",
+        "description": "Fact table for air quality measurements"
+      },
+      {
+        "identifier": "dimDateTimeTable",
+        "description": "Date/time dimension table"
+      },
+      {
+        "identifier": "dimLocationTable",
+        "description": "Location dimension table"
+      },
+      {
+        "identifier": "dimMainPollutionTable",
+        "description": "Pollution type dimension table"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "get_airvisual_data_hourly",
+      "name": "get_airvisual_data_hourly",
+      "objective": "Fetch air quality data from AirVisual API and save to temporary JSON file",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "config_file",
+          "identifier": "config/config.conf",
+          "description": "Configuration file containing API key"
+        },
+        {
+          "type": "api_endpoint",
+          "identifier": "http://api.airvisual.com/v2/nearest_city",
+          "description": "AirVisual API endpoint"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "json_file",
+          "identifier": "/opt/airflow/data/tmp_airvisual.json",
+          "description": "Temporary JSON file with API response"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "AirVisual API",
+          "identifier": "http://api.airvisual.com/v2/nearest_city"
+        },
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_conn"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "CITY",
+          "value": "Salaya"
+        },
+        {
+          "key": "STATE",
+          "value": "Nakhon Pathom"
+        },
+        {
+          "key": "COUNTRY",
+          "value": "Thailand"
+        },
+        {
+          "key": "LATITUDE",
+          "value": "13.79059242"
+        },
+        {
+          "key": "LONGITUDE",
+          "value": "100.32622308"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "read_data_airvisual",
+      "name": "read_data_airvisual",
+      "objective": "Read and validate the JSON data file",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "json_file",
+          "identifier": "/opt/airflow/data/tmp_airvisual.json",
+          "description": "Temporary JSON file with API response"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "validated_data",
+          "identifier": null,
+          "description": "Validated JSON data structure"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_data_airvisual_to_postgresql",
+      "name": "load_data_airvisual_to_postgresql",
+      "objective": "Transform and load air quality data into PostgreSQL database using ETL operations",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "json_file",
+          "identifier": "/opt/airflow/data/tmp_airvisual.json",
+          "description": "Temporary JSON file with API response"
+        },
+        {
+          "type": "config_file",
+          "identifier": "/opt/airflow/config/mapping_main_pollution.json",
+          "description": "Pollution code mapping configuration"
+        },
+        {
+          "type": "config_file",
+          "identifier": "/opt/airflow/config/mapping_weather_code.json",
+          "description": "Weather code mapping configuration"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "database_table",
+          "identifier": "factairvisualtable",
+          "description": "Fact table with air quality measurements"
+        },
+        {
+          "type": "database_table",
+          "identifier": "dimDateTimeTable",
+          "description": "Date/time dimension table"
+        },
+        {
+          "type": "database_table",
+          "identifier": "dimLocationTable",
+          "description": "Location dimension table"
+        },
+        {
+          "type": "database_table",
+          "identifier": "dimMainPollutionTable",
+          "description": "Pollution type dimension table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_conn"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Original code uses Airflow-specific constructs (DAG, PythonOperator, PostgresHook) which have been translated to orchestrator-agnostic terms",
+      "Some file paths appear to be absolute (/opt/airflow/) which may be environment-specific",
+      "Database connection identifier 'postgres_conn' appears to be a connection ID reference"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:43:05.803300Z"
+  },
+  "variant": {
+    "class_id": "C8",
+    "class_name": "NO_FAILURE_HANDLING_DETAILS",
+    "canonical_pipeline_id": "6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py",
+    "spec_pipeline_id": "airvisual_pipeline_lat_long_v1"
+  }
+}

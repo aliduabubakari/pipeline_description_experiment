@@ -1,0 +1,51 @@
+{
+  "unique_key": "hejnal/dataform-training:integrations/airflow/dataform_dag_dynamic_vars.py",
+  "repo": "hejnal/dataform-training",
+  "repo_url": "https://github.com/hejnal/dataform-training",
+  "stars": 2,
+  "license": "Apache-2.0",
+  "file_path": "integrations/airflow/dataform_dag_dynamic_vars.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "f27a82db08f122e0ce1aae732836fddd4cf83264",
+      "code": "import datetime\n\nfrom google.cloud.dataform_v1beta1 import WorkflowInvocation\n\nfrom airflow import models\nfrom airflow.models.baseoperator import chain\nfrom airflow.providers.google.cloud.operators.dataform import (\n    DataformCreateCompilationResultOperator,\n    DataformCreateWorkflowInvocationOperator,\n)\nfrom airflow.providers.google.cloud.sensors.dataform import DataformWorkflowInvocationStateSensor\nfrom airflow.operators.dummy_operator import DummyOperator\nfrom airflow import Dataset\n\nimport airflow\nfrom airflow import DAG\n#from airflow.operators.bash_operator import BashOperator\nfrom airflow.operators.python import PythonOperator, get_current_context\nfrom airflow.decorators import task\nfrom datetime import timedelta\n\nDAG_ID = \"data-transformation-pipeline\"\nPROJECT_ID = \"whejna-modelling-sandbox\"\nREPOSITORY_ID = \"training-repo\"\nDATAFORM_DATASET = \"dataform_training\"\nREGION = \"europe-west3\"\nGIT_COMMITISH = \"full-version\"\nYESTERDAY = datetime.datetime.now() - datetime.timedelta(days=1)\n\ndef get_config_params(**kwargs):   \n    logical_date = kwargs[\"logical_date\"]\n    P_DESCRIPTION_PARAM = kwargs['dag_run'].conf.get('description_param', \"Default Description\")\n    P_LOGICAL_DATE = logical_date.strftime(\"%d/%m/%Y\")\n    P_COMPILATION_RESULT = '{ \"git_commitish\": \"' + GIT_COMMITISH + '\" , \"code_compilation_config\": { \"vars\": { \"logicalDate\": \"' + P_LOGICAL_DATE + '\", \"jobDescription\": \"' + P_DESCRIPTION_PARAM + '\" } } }'\n    \n    context = get_current_context() \n    task_instance = context['task_instance']\n    task_instance.xcom_push(key=\"compilation_result\", value=P_COMPILATION_RESULT)\n\ndef print_params(task_instance):\n     compilation_result = task_instance.xcom_pull('parse_input_params',key='compilation_result')\n     print(f\"compilation_result = {compilation_result}\")\n\ndefault_args = {\n    'owner': 'whejna',\n    'depends_on_past': False,\n    'email': [''],\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 0,\n    'retry_delay': datetime.timedelta(minutes=0),\n    'start_date': YESTERDAY,\n}\n\nwith models.DAG(\n    DAG_ID,\n    schedule=[Dataset(f\"dataform-training-data-ingestion\")],\n    default_args=default_args,\n    catchup=False,\n    tags=['dataform'],\n) as dag:\n\n    parse_params_op = PythonOperator( task_id = 'parse_input_params', python_callable = get_config_params )\n\n    start = DummyOperator(\n        task_id='start',\n        dag=dag,\n    )\n     \n    @task(task_id=\"create_compilation_result\")\n    def create_compilation_result(ti=None):\n        p_compilation_result = eval(ti.xcom_pull('parse_input_params',key='compilation_result'))\n    \n        return DataformCreateCompilationResultOperator(\n            task_id=\"t_create_compilation_result\",\n            project_id=PROJECT_ID,\n            region=REGION,\n            repository_id=REPOSITORY_ID,\n            compilation_result= p_compilation_result,\n            gcp_conn_id=\"modelling_cloud_default\",\n        ).execute(ti)\n        \n    op_create_compilation_result = create_compilation_result()\n\n    create_workflow_invocation = DataformCreateWorkflowInvocationOperator(\n        task_id='create_workflow_invocation',\n        project_id=PROJECT_ID,\n        region=REGION,\n        repository_id=REPOSITORY_ID,\n         workflow_invocation={\n            \"compilation_result\": \"{{ task_instance.xcom_pull('create_compilation_result')['name'] }}\",\n            \"invocation_config\": {\n                # \"included_tags\": [\"reports\"],\n                \"fully_refresh_incremental_tables_enabled\": True\n            },\n        },\n        asynchronous=True,\n        gcp_conn_id=\"modelling_cloud_default\",\n    )\n    \n    is_workflow_invocation_done = DataformWorkflowInvocationStateSensor(\n        task_id=\"is_workflow_invocation_done\",\n        project_id=PROJECT_ID,\n        region=REGION,\n        repository_id=REPOSITORY_ID,\n        workflow_invocation_id=(\"{{ task_instance.xcom_pull('create_workflow_invocation')['name'].split('/')[-1] }}\"),\n        expected_statuses={WorkflowInvocation.State.SUCCEEDED, WorkflowInvocation.State.FAILED},\n        gcp_conn_id=\"modelling_cloud_default\",\n    )\n    \n    end = DummyOperator(\n        task_id='end',\n        dag=dag,\n    )\n     \n\nstart >> parse_params_op >> op_create_compilation_result >> create_workflow_invocation >> is_workflow_invocation_done >> end\n"
+    }
+  ],
+  "sampled_time": "2025-11-24T22:03:29.152639Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "linear",
+      "has_sensors": true,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 6,
+      "operator_types": [
+        "DummyOperator",
+        "PythonOperator",
+        "DataformCreateCompilationResultOperator",
+        "DataformCreateWorkflowInvocationOperator",
+        "DataformWorkflowInvocationStateSensor"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Data transformation pipeline using Google Cloud Dataform for data processing with parameter parsing, compilation, workflow invocation, and state monitoring",
+    "complexity_score": 4
+  }
+}

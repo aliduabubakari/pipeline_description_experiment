@@ -1,0 +1,222 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "mahidol_aqi_pipeline_v2_alert_1",
+  "pipeline_name": "mahidol_aqi_pipeline_v2_alert_1",
+  "source": {
+    "unique_key": null,
+    "repo": "6587093polakornming/RiskAlertPM25",
+    "file_path": "scripts/mahidol_aqi_report_pipeline_alert.py",
+    "repo_url": "https://github.com/6587093polakornming/RiskAlertPM25",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "f9dd7048fc8c717be7e5cd5511db390fc907cc6a2979a7d9f81741ca81b9fc38"
+  },
+  "summary": {
+    "purpose": "ETL pipeline that scrapes Mahidol University AQI data from website, processes it, loads to PostgreSQL database, and sends email alerts",
+    "business_domain": "environmental_monitoring",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Code shows commented-out steps (t1, t2, t3) and only t4 (alert_email) is active. Pipeline appears to be in development/testing state."
+  },
+  "schedule": {
+    "schedule_type": null,
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "Mahidol AQI Report Website",
+      "identifier": "https://mahidol.ac.th/aqireport/",
+      "details": [
+        "AQI data source"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "postgres_conn",
+      "details": [
+        "Stores AQI data in factmahidolaqitable, dimDateTimeTable, dimLocationTable, dimMainPollutionTable"
+      ],
+      "auth": [
+        "connection_id"
+      ]
+    },
+    {
+      "type": "email",
+      "name": "Gmail SMTP",
+      "identifier": "smtp.gmail.com:587",
+      "details": [
+        "Sends email alerts"
+      ],
+      "auth": [
+        "username/password from config file"
+      ]
+    },
+    {
+      "type": "filesystem",
+      "name": "Local filesystem",
+      "identifier": null,
+      "details": [
+        "Stores HTML, JSON, config files"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/opt/airflow/data/mahidol_aqi.html",
+        "description": "Raw HTML from Mahidol AQI website"
+      },
+      {
+        "identifier": "/opt/airflow/data/tmp_mahidol.json",
+        "description": "Processed AQI data in JSON format"
+      },
+      {
+        "identifier": "/opt/airflow/config/mapping_main_pollution.json",
+        "description": "Pollution code mapping configuration"
+      },
+      {
+        "identifier": "/opt/airflow/config/pm25_alert_emails.txt",
+        "description": "List of email recipients for alerts"
+      },
+      {
+        "identifier": "/opt/airflow/config/config.conf",
+        "description": "Email configuration file"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "factmahidolaqitable",
+        "description": "Main fact table for AQI measurements"
+      },
+      {
+        "identifier": "dimDateTimeTable",
+        "description": "Date/time dimension table"
+      },
+      {
+        "identifier": "dimLocationTable",
+        "description": "Location dimension table"
+      },
+      {
+        "identifier": "dimMainPollutionTable",
+        "description": "Pollution type dimension table"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "alert_email",
+      "name": "alert_email",
+      "objective": "Send email alerts based on AQI values",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "/opt/airflow/data/tmp_mahidol.json",
+          "description": "Processed AQI data"
+        },
+        {
+          "type": "file",
+          "identifier": "/opt/airflow/config/pm25_alert_emails.txt",
+          "description": "Email recipient list"
+        },
+        {
+          "type": "file",
+          "identifier": "/opt/airflow/config/config.conf",
+          "description": "Email configuration"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": "email_alert",
+          "description": "Email notifications sent to recipients"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Gmail SMTP",
+          "identifier": "smtp.gmail.com:587"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "LATITUDE",
+          "value": "13.794606"
+        },
+        {
+          "key": "LONGITUDE",
+          "value": "100.327256"
+        },
+        {
+          "key": "DESCRIPTION",
+          "value": "คณะสิ่งแวดล้อมและทรัพยากรศาสตร์ มหาวิทยาลัยมหิดล"
+        },
+        {
+          "key": "COUNTRY",
+          "value": "Thailand"
+        },
+        {
+          "key": "STATE",
+          "value": "Nakhon Pathom"
+        },
+        {
+          "key": "CITY",
+          "value": "Salaya"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": [
+          "Checks AQI value range before sending alerts",
+          "Skips if AQI is safe (0-50)"
+        ]
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "medium",
+    "extraction_warnings": [
+      "Code shows commented-out steps (t1, t2, t3) that are not active in the pipeline",
+      "Only one step (alert_email) is currently active in the workflow",
+      "Pipeline appears to be in development/testing state with incomplete implementation",
+      "Control flow edges are empty because only one step is active",
+      "Some referenced functions (get_data_mahidol_aqi_report, create_json_object, load_mahidol_aqi_to_postgres) exist in code but are not used in active pipeline"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:43:57.876543Z"
+  },
+  "variant": {
+    "class_id": "C1",
+    "class_name": "NO_SCHEDULING",
+    "canonical_pipeline_id": "6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py",
+    "spec_pipeline_id": "mahidol_aqi_pipeline_v2_alert_1"
+  }
+}

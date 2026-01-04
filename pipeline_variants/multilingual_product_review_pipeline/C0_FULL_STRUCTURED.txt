@@ -1,0 +1,95 @@
+Pipeline Summary:
+- Pipeline ID: multilingual_product_review_pipeline
+- Name: multilingual_product_review_analysis_v1
+- Purpose: Enriches product reviews with language detection and sentiment analysis
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: data_science
+- Notes: Sequential data pipeline analyzing multilingual product reviews. It performs language verification, LLM-based sentiment analysis, and feature extraction using containerized services.
+
+Control Flow:
+- Dependencies (directed edges):
+  - load_and_modify_reviews -> detect_language
+  - detect_language -> analyze_sentiment
+  - analyze_sentiment -> extract_features
+  - extract_features -> save_enriched_reviews
+
+Data Artifacts / I-O Identifiers:
+- file: reviews.csv (Input product reviews)
+- file: table_data_2.json (Formatted review data)
+- file: lang_detected_2.json (Reviews with language detection)
+- file: sentiment_analyzed_2.json (Reviews with sentiment scores)
+- file: column_extended_2.json (Reviews with extracted features)
+- file: enriched_data_2.csv (Final enriched output)
+
+External Systems:
+- filesystem: local_data_directory (/tmp/reviews/data)
+- cloud_service: Docker Registry
+
+Pipeline Steps:
+1. load_and_modify_reviews — load_and_modify_reviews
+  - Objective: Ingest and format raw review data
+  - Mechanism: container_run
+  - Inputs: file:reviews.csv
+  - Outputs: file:table_data_2.json
+  - Step parameters:
+    - input_pattern=reviews.csv
+    - output_pattern=table_data_2.json
+    - dataset_id=2
+    - date_column=submission_date
+    - table_name=JOT_
+  - Failure handling:
+    - retries: 1
+2. detect_language — detect_language
+  - Objective: Detect language of review text
+  - Mechanism: container_run
+  - Inputs: file:table_data_2.json
+  - Outputs: file:lang_detected_2.json
+  - Step parameters:
+    - input_file=table_data_2.json
+    - output_file=lang_detected_2.json
+    - text_column=review_text
+    - lang_code_column=language_code
+  - Failure handling:
+    - retries: 1
+3. analyze_sentiment — analyze_sentiment
+  - Objective: Perform sentiment analysis on review text
+  - Mechanism: container_run
+  - Inputs: file:lang_detected_2.json
+  - Outputs: file:sentiment_analyzed_2.json
+  - Step parameters:
+    - input_file=lang_detected_2.json
+    - output_file=sentiment_analyzed_2.json
+    - model_name=distilbert-base-uncased-finetuned-sst-2-english
+    - text_column=review_text
+    - output_column=sentiment_score
+  - Failure handling:
+    - retries: 1
+4. extract_features — extract_features
+  - Objective: Extract product features mentioned in reviews
+  - Mechanism: container_run
+  - Inputs: file:sentiment_analyzed_2.json
+  - Outputs: file:column_extended_2.json
+  - Step parameters:
+    - input_pattern=sentiment_analyzed_2.json
+    - output_pattern=column_extended_2.json
+    - extender_id=featureExtractor
+    - text_column=review_text
+    - output_column=mentioned_features
+  - Failure handling:
+    - retries: 1
+5. save_enriched_reviews — save_enriched_reviews
+  - Objective: Save final enriched data to CSV format
+  - Mechanism: container_run
+  - Inputs: file:column_extended_2.json
+  - Outputs: file:enriched_data_2.csv
+  - Step parameters:
+    - input_pattern=column_extended_2.json
+    - output_filename=enriched_data_2.csv
+    - dataset_id=2
+  - Failure handling:
+    - retries: 1
+
+Scheduling:
+- Schedule type: manual
+- Catchup/backfill: False

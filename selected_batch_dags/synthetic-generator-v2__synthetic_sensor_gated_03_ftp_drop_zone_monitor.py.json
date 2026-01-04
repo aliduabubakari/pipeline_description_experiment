@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/sensor_gated:synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.operators.bash import BashOperator\nfrom airflow.sensors.base import BaseSensorOperator\nfrom airflow.utils.context import Context\n\nclass FTPFileSensor(BaseSensorOperator):\n    \"\"\"Custom sensor to check for vendor_inventory.csv on FTP server\"\"\"\n    \n    def poke(self, context: Context) -> bool:\n        # Mock FTP check - in reality this would connect to FTP server\n        print(\"Checking FTP server for vendor_inventory.csv...\")\n        # Simulate file detection after some time\n        import time\n        time.sleep(2)  # Simulate network delay\n        print(\"File vendor_inventory.csv detected on FTP server!\")\n        return True\n\ndef download_vendor_file():\n    \"\"\"Download the vendor inventory file from FTP\"\"\"\n    print(\"Downloading vendor_inventory.csv from FTP server...\")\n    # Mock download operation\n    print(\"File downloaded successfully to /tmp/vendor_inventory.csv\")\n\ndef cleanse_vendor_data():\n    \"\"\"Clean null values from vendor data\"\"\"\n    print(\"Cleansing vendor inventory data...\")\n    print(\"Removing null values from columns: product_id, quantity, price\")\n    print(\"Data cleansing completed successfully\")\n\ndef merge_with_internal_inventory():\n    \"\"\"Merge vendor data with internal inventory\"\"\"\n    print(\"Merging vendor inventory with internal inventory...\")\n    print(\"Performing join on product_id column\")\n    print(\"Updating stock levels and pricing\")\n    print(\"Merge operation completed successfully\")\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\nwith DAG(\n    'ftp_vendor_inventory_processor',\n    default_args=default_args,\n    description='Monitor FTP for vendor inventory file, download, cleanse and merge with internal inventory',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['ftp', 'inventory', 'vendor']\n) as dag:\n    \n    \"\"\"\n    FTP Vendor Inventory Processing DAG\n    \n    This DAG monitors an FTP drop zone for vendor inventory files.\n    When vendor_inventory.csv is detected, it downloads the file,\n    cleanses null values, and merges it with the internal inventory system.\n    \n    Pattern: SENSOR GATED\n    - Sensor task waits for file availability\n    - Processing tasks execute only when file is detected\n    \"\"\"\n    \n    # Sensor task - waits for file to appear on FTP\n    wait_for_ftp_file = FTPFileSensor(\n        task_id='wait_for_ftp_file',\n        mode='poke',\n        poke_interval=30,  # Check every 30 seconds\n        timeout=300,  # Timeout after 5 minutes\n    )\n    \n    # Download task\n    download_file = PythonOperator(\n        task_id='download_vendor_file',\n        python_callable=download_vendor_file\n    )\n    \n    # Cleanse task\n    cleanse_data = PythonOperator(\n        task_id='cleanse_vendor_data',\n        python_callable=cleanse_vendor_data\n    )\n    \n    # Merge task\n    merge_inventory = PythonOperator(\n        task_id='merge_with_internal_inventory',\n        python_callable=merge_with_internal_inventory\n    )\n    \n    # Set dependencies according to SENSOR GATED pattern\n    wait_for_ftp_file >> download_file >> cleanse_data >> merge_inventory"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:45:09Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "sensor_gated",
+      "has_sensors": true,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 4,
+      "operator_types": [
+        "FTPFileSensor",
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Monitor FTP for vendor inventory file, download, cleanse and merge with internal inventory",
+    "complexity_score": 3
+  }
+}

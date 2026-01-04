@@ -1,0 +1,1185 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "global_dag",
+  "pipeline_name": "global_dag",
+  "source": {
+    "unique_key": null,
+    "repo": "M4TTRX/data-eng-project",
+    "file_path": "dags/global_dag.py",
+    "repo_url": "https://github.com/M4TTRX/data-eng-project",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "d18a18a5c22e58a7dd9a521eb136271edbf105930a9096afa93cd532fa2bd0b7"
+  },
+  "summary": {
+    "purpose": "ETL pipeline for processing death records and power plant data from French government APIs, with data ingestion, cleansing, and loading to PostgreSQL",
+    "business_domain": "government_data",
+    "execution_model": "batch",
+    "topology_pattern": "staged_etl",
+    "notes": "Pipeline has two main stages: ingestion and staging, with conditional branching for death data processing"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "start_global",
+        "to": "ingestion_pipeline"
+      },
+      {
+        "from": "ingestion_pipeline",
+        "to": "staging_pipeline"
+      },
+      {
+        "from": "staging_pipeline",
+        "to": "end_global"
+      },
+      {
+        "from": "ingestion_pipeline.start",
+        "to": "ingestion_pipeline.get_city_code_geo"
+      },
+      {
+        "from": "ingestion_pipeline.start",
+        "to": "ingestion_pipeline.get_nuclear_json"
+      },
+      {
+        "from": "ingestion_pipeline.start",
+        "to": "ingestion_pipeline.get_death_resource_list"
+      },
+      {
+        "from": "ingestion_pipeline.start",
+        "to": "ingestion_pipeline.get_thermal_json"
+      },
+      {
+        "from": "ingestion_pipeline.get_nuclear_json",
+        "to": "ingestion_pipeline.get_nuclear_data"
+      },
+      {
+        "from": "ingestion_pipeline.get_death_resource_list",
+        "to": "ingestion_pipeline.get_death_resources"
+      },
+      {
+        "from": "ingestion_pipeline.get_thermal_json",
+        "to": "ingestion_pipeline.get_thermal_data"
+      },
+      {
+        "from": "ingestion_pipeline.get_nuclear_data",
+        "to": "ingestion_pipeline.end"
+      },
+      {
+        "from": "ingestion_pipeline.get_death_resources",
+        "to": "ingestion_pipeline.end"
+      },
+      {
+        "from": "ingestion_pipeline.get_thermal_data",
+        "to": "ingestion_pipeline.end"
+      },
+      {
+        "from": "ingestion_pipeline.get_city_code_geo",
+        "to": "ingestion_pipeline.end"
+      },
+      {
+        "from": "staging_pipeline.start",
+        "to": "staging_pipeline.import_nuclear_clean_data"
+      },
+      {
+        "from": "staging_pipeline.start",
+        "to": "staging_pipeline.import_thermal_clean_data"
+      },
+      {
+        "from": "staging_pipeline.start",
+        "to": "staging_pipeline.create_power_plants_table"
+      },
+      {
+        "from": "staging_pipeline.start",
+        "to": "staging_pipeline.create_death_table"
+      },
+      {
+        "from": "staging_pipeline.create_death_table",
+        "to": "staging_pipeline.load_data_from_ingestion"
+      },
+      {
+        "from": "staging_pipeline.load_data_from_ingestion",
+        "to": "staging_pipeline.cleanse_death_data"
+      },
+      {
+        "from": "staging_pipeline.cleanse_death_data",
+        "to": "staging_pipeline.death_emptiness_check"
+      },
+      {
+        "from": "staging_pipeline.death_emptiness_check",
+        "to": "staging_pipeline.staging_end"
+      },
+      {
+        "from": "staging_pipeline.death_emptiness_check",
+        "to": "staging_pipeline.store_deaths_in_postgres"
+      },
+      {
+        "from": "staging_pipeline.store_deaths_in_postgres",
+        "to": "staging_pipeline.clean_tmp_death_files"
+      },
+      {
+        "from": "staging_pipeline.import_nuclear_clean_data",
+        "to": "staging_pipeline.import_thermal_clean_data"
+      },
+      {
+        "from": "staging_pipeline.import_thermal_clean_data",
+        "to": "staging_pipeline.create_power_plants_table"
+      },
+      {
+        "from": "staging_pipeline.create_power_plants_table",
+        "to": "staging_pipeline.create_plant_persist_sql_query"
+      },
+      {
+        "from": "staging_pipeline.create_plant_persist_sql_query",
+        "to": "staging_pipeline.store_plants_in_postgres"
+      },
+      {
+        "from": "staging_pipeline.clean_tmp_death_files",
+        "to": "staging_pipeline.staging_end"
+      },
+      {
+        "from": "staging_pipeline.store_plants_in_postgres",
+        "to": "staging_pipeline.staging_end"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "ingestion_parallel",
+        "steps": [
+          "ingestion_pipeline.get_city_code_geo",
+          "ingestion_pipeline.get_nuclear_json",
+          "ingestion_pipeline.get_death_resource_list",
+          "ingestion_pipeline.get_thermal_json"
+        ]
+      },
+      {
+        "group_id": "staging_initial_parallel",
+        "steps": [
+          "staging_pipeline.import_nuclear_clean_data",
+          "staging_pipeline.import_thermal_clean_data",
+          "staging_pipeline.create_power_plants_table",
+          "staging_pipeline.create_death_table"
+        ]
+      }
+    ],
+    "branch_points": [
+      {
+        "step": "staging_pipeline.death_emptiness_check",
+        "branches": [
+          {
+            "condition": "death SQL file is empty",
+            "next_steps": [
+              "staging_pipeline.staging_end"
+            ]
+          },
+          {
+            "condition": "death SQL file has content",
+            "next_steps": [
+              "staging_pipeline.store_deaths_in_postgres"
+            ]
+          }
+        ],
+        "merge_step": "staging_pipeline.staging_end"
+      }
+    ],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "data.gouv.fr API",
+      "identifier": "https://www.data.gouv.fr/api/1/datasets/",
+      "details": [
+        "French government open data portal API"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "postgres_default",
+      "details": [
+        "PostgreSQL database for storing processed data"
+      ],
+      "auth": [
+        "connection_id based authentication"
+      ]
+    },
+    {
+      "type": "database",
+      "name": "Redis",
+      "identifier": "redis:6379",
+      "details": [
+        "In-memory data store for tracking imported files and raw death data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "dags/data/ingestion/death_resources.json",
+        "description": "List of death data resources from API"
+      },
+      {
+        "identifier": "dags/data/ingestion/nuclear_plants.json",
+        "description": "Nuclear plant metadata from API"
+      },
+      {
+        "identifier": "dags/data/ingestion/thermal_plants.json",
+        "description": "Thermal plant metadata from API"
+      },
+      {
+        "identifier": "dags/data/ingestion/city_geo_loc.csv",
+        "description": "City geographic location data"
+      },
+      {
+        "identifier": "dags/data/ingestion/death_*.txt",
+        "description": "Raw death record files"
+      },
+      {
+        "identifier": "dags/data/ingestion/nuclear.csv",
+        "description": "Raw nuclear plant data"
+      },
+      {
+        "identifier": "dags/data/ingestion/thermal_plants_.csv",
+        "description": "Raw thermal plant data"
+      },
+      {
+        "identifier": "dags/data/staging/thermal_plants_clean.csv",
+        "description": "Cleaned thermal plant data"
+      },
+      {
+        "identifier": "dags/data/staging/nuclear_clean_datas.csv",
+        "description": "Cleaned nuclear plant data"
+      },
+      {
+        "identifier": "dags/sql/tmp/death_insert.sql",
+        "description": "Generated SQL queries for death data insertion"
+      },
+      {
+        "identifier": "dags/sql/tmp/plant_insert.sql",
+        "description": "Generated SQL queries for plant data insertion"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "deaths",
+        "description": "Processed death records with location and dates"
+      },
+      {
+        "identifier": "power_plants",
+        "description": "Power plant data including type, location, and capacity"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "start_global",
+      "name": "start_global",
+      "objective": "Start the global pipeline",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.start",
+      "name": "start",
+      "objective": "Start the ingestion stage",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_city_code_geo",
+      "name": "get_city_code_geo",
+      "objective": "Download city geographic location data",
+      "mechanism": "shell_command",
+      "inputs": [
+        {
+          "type": "url",
+          "identifier": "https://static.data.gouv.fr/resources/communes-de-france-base-des-codes-postaux/20200309-131459/communes-departement-region.csv",
+          "description": "City geographic dataset URL"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/city_geo_loc.csv",
+          "description": "Downloaded city geographic data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "bash_command",
+          "value": "curl https://static.data.gouv.fr/resources/communes-de-france-base-des-codes-postaux/20200309-131459/communes-departement-region.csv --output /opt/airflow/dags/data/ingestion/city_geo_loc.csv"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_nuclear_json",
+      "name": "get_nuclear_json",
+      "objective": "Download nuclear plant metadata",
+      "mechanism": "shell_command",
+      "inputs": [
+        {
+          "type": "url",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/63587afc1e8e90e9ce487174/",
+          "description": "Nuclear plant dataset API endpoint"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/nuclear_plants.json",
+          "description": "Nuclear plant metadata JSON"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "bash_command",
+          "value": "curl https://www.data.gouv.fr/api/1/datasets/63587afc1e8e90e9ce487174/ --output /opt/airflow/dags/data/ingestion/nuclear_plants.json"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_nuclear_data",
+      "name": "get_nuclear_data",
+      "objective": "Extract nuclear plant CSV data from metadata",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/nuclear_plants.json",
+          "description": "Nuclear plant metadata"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/nuclear.csv",
+          "description": "Raw nuclear plant CSV data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_death_resource_list",
+      "name": "get_death_resource_list",
+      "objective": "Fetch list of death data resources",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "url",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/5de8f397634f4164071119c5",
+          "description": "Death dataset API endpoint"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/death_resources.json",
+          "description": "Death resource list JSON"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_death_resources",
+      "name": "get_death_resources",
+      "objective": "Download death data files from resource list",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/death_resources.json",
+          "description": "Death resource list"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/death_*.txt",
+          "description": "Raw death record files"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "max_resource",
+          "value": "5"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_thermal_json",
+      "name": "get_thermal_plants_json",
+      "objective": "Download thermal plant metadata",
+      "mechanism": "shell_command",
+      "inputs": [
+        {
+          "type": "url",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/63587afb1cc488641390f68e/",
+          "description": "Thermal plant dataset API endpoint"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/thermal_plants.json",
+          "description": "Thermal plant metadata JSON"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "bash_command",
+          "value": "curl https://www.data.gouv.fr/api/1/datasets/63587afb1cc488641390f68e/ --output /opt/airflow/dags/data/ingestion/thermal_plants.json"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.get_thermal_data",
+      "name": "get_thermal_data",
+      "objective": "Extract thermal plant CSV data from metadata",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/thermal_plants.json",
+          "description": "Thermal plant metadata"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/thermal_plants_.csv",
+          "description": "Raw thermal plant CSV data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "data.gouv.fr API",
+          "identifier": "https://www.data.gouv.fr/api/1/datasets/"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ingestion_pipeline.end",
+      "name": "end",
+      "objective": "End the ingestion stage",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.start",
+      "name": "start",
+      "objective": "Start the staging stage",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.import_nuclear_clean_data",
+      "name": "import_nuclear_clean_data",
+      "objective": "Clean and transform nuclear plant data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/nuclear.csv",
+          "description": "Raw nuclear plant data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/staging/nuclear_clean_datas.csv",
+          "description": "Cleaned nuclear plant data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.import_thermal_clean_data",
+      "name": "import_thermal_clean_data",
+      "objective": "Clean and transform thermal plant data",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/thermal_plants_.csv",
+          "description": "Raw thermal plant data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/staging/thermal_plants_clean.csv",
+          "description": "Cleaned thermal plant data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.create_power_plants_table",
+      "name": "create_power_plants_table",
+      "objective": "Create power plants table in database",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/create_power_plant_table.sql",
+          "description": "SQL schema definition"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "power_plants",
+          "description": "Created power plants table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_default"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.create_death_table",
+      "name": "create_death_table",
+      "objective": "Create deaths table in database",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/create_death_table.sql",
+          "description": "SQL schema definition"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "deaths",
+          "description": "Created deaths table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_default"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.load_data_from_ingestion",
+      "name": "load_data_from_ingestion",
+      "objective": "Load death data files and track imports in Redis",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/death_*.txt",
+          "description": "Raw death record files"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "redis_key",
+          "identifier": "death_raw",
+          "description": "Raw death data in Redis"
+        },
+        {
+          "type": "redis_key",
+          "identifier": "imported_death_files",
+          "description": "List of imported files in Redis"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Redis",
+          "identifier": "redis:6379"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.cleanse_death_data",
+      "name": "cleanse_death_data",
+      "objective": "Process raw death data and generate SQL queries",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "redis_key",
+          "identifier": "death_raw",
+          "description": "Raw death data from Redis"
+        },
+        {
+          "type": "file",
+          "identifier": "dags/data/ingestion/city_geo_loc.csv",
+          "description": "City geographic data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/death_insert.sql",
+          "description": "Generated SQL queries for death data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Redis",
+          "identifier": "redis:6379"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.death_emptiness_check",
+      "name": "death_emptiness_check",
+      "objective": "Check if death SQL file has content and branch accordingly",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/death_insert.sql",
+          "description": "Generated death SQL queries"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.store_deaths_in_postgres",
+      "name": "store_deaths_in_postgres",
+      "objective": "Insert death data into database",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/death_insert.sql",
+          "description": "Generated death SQL queries"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "deaths",
+          "description": "Populated deaths table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_default"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.clean_tmp_death_files",
+      "name": "clean_tmp_death_files",
+      "objective": "Clean up temporary death data files",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "redis_key",
+          "identifier": "death_raw",
+          "description": "Raw death data in Redis"
+        },
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/death_insert.sql",
+          "description": "Generated death SQL queries"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Redis",
+          "identifier": "redis:6379"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.create_plant_persist_sql_query",
+      "name": "create_plant_persist_sql_query",
+      "objective": "Generate SQL queries for plant data insertion",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/data/staging/thermal_plants_clean.csv",
+          "description": "Cleaned thermal plant data"
+        },
+        {
+          "type": "file",
+          "identifier": "dags/data/staging/nuclear_clean_datas.csv",
+          "description": "Cleaned nuclear plant data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/plant_insert.sql",
+          "description": "Generated SQL queries for plant data"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.store_plants_in_postgres",
+      "name": "store_plants_in_postgres",
+      "objective": "Insert plant data into database",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "dags/sql/tmp/plant_insert.sql",
+          "description": "Generated plant SQL queries"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "power_plants",
+          "description": "Populated power plants table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres_default"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "staging_pipeline.staging_end",
+      "name": "staging_end",
+      "objective": "End the staging stage",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "end_global",
+      "name": "end_global",
+      "objective": "End the global pipeline",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Some step mechanisms classified as 'unknown' for DummyOperator steps",
+      "Redis authentication details not specified in code",
+      "PostgreSQL connection details not fully visible in code"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:52:36.271644Z"
+  },
+  "variant": {
+    "class_id": "C8",
+    "class_name": "NO_FAILURE_HANDLING_DETAILS",
+    "canonical_pipeline_id": "M4TTRX__data-eng-project__global_dag.py",
+    "spec_pipeline_id": "global_dag"
+  }
+}

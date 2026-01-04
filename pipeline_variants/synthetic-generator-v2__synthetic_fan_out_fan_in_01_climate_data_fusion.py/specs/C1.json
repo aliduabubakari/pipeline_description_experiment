@@ -1,0 +1,642 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "climate_data_fusion_pipeline",
+  "pipeline_name": "climate_data_fusion_pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "1b5a9f456048754766c72e7a2eb81fc43dd8cc5c775d08e9be33f005fc7d5e8f"
+  },
+  "summary": {
+    "purpose": "Download and normalize weather station data from 5 meteorological agencies, then merge into unified climate dataset",
+    "business_domain": "climate",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Climate data fusion pipeline that downloads weather station data from 5 meteorological agencies (NOAA, ECMWF, JMA, MetOffice, BOM), normalizes each dataset to standard format, then merges into unified climate dataset"
+  },
+  "schedule": {
+    "schedule_type": null,
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "download_noaa",
+        "to": "normalize_noaa"
+      },
+      {
+        "from": "download_ecmwf",
+        "to": "normalize_ecmwf"
+      },
+      {
+        "from": "download_jma",
+        "to": "normalize_jma"
+      },
+      {
+        "from": "download_metoffice",
+        "to": "normalize_metoffice"
+      },
+      {
+        "from": "download_bom",
+        "to": "normalize_bom"
+      },
+      {
+        "from": "normalize_noaa",
+        "to": "merge_climate_data"
+      },
+      {
+        "from": "normalize_ecmwf",
+        "to": "merge_climate_data"
+      },
+      {
+        "from": "normalize_jma",
+        "to": "merge_climate_data"
+      },
+      {
+        "from": "normalize_metoffice",
+        "to": "merge_climate_data"
+      },
+      {
+        "from": "normalize_bom",
+        "to": "merge_climate_data"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "download_group",
+        "steps": [
+          "download_noaa",
+          "download_ecmwf",
+          "download_jma",
+          "download_metoffice",
+          "download_bom"
+        ]
+      },
+      {
+        "group_id": "normalize_group",
+        "steps": [
+          "normalize_noaa",
+          "normalize_ecmwf",
+          "normalize_jma",
+          "normalize_metoffice",
+          "normalize_bom"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "ftp",
+      "name": "NOAA FTP",
+      "identifier": "ftp://noaa.gov/weather/stations.csv",
+      "details": [
+        "NOAA weather station CSV data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "ECMWF API",
+      "identifier": "https://ecmwf.int/data/stations.csv",
+      "details": [
+        "ECMWF weather station CSV data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "JMA API",
+      "identifier": "https://jma.go.jp/weather/stations.csv",
+      "details": [
+        "JMA weather station CSV data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "MetOffice API",
+      "identifier": "https://metoffice.gov.uk/data/stations.csv",
+      "details": [
+        "MetOffice weather station CSV data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "http_api",
+      "name": "BOM API",
+      "identifier": "https://bom.gov.au/observations/stations.csv",
+      "details": [
+        "BOM weather station CSV data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "noaa_data.csv",
+        "description": "Raw NOAA weather station data"
+      },
+      {
+        "identifier": "ecmwf_data.csv",
+        "description": "Raw ECMWF weather station data"
+      },
+      {
+        "identifier": "jma_data.csv",
+        "description": "Raw JMA weather station data"
+      },
+      {
+        "identifier": "metoffice_data.csv",
+        "description": "Raw MetOffice weather station data"
+      },
+      {
+        "identifier": "bom_data.csv",
+        "description": "Raw BOM weather station data"
+      },
+      {
+        "identifier": "normalized_noaa_data.csv",
+        "description": "Normalized NOAA data in standard format"
+      },
+      {
+        "identifier": "normalized_ecmwf_data.csv",
+        "description": "Normalized ECMWF data in standard format"
+      },
+      {
+        "identifier": "normalized_jma_data.csv",
+        "description": "Normalized JMA data in standard format"
+      },
+      {
+        "identifier": "normalized_metoffice_data.csv",
+        "description": "Normalized MetOffice data in standard format"
+      },
+      {
+        "identifier": "normalized_bom_data.csv",
+        "description": "Normalized BOM data in standard format"
+      },
+      {
+        "identifier": "unified_climate_dataset.parquet",
+        "description": "Merged unified climate dataset"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "download_noaa",
+      "name": "download_noaa",
+      "objective": "Download NOAA weather station CSV data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "noaa_data.csv",
+          "description": "Raw NOAA weather station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "ftp",
+          "name": "NOAA FTP",
+          "identifier": "ftp://noaa.gov/weather/stations.csv"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "download_ecmwf",
+      "name": "download_ecmwf",
+      "objective": "Download ECMWF weather station CSV data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "ecmwf_data.csv",
+          "description": "Raw ECMWF weather station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "ECMWF API",
+          "identifier": "https://ecmwf.int/data/stations.csv"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "download_jma",
+      "name": "download_jma",
+      "objective": "Download JMA weather station CSV data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "jma_data.csv",
+          "description": "Raw JMA weather station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "JMA API",
+          "identifier": "https://jma.go.jp/weather/stations.csv"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "download_metoffice",
+      "name": "download_metoffice",
+      "objective": "Download MetOffice weather station CSV data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "metoffice_data.csv",
+          "description": "Raw MetOffice weather station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "MetOffice API",
+          "identifier": "https://metoffice.gov.uk/data/stations.csv"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "download_bom",
+      "name": "download_bom",
+      "objective": "Download BOM weather station CSV data",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "bom_data.csv",
+          "description": "Raw BOM weather station data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "BOM API",
+          "identifier": "https://bom.gov.au/observations/stations.csv"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "normalize_noaa",
+      "name": "normalize_noaa",
+      "objective": "Normalize NOAA data to standard format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "noaa_data.csv",
+          "description": "Raw NOAA weather station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_noaa_data.csv",
+          "description": "Normalized NOAA data in standard format"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "normalize_ecmwf",
+      "name": "normalize_ecmwf",
+      "objective": "Normalize ECMWF data to standard format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "ecmwf_data.csv",
+          "description": "Raw ECMWF weather station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_ecmwf_data.csv",
+          "description": "Normalized ECMWF data in standard format"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "normalize_jma",
+      "name": "normalize_jma",
+      "objective": "Normalize JMA data to standard format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "jma_data.csv",
+          "description": "Raw JMA weather station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_jma_data.csv",
+          "description": "Normalized JMA data in standard format"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "normalize_metoffice",
+      "name": "normalize_metoffice",
+      "objective": "Normalize MetOffice data to standard format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "metoffice_data.csv",
+          "description": "Raw MetOffice weather station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_metoffice_data.csv",
+          "description": "Normalized MetOffice data in standard format"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "normalize_bom",
+      "name": "normalize_bom",
+      "objective": "Normalize BOM data to standard format",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "bom_data.csv",
+          "description": "Raw BOM weather station data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_bom_data.csv",
+          "description": "Normalized BOM data in standard format"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "merge_climate_data",
+      "name": "merge_climate_data",
+      "objective": "Merge all normalized climate data into unified dataset",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "normalized_noaa_data.csv",
+          "description": "Normalized NOAA data in standard format"
+        },
+        {
+          "type": "file",
+          "identifier": "normalized_ecmwf_data.csv",
+          "description": "Normalized ECMWF data in standard format"
+        },
+        {
+          "type": "file",
+          "identifier": "normalized_jma_data.csv",
+          "description": "Normalized JMA data in standard format"
+        },
+        {
+          "type": "file",
+          "identifier": "normalized_metoffice_data.csv",
+          "description": "Normalized MetOffice data in standard format"
+        },
+        {
+          "type": "file",
+          "identifier": "normalized_bom_data.csv",
+          "description": "Normalized BOM data in standard format"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "unified_climate_dataset.parquet",
+          "description": "Merged unified climate dataset"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 3,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Email alert configuration details not fully specified",
+      "Authentication details for external systems not specified",
+      "File paths in code are illustrative; actual storage locations may differ"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:32:25.565124Z"
+  },
+  "variant": {
+    "class_id": "C1",
+    "class_name": "NO_SCHEDULING",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+    "spec_pipeline_id": "climate_data_fusion_pipeline"
+  }
+}

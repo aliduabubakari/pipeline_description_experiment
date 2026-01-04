@@ -1,0 +1,47 @@
+{
+  "unique_key": "synthetic/fan_out_fan_in:synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow.decorators import dag, task\nfrom airflow.utils.dates import days_ago\n\ndefault_args = {\n    'owner': 'portfolio_team',\n    'depends_on_past': False,\n    'start_date': days_ago(1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\n@dag(\n    default_args=default_args,\n    schedule_interval='@daily',\n    description='Financial Portfolio Rebalancing DAG with Fan-Out Fan-In Pattern',\n    tags=['finance', 'portfolio', 'rebalancing']\n)\ndef portfolio_rebalancing_dag():\n    \"\"\"\n    Financial Portfolio Rebalancing DAG\n    \n    This DAG implements a fan-out fan-in pattern for portfolio rebalancing:\n    1. Fetch holdings from 5 brokerage accounts in parallel\n    2. Analyze each portfolio independently (allocation %, risk score)\n    3. Aggregate results and calculate rebalancing trades\n    4. Generate final trade orders CSV\n    \n    Data Flow: 5 CSVs → 5 analyzers → 1 rebalancer → trade orders CSV\n    \"\"\"\n    \n    @task\n    def fetch_brokerage_holdings(brokerage_id):\n        \"\"\"Fetch holdings CSV from a specific brokerage account\"\"\"\n        print(f\"Fetching holdings from brokerage account {brokerage_id}\")\n        print(f\"Simulating API call to brokerage {brokerage_id}...\")\n        print(f\"Retrieved CSV with holdings data for account {brokerage_id}\")\n        return {\n            'brokerage_id': brokerage_id,\n            'holdings': [\n                {'symbol': 'AAPL', 'quantity': 100, 'price': 150.0},\n                {'symbol': 'GOOGL', 'quantity': 50, 'price': 2800.0},\n                {'symbol': 'MSFT', 'quantity': 75, 'price': 300.0}\n            ]\n        }\n    \n    @task\n    def analyze_portfolio(holdings_data):\n        \"\"\"Calculate portfolio metrics for a single account\"\"\"\n        brokerage_id = holdings_data['brokerage_id']\n        holdings = holdings_data['holdings']\n        \n        print(f\"Analyzing portfolio for brokerage {brokerage_id}\")\n        \n        # Calculate total portfolio value\n        total_value = sum(h['quantity'] * h['price'] for h in holdings)\n        print(f\"Total portfolio value for {brokerage_id}: ${total_value:,.2f}\")\n        \n        # Calculate allocation percentages\n        allocations = {}\n        for holding in holdings:\n            symbol = holding['symbol']\n            value = holding['quantity'] * holding['price']\n            allocation_pct = (value / total_value) * 100\n            allocations[symbol] = allocation_pct\n            print(f\"{symbol}: {allocation_pct:.2f}%\")\n        \n        # Mock risk score calculation\n        risk_score = len(holdings) * 0.8  # Simplified risk calculation\n        \n        return {\n            'brokerage_id': brokerage_id,\n            'total_value': total_value,\n            'allocations': allocations,\n            'risk_score': risk_score,\n            'holdings_count': len(holdings)\n        }\n    \n    @task\n    def aggregate_and_rebalance(analysis_results):\n        \"\"\"Aggregate all portfolio analyses and calculate rebalancing trades\"\"\"\n        print(\"Aggregating portfolio analysis results...\")\n        \n        total_combined_value = sum(result['total_value'] for result in analysis_results)\n        print(f\"Total combined portfolio value: ${total_combined_value:,.2f}\")\n        \n        # Calculate target allocations across all portfolios\n        target_allocations = {\n            'AAPL': 30.0,\n            'GOOGL': 25.0,\n            'MSFT': 20.0,\n            'CASH': 25.0\n        }\n        \n        # Calculate current combined allocations\n        current_combined = {}\n        for result in analysis_results:\n            for symbol, allocation in result['allocations'].items():\n                current_combined[symbol] = current_combined.get(symbol, 0) + allocation\n        \n        print(\"Current combined allocations:\")\n        for symbol, allocation in current_combined.items():\n            print(f\"{symbol}: {allocation:.2f}%\")\n        \n        # Calculate rebalancing trades\n        rebalancing_trades = []\n        for symbol, target_pct in target_allocations.items():\n            current_pct = current_combined.get(symbol, 0)\n            difference = target_pct - current_pct\n            if abs(difference) > 2.0:  # Only rebalance if difference > 2%\n                trade_amount = (difference / 100) * total_combined_value\n                action = \"BUY\" if trade_amount > 0 else \"SELL\"\n                rebalancing_trades.append({\n                    'symbol': symbol,\n                    'action': action,\n                    'amount': abs(trade_amount),\n                    'target_allocation': target_pct,\n                    'current_allocation': current_pct\n                })\n                print(f\"Rebalancing trade: {action} ${abs(trade_amount):,.2f} of {symbol}\")\n        \n        return rebalancing_trades\n    \n    @task\n    def generate_trade_orders(rebalancing_trades):\n        \"\"\"Generate final trade orders CSV\"\"\"\n        print(\"Generating trade orders CSV...\")\n        print(\"Trade Orders:\")\n        print(\"Symbol,Action,Amount,Target%,Current%\")\n        \n        for trade in rebalancing_trades:\n            print(f\"{trade['symbol']},{trade['action']},${trade['amount']:,.2f},{trade['target_allocation']:.1f}%,{trade['current_allocation']:.1f}%\")\n        \n        print(f\"Generated {len(rebalancing_trades)} trade orders\")\n        return f\"trade_orders_{datetime.now().strftime('%Y%m%d')}.csv\"\n    \n    # FAN-OUT: Fetch holdings from 5 brokerage accounts in parallel\n    brokerage_1_data = fetch_brokerage_holdings(\"BROKERAGE_001\")\n    brokerage_2_data = fetch_brokerage_holdings(\"BROKERAGE_002\")\n    brokerage_3_data = fetch_brokerage_holdings(\"BROKERAGE_003\")\n    brokerage_4_data = fetch_brokerage_holdings(\"BROKERAGE_004\")\n    brokerage_5_data = fetch_brokerage_holdings(\"BROKERAGE_005\")\n    \n    # Parallel analysis of each portfolio\n    analysis_1 = analyze_portfolio(brokerage_1_data)\n    analysis_2 = analyze_portfolio(brokerage_2_data)\n    analysis_3 = analyze_portfolio(brokerage_3_data)\n    analysis_4 = analyze_portfolio(brokerage_4_data)\n    analysis_5 = analyze_portfolio(brokerage_5_data)\n    \n    # FAN-IN: Aggregate all analysis results\n    rebalancing_trades = aggregate_and_rebalance([analysis_1, analysis_2, analysis_3, analysis_4, analysis_5])\n    \n    # Final task to generate trade orders\n    trade_orders_file = generate_trade_orders(rebalancing_trades)\n\n# Instantiate the DAG\nportfolio_rebalancing_dag_instance = portfolio_rebalancing_dag()"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:38:53Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 5,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 11,
+      "operator_types": [
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Financial Portfolio Rebalancing DAG that implements a fan-out fan-in pattern: fetches holdings from 5 brokerage accounts in parallel, analyzes each portfolio independently, aggregates results to calculate rebalancing trades, and generates final trade orders CSV",
+    "complexity_score": 6
+  }
+}

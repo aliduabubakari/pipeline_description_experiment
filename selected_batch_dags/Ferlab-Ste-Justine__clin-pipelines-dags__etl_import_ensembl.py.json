@@ -1,0 +1,53 @@
+{
+  "unique_key": "Ferlab-Ste-Justine/clin-pipelines-dags:dags/etl_import_ensembl.py",
+  "repo": "Ferlab-Ste-Justine/clin-pipelines-dags",
+  "repo_url": "https://github.com/Ferlab-Ste-Justine/clin-pipelines-dags",
+  "stars": 0,
+  "license": "Apache-2.0",
+  "file_path": "dags/etl_import_ensembl.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "cec3f5297fc407657bc2daad128307f2ffa17b44",
+      "code": "import logging\nimport re\nfrom datetime import datetime\n\nfrom airflow import DAG\nfrom airflow.exceptions import AirflowSkipException\nfrom airflow.operators.python import PythonOperator\nfrom airflow.providers.amazon.aws.hooks.s3 import S3Hook\n\nfrom lib import config\nfrom lib.config import env, K8sContext, config_file\nfrom lib.operators.spark import SparkOperator\nfrom lib.slack import Slack\nfrom lib.utils_s3 import get_s3_file_version, download_and_check_md5, load_to_s3_with_version\n\nwith DAG(\n    dag_id='etl_import_ensembl',\n    start_date=datetime(2022, 1, 1),\n    schedule=None,\n    default_args={\n        'on_failure_callback': Slack.notify_task_failure,\n    },\n) as dag:\n\n    def find_last_version(checksums: str, type: str) -> str:\n        file = open(checksums, 'r')\n        lines = file.readlines()\n        file.close()\n        for line in lines:\n            version = re.search(f'Homo_sapiens.GRCh38.([0-9_]+)\\.{type}.tsv.gz', line)\n            if version is not None:\n                return version.group(1)\n        return None\n\n\n    def _file():\n        url = 'http://ftp.ensembl.org/pub/current_tsv/homo_sapiens'\n        types = ['canonical', 'ena', 'entrez', 'refseq', 'uniprot']\n        checksums = 'CHECKSUMS'\n        updated = False\n\n        download_and_check_md5(url, checksums, None)\n  \n        for type in types:\n\n            file = f'Homo_sapiens.GRCh38.{type}.tsv.gz' # without version\n\n            s3 = S3Hook(config.s3_conn_id)\n            s3_bucket = f'cqgc-{env}-app-datalake'\n            s3_key = f'raw/landing/ensembl/{file}'\n\n            # Get latest s3 version\n            s3_version = get_s3_file_version(s3, s3_bucket, s3_key)\n            logging.info(f'Current {type} imported version: {s3_version}')\n\n            new_version = find_last_version(checksums, type)\n\n            if s3_version != new_version:\n                # Download file with version\n                file_with_version = f'Homo_sapiens.GRCh38.{new_version}.{type}.tsv.gz'\n                download_and_check_md5(url, file_with_version, None)\n\n                # Upload file to S3\n                load_to_s3_with_version(s3, s3_bucket, s3_key, file_with_version, new_version)\n                logging.info(f'New {type} imported version: {new_version}')\n                updated = True\n\n        if not updated:\n            raise AirflowSkipException()\n       \n\n    file = PythonOperator(\n        task_id='file',\n        python_callable=_file,\n        on_execute_callback=Slack.notify_dag_start,\n    )\n\n    table = SparkOperator(\n        task_id='table',\n        name='etl-import-ensembl-table',\n        k8s_context=K8sContext.ETL,\n        spark_class='bio.ferlab.datalake.spark3.publictables.ImportPublicTable',\n        spark_config='config-etl-large',\n        arguments=[\n            'ensembl_mapping',\n            '--config', config_file,\n            '--steps', 'default',\n            '--app-name', 'etl_import_ensembl_table',\n        ],\n        on_success_callback=Slack.notify_dag_completion,\n    )\n\n    file >> table\n"
+    },
+    {
+      "version": "earliest",
+      "commit": "1059a8887c5f26cd5b3d080516449afa7db5c735",
+      "code": "import logging\nfrom airflow import DAG\nfrom airflow.exceptions import AirflowSkipException\nfrom airflow.operators.python import PythonOperator\nfrom airflow.providers.amazon.aws.hooks.s3 import S3Hook\nfrom airflow.utils.trigger_rule import TriggerRule\nfrom datetime import datetime\nfrom lib import config\nfrom lib.config import env, K8sContext\nfrom lib.operators.spark import SparkOperator\nfrom lib.slack import Slack\nfrom lib.utils_import import get_s3_file_md5, download_and_check_md5, load_to_s3_with_md5\n\n\nwith DAG(\n    dag_id='etl_import_ensembl',\n    start_date=datetime(2022, 1, 1),\n    schedule_interval=None,\n    default_args={\n        'on_failure_callback': Slack.notify_task_failure,\n    },\n) as dag:\n\n    def _file():\n        url = 'http://ftp.ensembl.org/pub/current_tsv/homo_sapiens'\n        types = ['canonical', 'ena', 'entrez', 'refseq', 'uniprot']\n        updated = False\n\n        for type in types:\n\n            file = f'Homo_sapiens.GRCh38.108.{type}.tsv.gz'\n\n            s3 = S3Hook(config.s3_conn_id)\n            s3_bucket = f'cqgc-{env}-app-datalake'\n            s3_key = f'raw/landing/ensembl/{file}'\n\n            # Get latest s3 MD5 checksum\n            s3_md5 = get_s3_file_md5(s3, s3_bucket, s3_key)\n            logging.info(f'Current {type} imported MD5 hash: {s3_md5}')\n\n            # Download file\n            download_md5 = download_and_check_md5(url, file, None)\n\n            # Verify MD5 checksum\n            if download_md5 != s3_md5:\n                # Upload file to S3\n                load_to_s3_with_md5(s3, s3_bucket, s3_key, file, download_md5)\n                logging.info(f'New {type} imported MD5 hash: {download_md5}')\n                updated = True\n\n\n        if not updated:\n            raise AirflowSkipException()\n       \n\n    file = PythonOperator(\n        task_id='file',\n        python_callable=_file,\n        on_execute_callback=Slack.notify_dag_start,\n    )\n\n    table = SparkOperator(\n        task_id='table',\n        name='etl-import-ensembl-table',\n        k8s_context=K8sContext.ETL,\n        spark_class='bio.ferlab.datalake.spark3.publictables.ImportPublicTable',\n        spark_config='ensembl_mapping',\n        arguments=['orphanet'],\n        trigger_rule=TriggerRule.ALL_SUCCESS,\n        on_success_callback=Slack.notify_dag_completion,\n    )\n\n    file >> table\n"
+    }
+  ],
+  "sampled_time": "2025-08-22T20:53:13.048815Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "linear",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 2,
+      "operator_types": [
+        "PythonOperator",
+        "SparkOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "ETL pipeline for importing Ensembl genomic data from FTP to S3 and processing with Spark",
+    "complexity_score": 3
+  }
+}

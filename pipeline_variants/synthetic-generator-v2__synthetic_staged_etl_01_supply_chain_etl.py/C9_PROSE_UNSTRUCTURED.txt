@@ -1,0 +1,5 @@
+supply_chain_shipment_etl is a workflow with execution model batch and topology pattern staged_etl. Its purpose is: Three-stage ETL pipeline for supply chain shipment data processing with vendor data ingestion, cleansing/normalization, and database loading with email notification.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: stage_1_extract→stage_2_transform; stage_2_transform→stage_3_load; load_to_db→send_summary_email.
+
+ingest_vendor_a performs Ingest raw shipment data from Vendor A using mechanism python_callable. ingest_vendor_b performs Ingest raw shipment data from Vendor B using mechanism python_callable. ingest_vendor_c performs Ingest raw shipment data from Vendor C using mechanism python_callable. cleanse_data performs Cleanse, normalize SKUs, validate dates, and enrich with location data using mechanism python_callable. load_to_db performs Load processed data to inventory database using mechanism python_callable. send_summary_email performs Send email summary of ETL processing results using mechanism notification.

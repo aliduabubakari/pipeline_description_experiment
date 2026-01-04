@@ -1,0 +1,219 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "executive_sales_dashboard",
+  "pipeline_name": "executive_sales_dashboard",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_sensor_gated_00_upstream_etl_dependency.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "513cf5f34e95fdc4115291fb87453d8f910b60aaab9440490f9adf409c697df4"
+  },
+  "summary": {
+    "purpose": "Wait for daily sales aggregation workflow to complete, then load data and generate executive dashboard",
+    "business_domain": "sales",
+    "execution_model": "batch",
+    "topology_pattern": "sensor_gated",
+    "notes": "Linear sequence after wait gate"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "wait_for_sales_aggregation",
+        "to": "load_sales_csv"
+      },
+      {
+        "from": "load_sales_csv",
+        "to": "generate_dashboard"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": [
+      {
+        "type": "external_workflow_completion",
+        "step": "wait_for_sales_aggregation",
+        "waits_for": "daily_sales_aggregation"
+      }
+    ]
+  },
+  "external_systems": [
+    {
+      "type": "other",
+      "name": "daily_sales_aggregation",
+      "identifier": "daily_sales_aggregation",
+      "details": [
+        "External workflow that produces aggregated sales data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "aggregated_sales_csv",
+        "description": "CSV output from daily sales aggregation workflow"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "wait_for_sales_aggregation",
+      "name": "wait_for_sales_aggregation",
+      "objective": "Wait for external daily sales aggregation workflow to complete successfully",
+      "mechanism": null,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "signal",
+          "identifier": "external_workflow_completion",
+          "description": "Signal that external workflow completed successfully"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "other",
+          "name": "daily_sales_aggregation",
+          "identifier": "daily_sales_aggregation"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "allowed_states",
+          "value": "success"
+        },
+        {
+          "key": "failed_states",
+          "value": "failed,skipped"
+        },
+        {
+          "key": "timeout",
+          "value": "3600"
+        },
+        {
+          "key": "poke_interval",
+          "value": "60"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": "PT1H",
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_sales_csv",
+      "name": "load_sales_csv",
+      "objective": "Load aggregated sales CSV data from external workflow output",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "aggregated_sales_csv",
+          "description": "CSV output from daily sales aggregation workflow"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "validated_sales_data",
+          "description": "Validated sales data ready for dashboard generation"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "generate_dashboard",
+      "name": "generate_dashboard",
+      "objective": "Generate executive dashboard with sales metrics and visualizations",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "validated_sales_data",
+          "description": "Validated sales data from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "report",
+          "identifier": "executive_dashboard",
+          "description": "Dashboard with revenue trends, product performance, regional analysis"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [
+          "email_on_failure"
+        ],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "External workflow 'daily_sales_aggregation' details unknown",
+      "Email alert configuration details unknown"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:40:49.057908Z"
+  },
+  "variant": {
+    "class_id": "C3",
+    "class_name": "NO_EXECUTION_MECHANISM",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py",
+    "spec_pipeline_id": "executive_sales_dashboard"
+  }
+}

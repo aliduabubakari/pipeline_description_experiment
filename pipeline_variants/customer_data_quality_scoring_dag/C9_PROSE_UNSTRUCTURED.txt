@@ -1,0 +1,5 @@
+customer_dq_scoring_pipeline is a workflow with execution model batch and topology pattern fan_out_fan_in. Its purpose is: Generates, cleans, and scores customer data quality.
+
+Scheduling: schedule type is cron, expression is @daily, catchup/backfill is False. Control flow includes dependencies such as: generate_synthetic_data→explore_raw_data; generate_synthetic_data→clean_data; clean_data→calculate_quality_score; clean_data→feature_engineering; calculate_quality_score→save_and_report; feature_engineering→save_and_report.
+
+generate_synthetic_data performs Generate synthetic customer data records using mechanism python_callable. explore_raw_data performs Perform exploratory data analysis on raw data using mechanism python_callable. clean_data performs Clean and standardize customer data using mechanism python_callable. calculate_quality_score performs Calculate data quality scores (completeness, validity, consistency) using mechanism python_callable. feature_engineering performs Add derived features to customer data using mechanism python_callable. save_and_report performs Save final data and generate quality report using mechanism python_callable.

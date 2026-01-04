@@ -1,0 +1,156 @@
+Pipeline Summary:
+- Pipeline ID: nazzang49__gcp-tutorials__airflow_db_cleanup.py
+- Name: airflow_db_cleanup
+- Purpose: Periodically clean out old metadata entries from various database tables to prevent excessive data accumulation in the metadata store.
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: data_platform_maintenance
+- Notes: Maintenance workflow for database cleanup. Originally forked from teamclairvoyant repository.
+
+Control Flow:
+- Dependencies (directed edges):
+  - print_configuration -> cleanup_DagRun
+  - print_configuration -> cleanup_TaskInstance
+  - print_configuration -> cleanup_Log
+  - print_configuration -> cleanup_XCom
+  - print_configuration -> cleanup_SlaMiss
+  - print_configuration -> cleanup_DagModel
+  - print_configuration -> cleanup_TaskReschedule
+  - print_configuration -> cleanup_TaskFail
+  - print_configuration -> cleanup_RenderedTaskInstanceFields
+  - print_configuration -> cleanup_ImportError
+  - print_configuration -> cleanup_BaseJob
+  - cleanup_DagRun -> analyze_query
+  - cleanup_TaskInstance -> analyze_query
+  - cleanup_Log -> analyze_query
+  - cleanup_XCom -> analyze_query
+  - cleanup_SlaMiss -> analyze_query
+  - cleanup_DagModel -> analyze_query
+  - cleanup_TaskReschedule -> analyze_query
+  - cleanup_TaskFail -> analyze_query
+  - cleanup_RenderedTaskInstanceFields -> analyze_query
+  - cleanup_ImportError -> analyze_query
+  - cleanup_BaseJob -> analyze_query
+  - cleanup_sessions -> analyze_query
+
+Data Artifacts / I-O Identifiers:
+- table: dag_run (Airflow DagRun table)
+- table: task_instance (Airflow TaskInstance table)
+- table: log (Airflow Log table)
+- table: xcom (Airflow XCom table)
+- table: sla_miss (Airflow SlaMiss table)
+- table: dag (Airflow DagModel table)
+- table: task_reschedule (Airflow TaskReschedule table)
+- table: task_fail (Airflow TaskFail table)
+- table: rendered_task_instance_fields (Airflow RenderedTaskInstanceFields table)
+- table: import_error (Airflow ImportError table)
+- table: job (Airflow Job/BaseJob table)
+- table: session (Airflow session table)
+
+Pipeline Steps:
+1. print_configuration — print_configuration
+  - Objective: Load and validate configuration parameters for the cleanup process
+  - Mechanism: python_callable
+  - Inputs: parameter:maxDBEntryAgeInDays, variable:airflow_db_cleanup__max_db_entry_age_in_days
+  - Outputs: parameter:max_date
+  - Step parameters:
+    - DEFAULT_MAX_DB_ENTRY_AGE_IN_DAYS=30
+    - ENABLE_DELETE=True
+    - PRINT_DELETES=False
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+2. cleanup_DagRun — cleanup_DagRun
+  - Objective: Clean up old DagRun entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last, parameter:keep_last_filters, parameter:keep_last_group_by
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+3. cleanup_TaskInstance — cleanup_TaskInstance
+  - Objective: Clean up old TaskInstance entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+4. cleanup_Log — cleanup_Log
+  - Objective: Clean up old Log entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+5. cleanup_XCom — cleanup_XCom
+  - Objective: Clean up old XCom entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+6. cleanup_SlaMiss — cleanup_SlaMiss
+  - Objective: Clean up old SlaMiss entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+7. cleanup_DagModel — cleanup_DagModel
+  - Objective: Clean up old DagModel entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+8. cleanup_TaskReschedule — cleanup_TaskReschedule
+  - Objective: Clean up old TaskReschedule entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+9. cleanup_TaskFail — cleanup_TaskFail
+  - Objective: Clean up old TaskFail entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+10. cleanup_RenderedTaskInstanceFields — cleanup_RenderedTaskInstanceFields
+  - Objective: Clean up old RenderedTaskInstanceFields entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+11. cleanup_ImportError — cleanup_ImportError
+  - Objective: Clean up old ImportError entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last, parameter:do_not_delete_by_dag_id
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+12. cleanup_BaseJob — cleanup_BaseJob
+  - Objective: Clean up old Job/BaseJob entries from the metadata database
+  - Mechanism: python_callable
+  - Inputs: parameter:max_date, parameter:airflow_db_model, parameter:age_check_column, parameter:keep_last
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+13. cleanup_sessions — cleanup_sessions
+  - Objective: Clean up expired sessions from the session table
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+14. analyze_query — analyze_query
+  - Objective: Run database analyze to update statistics after cleanup operations
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Catchup/backfill: False

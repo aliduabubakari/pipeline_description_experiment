@@ -1,0 +1,48 @@
+{
+  "unique_key": "Tezz1999/Covid-19-Realtime-Stream:hive_connection.py",
+  "repo": "Tezz1999/Covid-19-Realtime-Stream",
+  "repo_url": "https://github.com/Tezz1999/Covid-19-Realtime-Stream",
+  "stars": 1,
+  "license": "MIT",
+  "file_path": "hive_connection.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "4569ac8adb402372a575bb80474269dc95a9a03a",
+      "code": "import airflow\r\nfrom airflow.models import DAG\r\nfrom airflow.providers.apache.hive.operators.hive import HiveOperator\r\nfrom airflow.utils.dates import days_ago\r\nfrom airflow.operators.bash import BashOperator\r\n\r\ndag_hive = DAG(dag_id = \"hive_script\",\r\n          schedule_interval = '00 1 * * *',\r\n            start_date = airflow.utils.dates.days_ago(1))\r\n\r\nhql_query = \"\"\"create database if not exists mydb;\r\nCREATE TABLE IF NOT EXISTS mydb.test_af(\r\n`test` int);\r\ninsert into mydb.test_af values (2);\r\n\"\"\"\r\nrun_this = BashOperator(\r\n            task_id='run_after_loop',\r\n                bash_command='echo `whoami`',\r\n                )\r\n\r\nhive_task = HiveOperator(hql = hql_query,\r\n          task_id = \"hive_script_task\",\r\n            hive_cli_conn_id = \"hive_local\",\r\n              dag = dag_hive\r\n              )\r\n\r\nrun_this >> hive_task\r\n\r\nif __name__ == '__main__ ':\r\n      dag_hive.cli()"
+    }
+  ],
+  "sampled_time": "2025-08-22T20:27:53.589038Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "linear",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 2,
+      "operator_types": [
+        "BashOperator",
+        "HiveOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Simple linear DAG with BashOperator and HiveOperator executing Hive database operations",
+    "complexity_score": 2
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "unique_key": "synthetic/linear:synthetic_linear_01_report_generation.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_linear_01_report_generation.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.providers.postgres.operators.postgres import PostgresOperator\nfrom airflow.operators.python import PythonOperator\nfrom airflow.providers.email.operators.email import EmailOperator\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport tempfile\nimport os\n\ndefault_args = {\n    'owner': 'data_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': True,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef transform_to_csv(**context):\n    \"\"\"\n    Transform query results to CSV format\n    \"\"\"\n    print(\"Starting CSV transformation...\")\n    \n    # Mock transformation logic\n    sales_data = [\n        {'date': '2024-01-01', 'product': 'Widget A', 'amount': 1500},\n        {'date': '2024-01-01', 'product': 'Widget B', 'amount': 2300},\n        {'date': '2024-01-02', 'product': 'Widget A', 'amount': 1800},\n        {'date': '2024-01-02', 'product': 'Widget B', 'amount': 2100}\n    ]\n    \n    df = pd.DataFrame(sales_data)\n    csv_filename = '/tmp/sales_report.csv'\n    df.to_csv(csv_filename, index=False)\n    \n    print(f\"CSV file created: {csv_filename}\")\n    print(f\"Data shape: {df.shape}\")\n    print(\"CSV transformation completed successfully\")\n    \n    return csv_filename\n\ndef generate_pdf_chart(**context):\n    \"\"\"\n    Generate PDF chart from CSV data\n    \"\"\"\n    print(\"Starting PDF chart generation...\")\n    \n    # Mock chart generation\n    products = ['Widget A', 'Widget B']\n    sales = [3300, 4400]\n    \n    plt.figure(figsize=(10, 6))\n    plt.bar(products, sales, color=['blue', 'green'])\n    plt.title('Daily Sales Report')\n    plt.xlabel('Products')\n    plt.ylabel('Sales Amount ($)')\n    plt.grid(axis='y', alpha=0.3)\n    \n    pdf_filename = '/tmp/sales_chart.pdf'\n    plt.savefig(pdf_filename, format='pdf', bbox_inches='tight')\n    plt.close()\n    \n    print(f\"PDF chart created: {pdf_filename}\")\n    print(\"PDF generation completed successfully\")\n    \n    return pdf_filename\n\nwith DAG(\n    'daily_sales_report',\n    default_args=default_args,\n    description='Daily sales reporting pipeline: Query PostgreSQL → Transform to CSV → Generate PDF chart → Email report',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['reporting', 'sales', 'postgres']\n) as dag:\n    \n    # Stage 1: Extract - Query PostgreSQL for sales data\n    query_sales_data = PostgresOperator(\n        task_id='query_sales_data',\n        postgres_conn_id='postgres_default',\n        sql=\"\"\"\n        SELECT \n            date,\n            product,\n            SUM(amount) as daily_sales\n        FROM sales \n        WHERE date = '{{ ds }}'\n        GROUP BY date, product\n        ORDER BY date, product;\n        \"\"\",\n        dag=dag\n    )\n    \n    # Stage 2: Transform - Convert query results to CSV\n    transform_data = PythonOperator(\n        task_id='transform_to_csv',\n        python_callable=transform_to_csv,\n        provide_context=True,\n        dag=dag\n    )\n    \n    # Stage 3: Transform - Generate PDF chart\n    generate_chart = PythonOperator(\n        task_id='generate_pdf_chart',\n        python_callable=generate_pdf_chart,\n        provide_context=True,\n        dag=dag\n    )\n    \n    # Stage 4: Load - Email the report to management\n    email_report = EmailOperator(\n        task_id='email_sales_report',\n        to='management@company.com',\n        subject='Daily Sales Report - {{ ds }}',\n        html_content=\"\"\"\n        <h3>Daily Sales Report</h3>\n        <p>Please find attached the daily sales report for {{ ds }}.</p>\n        <p>Includes:</p>\n        <ul>\n            <li>Sales data in CSV format</li>\n            <li>Sales chart in PDF format</li>\n        </ul>\n        <p>Best regards,<br>Data Team</p>\n        \"\"\",\n        files=['/tmp/sales_report.csv', '/tmp/sales_chart.pdf'],\n        dag=dag\n    )\n    \n    # Linear dependency chain\n    query_sales_data >> transform_data >> generate_chart >> email_report"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:49:35Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "linear",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 4,
+      "operator_types": [
+        "PostgresOperator",
+        "PythonOperator",
+        "EmailOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Daily sales reporting pipeline: Query PostgreSQL → Transform to CSV → Generate PDF chart → Email report",
+    "complexity_score": 3
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "backup_strategy_selector",
+  "pipeline_name": "backup_strategy_selector",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_branch_merge_02_backup_strategy_selector.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "e6946838416b1c25b1696b1ca405cd167b845767c9bcb62612041bf658adecff"
+  },
+  "summary": {
+    "purpose": "Selects database backup strategy based on day of week (full backup on Saturday, incremental backup on weekdays)",
+    "business_domain": "database maintenance",
+    "execution_model": "batch",
+    "topology_pattern": "branch_merge",
+    "notes": "Implements a branch-merge pattern for database backups with conditional routing"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "start_backup_process",
+        "to": "date_check_task"
+      },
+      {
+        "from": "date_check_task",
+        "to": "full_backup_task"
+      },
+      {
+        "from": "date_check_task",
+        "to": "incremental_backup_task"
+      },
+      {
+        "from": "full_backup_task",
+        "to": "verify_backup_task"
+      },
+      {
+        "from": "incremental_backup_task",
+        "to": "verify_backup_task"
+      },
+      {
+        "from": "verify_backup_task",
+        "to": "backup_complete"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [
+      {
+        "step": "date_check_task",
+        "branches": [
+          {
+            "condition": "day_of_week == 5 (Saturday)",
+            "next_steps": [
+              "full_backup_task"
+            ]
+          },
+          {
+            "condition": "day_of_week != 5 (weekdays)",
+            "next_steps": [
+              "incremental_backup_task"
+            ]
+          }
+        ],
+        "merge_step": "verify_backup_task"
+      }
+    ],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "database",
+      "identifier": null,
+      "details": [
+        "Database backup target"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "start_backup_process",
+      "name": "start_backup_process",
+      "objective": "Initialize backup workflow",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "date_check_task",
+      "name": "date_check_task",
+      "objective": "Determine day of week and select backup strategy",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "execution_date",
+          "identifier": null,
+          "description": "Workflow execution date"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "branch_decision",
+          "identifier": null,
+          "description": "Selected backup strategy branch"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "full_backup_task",
+      "name": "full_backup_task",
+      "objective": "Perform full database backup",
+      "mechanism": "shell_command",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "backup_file",
+          "identifier": null,
+          "description": "Full database backup"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "incremental_backup_task",
+      "name": "incremental_backup_task",
+      "objective": "Perform incremental database backup",
+      "mechanism": "shell_command",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "backup_file",
+          "identifier": null,
+          "description": "Incremental database backup"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "database",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "verify_backup_task",
+      "name": "verify_backup_task",
+      "objective": "Verify backup integrity and completeness",
+      "mechanism": "shell_command",
+      "inputs": [
+        {
+          "type": "backup_file",
+          "identifier": null,
+          "description": "Backup file to verify"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "verification_result",
+          "identifier": null,
+          "description": "Backup verification status"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "backup_complete",
+      "name": "backup_complete",
+      "objective": "Finalize backup workflow",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "EmptyOperator mechanism mapped to 'unknown' as no neutral equivalent specified",
+      "Specific trigger rule 'none_failed_min_one_success' not represented in control_flow",
+      "Email alert configuration mentioned but not extracted as alerts"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:26:00.415332Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py",
+    "spec_pipeline_id": "backup_strategy_selector"
+  }
+}

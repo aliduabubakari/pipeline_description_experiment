@@ -1,0 +1,47 @@
+{
+  "unique_key": "synthetic/fan_out_fan_in:synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\n\ndefault_args = {\n    'owner': 'climate_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 3,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': True,\n    'email_on_retry': False\n}\n\ndef download_noaa_data():\n    \"\"\"Download NOAA weather station CSV data\"\"\"\n    print(\"Downloading NOAA CSV data from ftp://noaa.gov/weather/stations.csv\")\n    print(\"NOAA data: timestamp format=YYYY-MM-DD HH:MM:SS, temp=C, elevation=m\")\n    return \"noaa_data.csv\"\n\ndef download_ecmwf_data():\n    \"\"\"Download ECMWF weather station CSV data\"\"\"\n    print(\"Downloading ECMWF CSV data from https://ecmwf.int/data/stations.csv\")\n    print(\"ECMWF data: timestamp format=DD/MM/YYYY HH:MM, temp=C, elevation=m\")\n    return \"ecmwf_data.csv\"\n\ndef download_jma_data():\n    \"\"\"Download JMA weather station CSV data\"\"\"\n    print(\"Downloading JMA CSV data from https://jma.go.jp/weather/stations.csv\")\n    print(\"JMA data: timestamp format=YYYY/MM/DD HH:MM, temp=C, elevation=m\")\n    return \"jma_data.csv\"\n\ndef download_metoffice_data():\n    \"\"\"Download MetOffice weather station CSV data\"\"\"\n    print(\"Downloading MetOffice CSV data from https://metoffice.gov.uk/data/stations.csv\")\n    print(\"MetOffice data: timestamp format=DD-MM-YYYY HH:MM:SS, temp=C, elevation=m\")\n    return \"metoffice_data.csv\"\n\ndef download_bom_data():\n    \"\"\"Download BOM weather station CSV data\"\"\"\n    print(\"Downloading BOM CSV data from https://bom.gov.au/observations/stations.csv\")\n    print(\"BOM data: timestamp format=YYYY-MM-DDTHH:MM:SS, temp=C, elevation=m\")\n    return \"bom_data.csv\"\n\ndef normalize_noaa_data(**kwargs):\n    \"\"\"Normalize NOAA data to standard format\"\"\"\n    ti = kwargs['ti']\n    noaa_file = ti.xcom_pull(task_ids='download_noaa')\n    print(f\"Normalizing NOAA data from {noaa_file}\")\n    print(\"Converting timestamp to ISO format, ensuring Celsius, converting elevation to meters\")\n    print(\"NOAA normalization complete\")\n    return \"normalized_noaa_data.csv\"\n\ndef normalize_ecmwf_data(**kwargs):\n    \"\"\"Normalize ECMWF data to standard format\"\"\"\n    ti = kwargs['ti']\n    ecmwf_file = ti.xcom_pull(task_ids='download_ecmwf')\n    print(f\"Normalizing ECMWF data from {ecmwf_file}\")\n    print(\"Converting timestamp to ISO format, ensuring Celsius, converting elevation to meters\")\n    print(\"ECMWF normalization complete\")\n    return \"normalized_ecmwf_data.csv\"\n\ndef normalize_jma_data(**kwargs):\n    \"\"\"Normalize JMA data to standard format\"\"\"\n    ti = kwargs['ti']\n    jma_file = ti.xcom_pull(task_ids='download_jma')\n    print(f\"Normalizing JMA data from {jma_file}\")\n    print(\"Converting timestamp to ISO format, ensuring Celsius, converting elevation to meters\")\n    print(\"JMA normalization complete\")\n    return \"normalized_jma_data.csv\"\n\ndef normalize_metoffice_data(**kwargs):\n    \"\"\"Normalize MetOffice data to standard format\"\"\"\n    ti = kwargs['ti']\n    metoffice_file = ti.xcom_pull(task_ids='download_metoffice')\n    print(f\"Normalizing MetOffice data from {metoffice_file}\")\n    print(\"Converting timestamp to ISO format, ensuring Celsius, converting elevation to meters\")\n    print(\"MetOffice normalization complete\")\n    return \"normalized_metoffice_data.csv\"\n\ndef normalize_bom_data(**kwargs):\n    \"\"\"Normalize BOM data to standard format\"\"\"\n    ti = kwargs['ti']\n    bom_file = ti.xcom_pull(task_ids='download_bom')\n    print(f\"Normalizing BOM data from {bom_file}\")\n    print(\"Converting timestamp to ISO format, ensuring Celsius, converting elevation to meters\")\n    print(\"BOM normalization complete\")\n    return \"normalized_bom_data.csv\"\n\ndef merge_climate_data(**kwargs):\n    \"\"\"Merge all normalized climate data into unified dataset\"\"\"\n    ti = kwargs['ti']\n    \n    noaa_data = ti.xcom_pull(task_ids='normalize_noaa')\n    ecmwf_data = ti.xcom_pull(task_ids='normalize_ecmwf')\n    jma_data = ti.xcom_pull(task_ids='normalize_jma')\n    metoffice_data = ti.xcom_pull(task_ids='normalize_metoffice')\n    bom_data = ti.xcom_pull(task_ids='normalize_bom')\n    \n    print(f\"Merging normalized datasets:\")\n    print(f\"  - NOAA: {noaa_data}\")\n    print(f\"  - ECMWF: {ecmwf_data}\")\n    print(f\"  - JMA: {jma_data}\")\n    print(f\"  - MetOffice: {metoffice_data}\")\n    print(f\"  - BOM: {bom_data}\")\n    print(\"Creating unified climate dataset with standardized schema\")\n    print(\"Writing merged data to unified_climate_dataset.parquet\")\n    return \"unified_climate_dataset.parquet\"\n\nwith DAG(\n    'climate_data_fusion_pipeline',\n    default_args=default_args,\n    description='Download and normalize weather station data from 5 meteorological agencies, then merge into unified climate dataset',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['climate', 'data_fusion', 'weather']\n) as dag:\n\n    # Download tasks (FAN OUT)\n    download_noaa = PythonOperator(\n        task_id='download_noaa',\n        python_callable=download_noaa_data\n    )\n    \n    download_ecmwf = PythonOperator(\n        task_id='download_ecmwf',\n        python_callable=download_ecmwf_data\n    )\n    \n    download_jma = PythonOperator(\n        task_id='download_jma',\n        python_callable=download_jma_data\n    )\n    \n    download_metoffice = PythonOperator(\n        task_id='download_metoffice',\n        python_callable=download_metoffice_data\n    )\n    \n    download_bom = PythonOperator(\n        task_id='download_bom',\n        python_callable=download_bom_data\n    )\n\n    # Normalization tasks (parallel processing)\n    normalize_noaa = PythonOperator(\n        task_id='normalize_noaa',\n        python_callable=normalize_noaa_data\n    )\n    \n    normalize_ecmwf = PythonOperator(\n        task_id='normalize_ecmwf',\n        python_callable=normalize_ecmwf_data\n    )\n    \n    normalize_jma = PythonOperator(\n        task_id='normalize_jma',\n        python_callable=normalize_jma_data\n    )\n    \n    normalize_metoffice = PythonOperator(\n        task_id='normalize_metoffice',\n        python_callable=normalize_metoffice_data\n    )\n    \n    normalize_bom = PythonOperator(\n        task_id='normalize_bom',\n        python_callable=normalize_bom_data\n    )\n\n    # Merge task (FAN IN)\n    merge_data = PythonOperator(\n        task_id='merge_climate_data',\n        python_callable=merge_climate_data\n    )\n\n    # Set up dependencies for FAN OUT → parallel processing → FAN IN pattern\n    download_noaa >> normalize_noaa\n    download_ecmwf >> normalize_ecmwf\n    download_jma >> normalize_jma\n    download_metoffice >> normalize_metoffice\n    download_bom >> normalize_bom\n    \n    # All normalization tasks converge to merge task\n    [normalize_noaa, normalize_ecmwf, normalize_jma, normalize_metoffice, normalize_bom] >> merge_data"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:34:20Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "fan_out_fan_in",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 5,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 11,
+      "operator_types": [
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Climate data fusion pipeline that downloads weather station data from 5 meteorological agencies (NOAA, ECMWF, JMA, MetOffice, BOM), normalizes each dataset to standard format, then merges into unified climate dataset",
+    "complexity_score": 6
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "unique_key": "technoavengers-com/airflow-training-private:dags/assignment_solution/assignment_template.py",
+  "repo": "technoavengers-com/airflow-training-private",
+  "repo_url": "https://github.com/technoavengers-com/airflow-training-private",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "dags/assignment_solution/assignment_template.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "08fe0b3cd0acab22aebeaca421eab3b34c2cbda0",
+      "code": "import sys\nimport airflow\nfrom airflow import DAG, macros\nfrom airflow.providers.http.operators.http import SimpleHttpOperator\nfrom datetime import datetime, timedelta\nimport json\nfrom airflow.operators.python import PythonOperator\nfrom airflow.providers.postgres.operators.postgres import PostgresOperator\n\nclass CustomPostgresOperator(PostgresOperator):\n    template_fields =('sql','parameters')\n\ndefault_args = {\n            \"owner\": \"Airflow\",\n            \"start_date\": airflow.utils.dates.days_ago(1),\n            \"depends_on_past\": False\n        }\n\ndef _process_user(ti):\n    ti.xcom_pull\n    # Pull out xcom from task get_user\n    user_data = str(user['data'])\n    user_data = user_data.replace(\"\\'\", \"\\\"\")\n    user_dict =  json.loads(user_data)\n    # Push xcomm variable with key firstname\n    # Push xcom variable with key \n    # Push xcom variable with key email\n\n\nwith DAG(dag_id=\"assignment_solution\", schedule_interval=\"@daily\", default_args=default_args,tags=['assignment']) as dag:\n\n    get_user = SimpleHttpOperator(\n        task_id='get_user',\n        http_conn_id='reqres',  #create a connection in airflow ui\n        endpoint='api/users/2',\n        method='GET',\n        response_filter=lambda response: json.loads(response.text),\n        log_response=True\n    )\n\n    process_user = PythonOperator(\n        task_id='process_user',\n        python_callable=_process_user\n    )\n\n    create_table = PostgresOperator(\n        task_id='create_table',\n        postgres_conn_id='postgres',\n        sql= #Use Airflow Variables to write sql query to create users table with firstname,lastname and email\n    )\n\n    insert_data = CustomPostgresOperator(\n        task_id='insert_data',\n        postgres_conn_id='postgres',\n        sql= # write sql query to insert into user table, set dynamic parameters\n        parameters = {\n            'firstname': #pull xcom variable firstname from your python task,\n            'lastname': #pull xcom variable lastname from your python task,\n            'email': #pull xcom variable lastname from your python task\n        }\n        )\n\n    get_user >> process_user >> create_table >> insert_data"
+    }
+  ],
+  "sampled_time": "2025-08-22T20:58:14.274116Z",
+  "analysis": {
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "topology_pattern": "linear",
+    "description": "Fetches user data from API, processes it, creates PostgreSQL table, and inserts processed data",
+    "complexity_score": 3
+  }
+}

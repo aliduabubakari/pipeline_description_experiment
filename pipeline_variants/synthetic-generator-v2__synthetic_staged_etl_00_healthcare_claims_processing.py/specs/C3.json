@@ -1,0 +1,351 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "healthcare_claims_etl",
+  "pipeline_name": "Healthcare Claims Processing ETL Pipeline",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_staged_etl_00_healthcare_claims_processing.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "1b0f912f0cf128958353a118f1970ffc4becfb9df2f7a7f85105cd886a605ba2"
+  },
+  "summary": {
+    "purpose": "Healthcare Claims Processing ETL Pipeline with staged extraction, transformation, and loading phases",
+    "business_domain": "healthcare",
+    "execution_model": "batch",
+    "topology_pattern": "staged_etl",
+    "notes": "Processes patient claims data through extraction, transformation, and loading stages"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "extract_claims",
+        "to": "transform_join"
+      },
+      {
+        "from": "extract_providers",
+        "to": "transform_join"
+      },
+      {
+        "from": "transform_join",
+        "to": "load_warehouse"
+      },
+      {
+        "from": "transform_join",
+        "to": "refresh_bi"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "extract_group",
+        "steps": [
+          "extract_claims",
+          "extract_providers"
+        ]
+      },
+      {
+        "group_id": "load_group",
+        "steps": [
+          "load_warehouse",
+          "refresh_bi"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "CSV files",
+      "identifier": null,
+      "details": [
+        "claims.csv",
+        "providers.csv"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "analytics warehouse",
+      "identifier": null,
+      "details": [
+        "healthcare_analytics.claims_fact",
+        "healthcare_analytics.providers_dim"
+      ],
+      "auth": []
+    },
+    {
+      "type": "cloud_service",
+      "name": "BI tools",
+      "identifier": null,
+      "details": [
+        "Power BI",
+        "Tableau"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "claims.csv",
+        "description": "Patient claims data with columns: claim_id, patient_id, provider_id, procedure_code, amount, date_of_service"
+      },
+      {
+        "identifier": "providers.csv",
+        "description": "Provider data with columns: provider_id, provider_name, specialty, location"
+      }
+    ],
+    "tables": [
+      {
+        "identifier": "healthcare_analytics.claims_fact",
+        "description": "Transformed claims data in analytics warehouse"
+      },
+      {
+        "identifier": "healthcare_analytics.providers_dim",
+        "description": "Provider dimension table in analytics warehouse"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "extract_claims",
+      "name": "extract_claims",
+      "objective": "Extract patient claims data from CSV file",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "claims.csv",
+          "description": "Patient claims data CSV"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "claims_data_extracted",
+          "description": "Extracted claims data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "CSV files",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "extract_providers",
+      "name": "extract_providers",
+      "objective": "Extract provider data from CSV file",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "providers.csv",
+          "description": "Provider data CSV"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "providers_data_extracted",
+          "description": "Extracted provider data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "CSV files",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "transform_join",
+      "name": "transform_join",
+      "objective": "Join claims and providers data, anonymize PII, calculate risk scores",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "claims_data_extracted",
+          "description": "Extracted claims data"
+        },
+        {
+          "type": "data",
+          "identifier": "providers_data_extracted",
+          "description": "Extracted provider data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "transformed_data",
+          "description": "Joined, anonymized data with risk scores"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_warehouse",
+      "name": "load_warehouse",
+      "objective": "Load transformed data to analytics warehouse",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "transformed_data",
+          "description": "Transformed data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "healthcare_analytics.claims_fact",
+          "description": "Claims fact table"
+        },
+        {
+          "type": "table",
+          "identifier": "healthcare_analytics.providers_dim",
+          "description": "Providers dimension table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "analytics warehouse",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "refresh_bi",
+      "name": "refresh_bi",
+      "objective": "Trigger BI dashboard refresh",
+      "mechanism": null,
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "transformed_data",
+          "description": "Transformed data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": "bi_refresh_initiated",
+          "description": "BI refresh initiated"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "BI tools",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "PostgresOperator mentioned in metadata but not found in code",
+      "Some step dependencies inferred from code structure"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:44:44.180297Z"
+  },
+  "variant": {
+    "class_id": "C3",
+    "class_name": "NO_EXECUTION_MECHANISM",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py",
+    "spec_pipeline_id": "healthcare_claims_etl"
+  }
+}

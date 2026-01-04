@@ -1,0 +1,5 @@
+airvisual_pipeline_lat_long_v1 is a workflow with execution model batch and topology pattern linear. Its purpose is: Air quality data pipeline that fetches data from AirVisual API, processes JSON data, and loads into PostgreSQL database with ETL operations.
+
+Scheduling: schedule type is manual, start date is 2025-03-20, catchup/backfill is False. Control flow includes dependencies such as: get_airvisual_data_hourly→read_data_airvisual; read_data_airvisual→load_data_airvisual_to_postgresql.
+
+get_airvisual_data_hourly performs Fetch air quality data from AirVisual API and save to temporary JSON file using mechanism python_callable. read_data_airvisual performs Read and validate the JSON data file using mechanism python_callable. load_data_airvisual_to_postgresql performs Transform and load air quality data into PostgreSQL database using ETL operations using mechanism python_callable.

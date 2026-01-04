@@ -1,0 +1,37 @@
+Pipeline Summary:
+- Pipeline ID: keeyong__airflow-bootcamp__run_elt_error.py
+- Name: RunELT_Alert
+- Purpose: Builds ELT tables using SQL CTAS with Snowflake, validates data, and sends Slack alerts on failures
+- Execution model: batch
+- Topology pattern: linear
+- Notes: Processes tables sequentially with data validation and failure alerts
+
+Control Flow:
+- Dependencies (directed edges):
+
+Data Artifacts / I-O Identifiers:
+- table: analytics.mau_summary (Monthly Active Users summary table)
+- table: analytics.temp_mau_summary (Temporary table for CTAS operation)
+- table: raw_data.session_timestamp (Source table with session timestamps)
+- table: raw_data.user_session_channel (Source table linking users to sessions)
+
+External Systems:
+- database: Snowflake (snowflake_conn)
+- http_api: Slack
+
+Pipeline Steps:
+1. runCTAS_mau_summary — runCTAS
+  - Objective: Create or replace analytics table using CTAS with validation
+  - Mechanism: python_callable
+  - Inputs: table:raw_data.session_timestamp, table:raw_data.user_session_channel
+  - Outputs: table:analytics.mau_summary
+  - Step parameters:
+    - schema=analytics
+    - table=mau_summary
+    - sql=SELECT TO_VARCHAR(A.timestamp, 'YYYY-MM') AS month, COUNT(DISTINCT B.userid) AS mau FROM raw_data.session_timestamp A JOIN raw_data.user_session_channel B ON A.sessionid = B.sessionid GROUP BY 1;
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2025-01-10
+- Catchup/backfill: False

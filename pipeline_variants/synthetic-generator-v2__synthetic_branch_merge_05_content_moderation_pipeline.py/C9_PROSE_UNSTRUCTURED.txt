@@ -1,0 +1,5 @@
+content_moderation_pipeline is a workflow with execution model batch and topology pattern branch_merge. Its purpose is: Content moderation pipeline that scans user-generated content for toxicity and routes accordingly.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: scan_csv→toxicity_check; toxicity_check→remove_and_flag_content; toxicity_check→publish_content; remove_and_flag_content→audit_log; publish_content→audit_log.
+
+scan_csv performs Scan CSV file for user-generated content using mechanism python_callable. toxicity_check performs Check toxicity level and determine routing path using mechanism python_callable. remove_and_flag_content performs Remove toxic content and flag user account for review using mechanism python_callable. publish_content performs Publish safe content to platform using mechanism python_callable. audit_log performs Create audit log entry for moderation actions using mechanism python_callable.

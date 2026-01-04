@@ -1,0 +1,47 @@
+{
+    "unique_key": "synthetic/docker_pipelines:environmental_monitoring_pipeline.py",
+    "repo": "synthetic-generator-v2",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "stars": 0,
+    "license": "MIT",
+    "file_path": "synthetic/environmental_monitoring_pipeline.py",
+    "detected_airflow_version": "2.x",
+    "sampled_versions": [
+      {
+        "version": "latest",
+        "commit": "synthetic_generation",
+        "code": "from airflow import DAG\nfrom airflow.providers.docker.operators.docker import DockerOperator\nfrom airflow.utils.dates import days_ago\nfrom docker.types import Mount\nimport os\n\n# Define default arguments\ndefault_args = {\n    'owner': 'environmental_science_team',\n    'depends_on_past': False,\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 1,\n}\n\n# Shared infrastructure configuration\nhost_data_dir = os.getenv('DATA_DIR', '/tmp/env_monitoring/data')\nnetwork_name = 'app_network'\n\nwith DAG(\n    dag_id='environmental_monitoring_network_v1',\n    default_args=default_args,\n    description='Integrates station locations with weather, land use, and demographic data',\n    schedule_interval=None,\n    start_date=days_ago(1),\n    catchup=False,\n) as dag:\n\n    # Step 1: Ingest and Format\n    load_and_modify = DockerOperator(\n        task_id='load_and_modify_stations',\n        image='i2t-backendwithintertwino6-load-and-modify:latest',\n        command=[\n            'python', '/app/scripts/load_and_modify.py',\n            '--input_pattern', 'stations.csv',\n            '--output_pattern', 'table_data_2.json',\n            '--dataset_id', '2',\n            '--date_column', 'installation_date',\n            '--table_name', 'JOT_'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 2: Geocoding (HERE API)\n    reconciliation = DockerOperator(\n        task_id='geocode_stations',\n        image='i2t-backendwithintertwino6-reconciliation:latest',\n        command=[\n            'python', '/app/scripts/reconciliation.py',\n            '--input_pattern', 'table_data_2.json',\n            '--output_pattern', 'reconciled_table_2.json',\n            '--column_name', 'location',\n            '--reconciliator_id', 'geocodingHere',\n            '--api_token', os.environ.get('HERE_API_TOKEN', ''),\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 3: Weather History (OpenMeteo)\n    weather_extension = DockerOperator(\n        task_id='fetch_historical_weather',\n        image='i2t-backendwithintertwino6-openmeteo-extension:latest',\n        command=[\n            'python', '/app/scripts/openmeteo_extension.py',\n            '--input_pattern', 'reconciled_table_2.json',\n            '--output_pattern', 'open_meteo_2.json',\n            '--lat_column', 'latitude',\n            '--lon_column', 'longitude',\n            '--date_column', 'installation_date',\n            '--variables', 'apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_hours',\n            '--date_format', 'YYYYMMDD'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 4: Land Use Classification\n    land_use_extension = DockerOperator(\n        task_id='classify_land_use',\n        image='geoapify-land-use:latest',\n        command=[\n            'python', '/app/scripts/land_use.py',\n            '--input_file', 'open_meteo_2.json',\n            '--output_file', 'land_use_2.json',\n            '--lat_column', 'latitude',\n            '--lon_column', 'longitude',\n            '--output_column', 'land_use_type',\n            '--api_key', os.environ.get('GEOAPIFY_API_KEY', '')\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 5: Population Density\n    pop_density_extension = DockerOperator(\n        task_id='fetch_population_density',\n        image='worldpop-density:latest',\n        command=[\n            'python', '/app/scripts/density.py',\n            '--input_file', 'land_use_2.json',\n            '--output_file', 'pop_density_2.json',\n            '--lat_column', 'latitude',\n            '--lon_column', 'longitude',\n            '--radius', '5000',\n            '--output_column', 'population_density'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 6: Environmental Risk Calculation\n    risk_calculation = DockerOperator(\n        task_id='calculate_risk_score',\n        image='i2t-backendwithintertwino6-column-extension:latest',\n        command=[\n            'python', '/app/scripts/column_extension.py',\n            '--input_pattern', 'pop_density_2.json',\n            '--output_pattern', 'column_extended_2.json',\n            '--extender_id', 'environmentalRiskCalculator',\n            '--input_columns', 'precipitation_sum,population_density,land_use_type',\n            '--output_column', 'risk_score'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    # Step 7: Save Final CSV\n    save_data = DockerOperator(\n        task_id='save_environmental_dataset',\n        image='i2t-backendwithintertwino6-save:latest',\n        command=[\n            'python', '/app/scripts/save.py',\n            '--input_pattern', 'column_extended_2.json',\n            '--output_filename', 'enriched_data_2.csv',\n            '--dataset_id', '2'\n        ],\n        network_mode=network_name,\n        mounts=[Mount(source=host_data_dir, target='/app/data', type='bind')],\n        auto_remove=True,\n    )\n\n    load_and_modify >> reconciliation >> weather_extension >> land_use_extension >> pop_density_extension >> risk_calculation >> save_data\n"
+      }
+    ],
+    "sampled_time": "2025-12-15T21:10:00Z",
+    "analysis": {
+      "is_valid_dag_file": true,
+      "is_production_dag": true,
+      "is_airflow_2": true,
+      "processing_type": "batch",
+      "has_streaming_operators": false,
+      "has_ml_operators": false,
+      "topology": {
+        "pattern": "linear",
+        "has_sensors": false,
+        "has_branches": false,
+        "has_fan_out": false,
+        "has_fan_in": false,
+        "estimated_max_parallel_width": 1,
+        "estimated_branch_depth": 0,
+        "has_cycles": false,
+        "has_subdags": false,
+        "has_task_groups": false
+      },
+      "tasks": {
+        "total_count": 7,
+        "operator_types": [
+          "DockerOperator"
+        ],
+        "has_dynamic_mapping": false,
+        "has_external_task_sensor": false
+      },
+      "description": "A comprehensive 7-stage pipeline enriching environmental station data. It chains geocoding, weather history, land use API, and demographic data services before calculating a composite risk score.",
+      "complexity_score": 5
+    }
+  }

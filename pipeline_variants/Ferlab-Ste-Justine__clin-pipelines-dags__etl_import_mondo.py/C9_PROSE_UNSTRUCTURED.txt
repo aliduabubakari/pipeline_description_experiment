@@ -1,0 +1,5 @@
+etl_import_mondo is a workflow with execution model batch and topology pattern linear. Its purpose is: ETL pipeline for importing Mondo ontology data - downloads Mondo OBO file, normalizes terms using Spark, indexes to Elasticsearch, publishes results, and sends notification.
+
+Scheduling: schedule type is manual, start date is 2022-01-01. Control flow includes dependencies such as: params_validate→download_mondo_terms; download_mondo_terms→normalized_mondo_terms; normalized_mondo_terms→index_mondo_terms; index_mondo_terms→publish_mondo; publish_mondo→slack.
+
+params_validate performs Validate pipeline parameters using mechanism python_callable. download_mondo_terms performs Download Mondo OBO file from GitHub releases and upload to S3 using mechanism python_callable. normalized_mondo_terms performs Normalize Mondo terms using Spark processing using mechanism spark_job. index_mondo_terms performs Index normalized Mondo terms to Elasticsearch using mechanism spark_job. publish_mondo performs Publish indexed Mondo data using mechanism spark_job. slack performs Send completion notification using mechanism notification.

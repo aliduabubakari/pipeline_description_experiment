@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/branch_merge:synthetic_branch_merge_05_content_moderation_pipeline.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_branch_merge_05_content_moderation_pipeline.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator, BranchPythonOperator\n\ndefault_args = {\n    'owner': 'content_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': True,\n    'email_on_retry': False\n}\n\ndef scan_csv_for_content():\n    \"\"\"Mock function to scan CSV for user-generated content\"\"\"\n    print(\"Scanning CSV file for user-generated content...\")\n    print(\"Found 150 content items to process\")\n    return {\"total_items\": 150, \"file_path\": \"/data/user_content.csv\"}\n\ndef check_toxicity_level(**context):\n    \"\"\"Mock function to check toxicity level and branch accordingly\"\"\"\n    ti = context['ti']\n    scan_result = ti.xcom_pull(task_ids='scan_csv')\n    \n    print(f\"Checking toxicity levels for {scan_result['total_items']} items...\")\n    \n    # Mock toxicity scoring - in real scenario this would call an API\n    import random\n    toxicity_score = round(random.uniform(0.1, 1.0), 2)\n    print(f\"Sample toxicity score: {toxicity_score}\")\n    \n    if toxicity_score > 0.7:\n        print(\"High toxicity detected - routing to Remove_and_Flag\")\n        return 'remove_and_flag_content'\n    else:\n        print(\"Low toxicity detected - routing to Publish\")\n        return 'publish_content'\n\ndef remove_and_flag_content(**context):\n    \"\"\"Mock function to remove toxic content and flag user\"\"\"\n    ti = context['ti']\n    scan_result = ti.xcom_pull(task_ids='scan_csv')\n    \n    print(\"Removing toxic content from platform...\")\n    print(\"Flagging user account for review...\")\n    print(\"Content removal completed successfully\")\n    \n    return {\n        \"action\": \"removed\",\n        \"reason\": \"high_toxicity\",\n        \"items_processed\": scan_result['total_items']\n    }\n\ndef publish_content(**context):\n    \"\"\"Mock function to publish safe content\"\"\"\n    ti = context['ti']\n    scan_result = ti.xcom_pull(task_ids='scan_csv')\n    \n    print(\"Publishing content to platform...\")\n    print(\"Content approved and made visible to users\")\n    print(f\"Published {scan_result['total_items']} items successfully\")\n    \n    return {\n        \"action\": \"published\",\n        \"status\": \"live\",\n        \"items_processed\": scan_result['total_items']\n    }\n\ndef create_audit_log(**context):\n    \"\"\"Mock function to create audit log entry\"\"\"\n    ti = context['ti']\n    \n    # Try to get results from both branches\n    remove_result = ti.xcom_pull(task_ids='remove_and_flag_content')\n    publish_result = ti.xcom_pull(task_ids='publish_content')\n    \n    print(\"Creating audit log entry...\")\n    \n    if remove_result:\n        print(f\"Audit: Removed content - {remove_result}\")\n    if publish_result:\n        print(f\"Audit: Published content - {publish_result}\")\n    \n    print(\"Audit log entry completed successfully\")\n    return {\"audit_status\": \"completed\", \"timestamp\": str(datetime.now())}\n\nwith DAG(\n    'content_moderation_pipeline',\n    default_args=default_args,\n    description='Content moderation pipeline that scans user-generated content for toxicity and routes accordingly',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['moderation', 'content', 'toxicity']\n) as dag:\n    \n    # Docstring for the DAG\n    \"\"\"\n    Content Moderation Pipeline DAG\n    \n    This DAG implements a content moderation workflow that:\n    1. Scans user-generated content from CSV files\n    2. Checks toxicity levels using a scoring system\n    3. Branches based on toxicity threshold (0.7):\n       - High toxicity (>0.7): Routes to Remove_and_Flag\n       - Low toxicity (≤0.7): Routes to Publish\n    4. Merges both branches at Audit_Log for final logging\n    \n    Pattern: BRANCH MERGE - Uses BranchPythonOperator to create conditional paths\n    that converge at a merge task for audit logging.\n    \"\"\"\n    \n    scan_csv = PythonOperator(\n        task_id='scan_csv',\n        python_callable=scan_csv_for_content,\n        provide_context=True\n    )\n    \n    toxicity_check = BranchPythonOperator(\n        task_id='toxicity_check',\n        python_callable=check_toxicity_level,\n        provide_context=True\n    )\n    \n    remove_and_flag = PythonOperator(\n        task_id='remove_and_flag_content',\n        python_callable=remove_and_flag_content,\n        provide_context=True\n    )\n    \n    publish = PythonOperator(\n        task_id='publish_content',\n        python_callable=publish_content,\n        provide_context=True\n    )\n    \n    audit_log = PythonOperator(\n        task_id='audit_log',\n        python_callable=create_audit_log,\n        provide_context=True\n    )\n    \n    # Define dependencies to match BRANCH MERGE pattern\n    scan_csv >> toxicity_check\n    toxicity_check >> [remove_and_flag, publish]\n    [remove_and_flag, publish] >> audit_log"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:43:30Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "branch_merge",
+      "has_sensors": false,
+      "has_branches": true,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 1,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 5,
+      "operator_types": [
+        "PythonOperator",
+        "BranchPythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Content moderation pipeline that scans user-generated content for toxicity and routes accordingly using BranchPythonOperator for conditional branching",
+    "complexity_score": 4
+  }
+}

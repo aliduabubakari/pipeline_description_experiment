@@ -1,0 +1,58 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py
+- Name: Healthcare Claims Processing ETL Pipeline
+- Purpose: Healthcare Claims Processing ETL Pipeline with staged extraction, transformation, and loading phases
+- Execution model: batch
+- Topology pattern: staged_etl
+- Business domain: healthcare
+- Notes: Processes patient claims data through extraction, transformation, and loading stages
+
+Control Flow:
+- Dependencies (directed edges):
+  - extract_claims -> transform_join
+  - extract_providers -> transform_join
+  - transform_join -> load_warehouse
+  - transform_join -> refresh_bi
+
+External Systems:
+- filesystem: CSV files
+- database: analytics warehouse
+- cloud_service: BI tools
+
+Pipeline Steps:
+1. extract_claims — extract_claims
+  - Objective: Extract patient claims data from CSV file
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+2. extract_providers — extract_providers
+  - Objective: Extract provider data from CSV file
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+3. transform_join — transform_join
+  - Objective: Join claims and providers data, anonymize PII, calculate risk scores
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+4. load_warehouse — load_warehouse
+  - Objective: Load transformed data to analytics warehouse
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+5. refresh_bi — refresh_bi
+  - Objective: Trigger BI dashboard refresh
+  - Mechanism: python_callable
+  - Failure handling:
+    - retries: 2
+    - retry delay: PT5M
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Start date: 2024-01-01
+- Catchup/backfill: False

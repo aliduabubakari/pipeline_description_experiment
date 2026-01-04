@@ -1,0 +1,126 @@
+Pipeline Summary:
+- Pipeline ID: synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py
+- Name: Financial Portfolio Rebalancing
+- Purpose: Financial portfolio rebalancing workflow that fetches holdings from multiple brokerage accounts, analyzes each portfolio, aggregates results to calculate rebalancing trades, and generates trade orders
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: finance
+- Notes: Implements parallel processing of 5 brokerage accounts followed by aggregation
+
+Data Artifacts / I-O Identifiers:
+- file: trade_orders_{date}.csv (Generated trade orders CSV file)
+
+External Systems:
+- http_api: Brokerage API
+
+Pipeline Steps:
+- aggregate_and_rebalance — Aggregate and rebalance
+  - Objective: Combine all portfolio analyses and calculate rebalancing trades based on target allocations
+  - Mechanism: python_callable
+  - Inputs: data:analysis_results
+  - Outputs: data:rebalancing_trades
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- analyze_portfolio_1 — Analyze portfolio for brokerage BROKERAGE_001
+  - Objective: Calculate portfolio metrics including total value, allocation percentages, and risk score
+  - Mechanism: python_callable
+  - Inputs: data:holdings_data
+  - Outputs: data:portfolio_analysis
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- analyze_portfolio_2 — Analyze portfolio for brokerage BROKERAGE_002
+  - Objective: Calculate portfolio metrics including total value, allocation percentages, and risk score
+  - Mechanism: python_callable
+  - Inputs: data:holdings_data
+  - Outputs: data:portfolio_analysis
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- analyze_portfolio_3 — Analyze portfolio for brokerage BROKERAGE_003
+  - Objective: Calculate portfolio metrics including total value, allocation percentages, and risk score
+  - Mechanism: python_callable
+  - Inputs: data:holdings_data
+  - Outputs: data:portfolio_analysis
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- analyze_portfolio_4 — Analyze portfolio for brokerage BROKERAGE_004
+  - Objective: Calculate portfolio metrics including total value, allocation percentages, and risk score
+  - Mechanism: python_callable
+  - Inputs: data:holdings_data
+  - Outputs: data:portfolio_analysis
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- analyze_portfolio_5 — Analyze portfolio for brokerage BROKERAGE_005
+  - Objective: Calculate portfolio metrics including total value, allocation percentages, and risk score
+  - Mechanism: python_callable
+  - Inputs: data:holdings_data
+  - Outputs: data:portfolio_analysis
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- fetch_brokerage_holdings_1 — Fetch holdings from brokerage account BROKERAGE_001
+  - Objective: Retrieve holdings data from a specific brokerage account
+  - Mechanism: python_callable
+  - Inputs: parameter:brokerage_id
+  - Outputs: data:holdings_data
+  - Step parameters:
+    - brokerage_id=BROKERAGE_001
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- fetch_brokerage_holdings_2 — Fetch holdings from brokerage account BROKERAGE_002
+  - Objective: Retrieve holdings data from a specific brokerage account
+  - Mechanism: python_callable
+  - Inputs: parameter:brokerage_id
+  - Outputs: data:holdings_data
+  - Step parameters:
+    - brokerage_id=BROKERAGE_002
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- fetch_brokerage_holdings_3 — Fetch holdings from brokerage account BROKERAGE_003
+  - Objective: Retrieve holdings data from a specific brokerage account
+  - Mechanism: python_callable
+  - Inputs: parameter:brokerage_id
+  - Outputs: data:holdings_data
+  - Step parameters:
+    - brokerage_id=BROKERAGE_003
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- fetch_brokerage_holdings_4 — Fetch holdings from brokerage account BROKERAGE_004
+  - Objective: Retrieve holdings data from a specific brokerage account
+  - Mechanism: python_callable
+  - Inputs: parameter:brokerage_id
+  - Outputs: data:holdings_data
+  - Step parameters:
+    - brokerage_id=BROKERAGE_004
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- fetch_brokerage_holdings_5 — Fetch holdings from brokerage account BROKERAGE_005
+  - Objective: Retrieve holdings data from a specific brokerage account
+  - Mechanism: python_callable
+  - Inputs: parameter:brokerage_id
+  - Outputs: data:holdings_data
+  - Step parameters:
+    - brokerage_id=BROKERAGE_005
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+- generate_trade_orders — Generate trade orders
+  - Objective: Create final trade orders CSV file from rebalancing calculations
+  - Mechanism: python_callable
+  - Inputs: data:rebalancing_trades
+  - Outputs: file:trade_orders_file
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily

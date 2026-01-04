@@ -1,0 +1,64 @@
+Pipeline Summary:
+- Pipeline ID: stikkireddy__databricks-reusable-job-clusters__example_dag.py
+- Name: test_dbx_aws_dag_reuse
+- Purpose: Databricks notebook execution workflow with cluster reuse and branching logic
+- Execution model: batch
+- Topology pattern: branch_merge
+- Notes: Workflow includes Databricks notebook execution with reusable cluster configuration and conditional branching
+
+Control Flow:
+- Dependencies (directed edges):
+  - start_task -> spark_jar_task
+  - spark_jar_task -> dummy_task_1
+  - dummy_task_1 -> branch_task
+  - branch_task -> dummy_task_3
+  - branch_task -> spark_jar_task_2
+  - spark_jar_task_2 -> dummy_task_2
+  - dummy_task_2 -> end_task
+
+Data Artifacts / I-O Identifiers:
+- file: /Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld (Databricks notebook to execute)
+
+External Systems:
+- cloud_service: Databricks (databricks_default)
+- cloud_service: Databricks Secrets
+
+Pipeline Steps:
+1. start_task — start_task
+  - Objective: Start the workflow
+  - Mechanism: unknown
+2. spark_jar_task — spark_jar_task
+  - Objective: Execute Databricks notebook
+  - Mechanism: container_run
+  - Inputs: notebook:/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld
+  - Step parameters:
+    - existing_cluster_id=existing_cluster_id
+    - notebook_path=/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld
+3. dummy_task_1 — dummy_task_1
+  - Objective: Intermediate step
+  - Mechanism: unknown
+4. branch_task — branch_task
+  - Objective: Determine next execution path based on condition
+  - Mechanism: python_callable
+  - Step parameters:
+    - python_callable=branch_func
+5. spark_jar_task_2 — spark_jar_task_2
+  - Objective: Execute Databricks notebook (alternative path)
+  - Mechanism: container_run
+  - Inputs: notebook:/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld
+  - Step parameters:
+    - existing_cluster_id=existing_cluster_id
+    - notebook_path=/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld
+6. dummy_task_2 — dummy_task_2
+  - Objective: Intermediate step before end
+  - Mechanism: unknown
+7. dummy_task_3 — dummy_task_3
+  - Objective: Alternative path step
+  - Mechanism: unknown
+8. end_task — end_task
+  - Objective: End the workflow
+  - Mechanism: unknown
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2023-06-06

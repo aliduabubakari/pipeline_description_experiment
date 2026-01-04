@@ -1,0 +1,5 @@
+Healthcare Claims Processing ETL Pipeline is a workflow with execution model batch and topology pattern staged_etl. Its purpose is: Healthcare Claims Processing ETL Pipeline with staged extraction, transformation, and loading phases.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: extract_claims→transform_join; extract_providers→transform_join; transform_join→load_warehouse; transform_join→refresh_bi.
+
+extract_claims performs Extract patient claims data from CSV file using mechanism python_callable. extract_providers performs Extract provider data from CSV file using mechanism python_callable. transform_join performs Join claims and providers data, anonymize PII, calculate risk scores using mechanism python_callable. load_warehouse performs Load transformed data to analytics warehouse using mechanism python_callable. refresh_bi performs Trigger BI dashboard refresh using mechanism python_callable.

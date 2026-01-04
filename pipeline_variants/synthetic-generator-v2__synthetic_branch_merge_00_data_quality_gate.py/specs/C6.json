@@ -1,0 +1,329 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "data_quality_gate",
+  "pipeline_name": "Data Quality Gate",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_branch_merge_00_data_quality_gate.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "8f452054eded461929dc41c82575a64c858422d64c794bdffdf7b6a14018efba"
+  },
+  "summary": {
+    "purpose": "Data quality gate for customer CSV data that routes data based on quality scores",
+    "business_domain": "data_quality",
+    "execution_model": "batch",
+    "topology_pattern": "branch_merge",
+    "notes": "Routes customer data to production or quarantine based on quality assessment"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "ingest_csv",
+        "to": "quality_check"
+      },
+      {
+        "from": "quality_check",
+        "to": "production_load"
+      },
+      {
+        "from": "quality_check",
+        "to": "quarantine_and_alert"
+      },
+      {
+        "from": "quarantine_and_alert",
+        "to": "send_alert_email"
+      },
+      {
+        "from": "production_load",
+        "to": "cleanup"
+      },
+      {
+        "from": "send_alert_email",
+        "to": "cleanup"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [
+      {
+        "step": "quality_check",
+        "branches": [
+          {
+            "condition": "overall_score >= 95",
+            "next_steps": [
+              "production_load"
+            ]
+          },
+          {
+            "condition": "overall_score < 95",
+            "next_steps": [
+              "quarantine_and_alert"
+            ]
+          }
+        ],
+        "merge_step": "cleanup"
+      }
+    ],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "email",
+      "name": "Email Service",
+      "identifier": null,
+      "details": [
+        "Sends email alerts to data stewards"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "ingest_csv",
+      "name": "Ingest CSV",
+      "objective": "Load raw customer CSV data from source location",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Raw customer CSV data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data_object",
+          "identifier": null,
+          "description": "File path and record count metadata"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "quality_check",
+      "name": "Quality Check",
+      "objective": "Calculate data quality score based on completeness and validity metrics",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": null,
+          "description": "File path and record count from ingest step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "decision",
+          "identifier": null,
+          "description": "Routing decision based on quality score"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "production_load",
+      "name": "Production Load",
+      "objective": "Load high-quality data to production database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": null,
+          "description": "File path and record count from ingest step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "status",
+          "identifier": null,
+          "description": "Production load completion status"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "quarantine_and_alert",
+      "name": "Quarantine and Alert",
+      "objective": "Move low-quality data to quarantine zone",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "data_object",
+          "identifier": null,
+          "description": "File path and record count from ingest step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "status",
+          "identifier": null,
+          "description": "Quarantine completion status"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "send_alert_email",
+      "name": "Send Alert Email",
+      "objective": "Send data quality alert to data stewards",
+      "mechanism": "notification",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "notification",
+          "identifier": null,
+          "description": "Email alert sent confirmation"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email Service",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "to",
+          "value": "data-stewards@company.com"
+        },
+        {
+          "key": "subject",
+          "value": "Data Quality Alert - Customer Data"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "cleanup",
+      "name": "Cleanup",
+      "objective": "Perform cleanup operations on temporary files and resources",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "status",
+          "identifier": null,
+          "description": "Cleanup completion status"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "EmailOperator mapped to generic notification mechanism",
+      "BranchPythonOperator mapped to branch point with conditions",
+      "XCom usage inferred from code but not explicitly modeled"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:23:51.811161Z"
+  },
+  "variant": {
+    "class_id": "C6",
+    "class_name": "NO_DATA_ARTIFACT_DETAILS",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py",
+    "spec_pipeline_id": "data_quality_gate"
+  }
+}

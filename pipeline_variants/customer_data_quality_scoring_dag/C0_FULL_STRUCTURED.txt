@@ -1,0 +1,82 @@
+Pipeline Summary:
+- Pipeline ID: customer_data_quality_scoring_dag
+- Name: customer_dq_scoring_pipeline
+- Purpose: Generates, cleans, and scores customer data quality
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: data_quality
+- Notes: Performs end-to-end data quality management on customer data including synthetic data generation, cleaning, quality scoring, feature engineering, and reporting
+
+Control Flow:
+- Dependencies (directed edges):
+  - generate_synthetic_data -> explore_raw_data
+  - generate_synthetic_data -> clean_data
+  - clean_data -> calculate_quality_score
+  - clean_data -> feature_engineering
+  - calculate_quality_score -> save_and_report
+  - feature_engineering -> save_and_report
+
+Data Artifacts / I-O Identifiers:
+- file: /tmp/airflow_dq_processing/raw_customers.parquet (Raw synthetic customer data)
+- file: /tmp/airflow_dq_processing/cleaned_customers.parquet (Cleaned customer data)
+- file: /tmp/airflow_dq_processing/final_customers.parquet (Final customer data with engineered features)
+- file: /tmp/airflow_dq_processing/cleaned_customers_*.csv (Final CSV export with timestamp)
+- file: /tmp/airflow_dq_processing/dq_report_*.json (Data quality report with scores)
+
+External Systems:
+- filesystem: temporary_storage (/tmp/airflow_dq_processing)
+
+Pipeline Steps:
+1. generate_synthetic_data — generate_synthetic_data
+  - Objective: Generate synthetic customer data records
+  - Mechanism: python_callable
+  - Outputs: file:/tmp/airflow_dq_processing/raw_customers.parquet
+  - Step parameters:
+    - num_rows=3500
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+2. explore_raw_data — explore_raw_data
+  - Objective: Perform exploratory data analysis on raw data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_dq_processing/raw_customers.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+3. clean_data — clean_data
+  - Objective: Clean and standardize customer data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_dq_processing/raw_customers.parquet
+  - Outputs: file:/tmp/airflow_dq_processing/cleaned_customers.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+4. calculate_quality_score — calculate_quality_score
+  - Objective: Calculate data quality scores (completeness, validity, consistency)
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_dq_processing/cleaned_customers.parquet
+  - Outputs: data_object:dq_scores
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+5. feature_engineering — feature_engineering
+  - Objective: Add derived features to customer data
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_dq_processing/cleaned_customers.parquet
+  - Outputs: file:/tmp/airflow_dq_processing/final_customers.parquet
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+6. save_and_report — save_and_report
+  - Objective: Save final data and generate quality report
+  - Mechanism: python_callable
+  - Inputs: file:/tmp/airflow_dq_processing/final_customers.parquet, data_object:dq_scores
+  - Outputs: file:/tmp/airflow_dq_processing/cleaned_customers_*.csv, file:/tmp/airflow_dq_processing/dq_report_*.json
+  - Failure handling:
+    - retries: 1
+    - retry delay: 5 minutes
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Catchup/backfill: False

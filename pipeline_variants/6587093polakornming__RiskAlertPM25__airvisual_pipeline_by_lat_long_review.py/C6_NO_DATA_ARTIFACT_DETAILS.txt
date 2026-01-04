@@ -1,0 +1,43 @@
+Pipeline Summary:
+- Pipeline ID: 6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py
+- Name: airvisual_pipeline_lat_long_v1
+- Purpose: Air quality data pipeline that fetches data from AirVisual API, processes JSON data, and loads into PostgreSQL database with ETL operations
+- Execution model: batch
+- Topology pattern: linear
+- Business domain: environmental monitoring
+- Notes: Pipeline checks for existing data in database before processing to avoid duplicates
+
+Control Flow:
+- Dependencies (directed edges):
+  - get_airvisual_data_hourly -> read_data_airvisual
+  - read_data_airvisual -> load_data_airvisual_to_postgresql
+
+External Systems:
+- http_api: AirVisual API (http://api.airvisual.com/v2/nearest_city)
+- database: PostgreSQL (postgres_conn)
+- filesystem: Local filesystem
+
+Pipeline Steps:
+1. get_airvisual_data_hourly — get_airvisual_data_hourly
+  - Objective: Fetch air quality data from AirVisual API and save to temporary JSON file
+  - Mechanism: python_callable
+  - Step parameters:
+    - CITY=Salaya
+    - STATE=Nakhon Pathom
+    - COUNTRY=Thailand
+    - LATITUDE=13.79059242
+    - LONGITUDE=100.32622308
+  - Failure handling:
+    - retries: 2
+    - retry delay: 5 minutes
+2. read_data_airvisual — read_data_airvisual
+  - Objective: Read and validate the JSON data file
+  - Mechanism: python_callable
+3. load_data_airvisual_to_postgresql — load_data_airvisual_to_postgresql
+  - Objective: Transform and load air quality data into PostgreSQL database using ETL operations
+  - Mechanism: python_callable
+
+Scheduling:
+- Schedule type: manual
+- Start date: 2025-03-20
+- Catchup/backfill: False

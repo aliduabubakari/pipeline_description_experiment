@@ -1,0 +1,5 @@
+multilingual_product_review_analysis_v1 is a workflow with execution model batch and topology pattern linear. Its purpose is: Enriches product reviews with language detection and sentiment analysis.
+
+Scheduling: schedule type is manual, catchup/backfill is False. Control flow includes dependencies such as: load_and_modify_reviews→detect_language; detect_language→analyze_sentiment; analyze_sentiment→extract_features; extract_features→save_enriched_reviews.
+
+load_and_modify_reviews performs Ingest and format raw review data using mechanism container_run. detect_language performs Detect language of review text using mechanism container_run. analyze_sentiment performs Perform sentiment analysis on review text using mechanism container_run. extract_features performs Extract product features mentioned in reviews using mechanism container_run. save_enriched_reviews performs Save final enriched data to CSV format using mechanism container_run.

@@ -1,0 +1,290 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "assignment_solution",
+  "pipeline_name": "assignment_solution",
+  "source": {
+    "unique_key": null,
+    "repo": "technoavengers-com/airflow-training-private",
+    "file_path": "dags/assignment_solution/assignment_template.py",
+    "repo_url": "https://github.com/technoavengers-com/airflow-training-private",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "9a45fe2773fb68749edb90567a31fce97ab40b0b23519da1ae2d315662e6b13e"
+  },
+  "summary": {
+    "purpose": "Fetches user data from API, processes it, creates PostgreSQL table, and inserts processed data",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Template code with incomplete implementation - Python function and SQL queries need completion"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "get_user",
+        "to": "process_user"
+      },
+      {
+        "from": "process_user",
+        "to": "create_table"
+      },
+      {
+        "from": "create_table",
+        "to": "insert_data"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "reqres API",
+      "identifier": "reqres",
+      "details": [
+        "API endpoint: api/users/2",
+        "HTTP method: GET"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "postgres",
+      "details": [
+        "Database connection for table creation and data insertion"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [
+      {
+        "identifier": "users table",
+        "description": "Table with columns: firstname, lastname, email"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "get_user",
+      "name": "get_user",
+      "objective": "Fetch user data from external API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "api_response",
+          "identifier": "user_data",
+          "description": "JSON response containing user information"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "reqres API",
+          "identifier": "reqres"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "api/users/2"
+        },
+        {
+          "key": "method",
+          "value": "GET"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "process_user",
+      "name": "process_user",
+      "objective": "Process and transform user data from API response",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "api_response",
+          "identifier": "user_data",
+          "description": "User data from API response"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "processed_data",
+          "identifier": "firstname",
+          "description": "Extracted first name"
+        },
+        {
+          "type": "processed_data",
+          "identifier": "lastname",
+          "description": "Extracted last name"
+        },
+        {
+          "type": "processed_data",
+          "identifier": "email",
+          "description": "Extracted email"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "create_table",
+      "name": "create_table",
+      "objective": "Create PostgreSQL table for storing user data",
+      "mechanism": "sql_query",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "database_table",
+          "identifier": "users table",
+          "description": "Newly created users table"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "insert_data",
+      "name": "insert_data",
+      "objective": "Insert processed user data into PostgreSQL table",
+      "mechanism": "sql_query",
+      "inputs": [
+        {
+          "type": "processed_data",
+          "identifier": "firstname",
+          "description": "First name from processed data"
+        },
+        {
+          "type": "processed_data",
+          "identifier": "lastname",
+          "description": "Last name from processed data"
+        },
+        {
+          "type": "processed_data",
+          "identifier": "email",
+          "description": "Email from processed data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "database_records",
+          "identifier": "user_records",
+          "description": "Inserted user records in database"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "postgres"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "firstname",
+          "value": "dynamic_parameter"
+        },
+        {
+          "key": "lastname",
+          "value": "dynamic_parameter"
+        },
+        {
+          "key": "email",
+          "value": "dynamic_parameter"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "medium",
+    "extraction_warnings": [
+      "Python function _process_user is incomplete - missing implementation details",
+      "SQL queries for create_table and insert_data steps are not provided in code",
+      "CustomPostgresOperator class defined but not fully utilized",
+      "XCom usage patterns mentioned but not fully implemented",
+      "Airflow Variables referenced but not shown in code"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:48:46.418894Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "technoavengers-com__airflow-training-private__assignment_template.py",
+    "spec_pipeline_id": "assignment_solution"
+  }
+}

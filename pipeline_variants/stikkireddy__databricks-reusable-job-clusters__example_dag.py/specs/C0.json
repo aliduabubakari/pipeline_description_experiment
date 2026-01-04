@@ -1,0 +1,370 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "test_dbx_aws_dag_reuse",
+  "pipeline_name": "test_dbx_aws_dag_reuse",
+  "source": {
+    "unique_key": null,
+    "repo": "stikkireddy/databricks-reusable-job-clusters",
+    "file_path": "docker/dags/example_dag.py",
+    "repo_url": "https://github.com/stikkireddy/databricks-reusable-job-clusters",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "51cf46ff9fd688a581e798f11f80a8ae6a3e5a8aa770d0f9a0f6fb8bdbd458b3"
+  },
+  "summary": {
+    "purpose": "Databricks notebook execution workflow with cluster reuse and branching logic",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "branch_merge",
+    "notes": "Workflow includes Databricks notebook execution with reusable cluster configuration and conditional branching"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": "2023-06-06",
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "start_task",
+        "to": "spark_jar_task"
+      },
+      {
+        "from": "spark_jar_task",
+        "to": "dummy_task_1"
+      },
+      {
+        "from": "dummy_task_1",
+        "to": "branch_task"
+      },
+      {
+        "from": "branch_task",
+        "to": "dummy_task_3"
+      },
+      {
+        "from": "branch_task",
+        "to": "spark_jar_task_2"
+      },
+      {
+        "from": "spark_jar_task_2",
+        "to": "dummy_task_2"
+      },
+      {
+        "from": "dummy_task_2",
+        "to": "end_task"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [
+      {
+        "step": "branch_task",
+        "branches": [
+          {
+            "condition": "branch_func returns 'dummy_task_3'",
+            "next_steps": [
+              "dummy_task_3"
+            ]
+          },
+          {
+            "condition": "branch_func returns other path",
+            "next_steps": [
+              "spark_jar_task_2"
+            ]
+          }
+        ],
+        "merge_step": null
+      }
+    ],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "cloud_service",
+      "name": "Databricks",
+      "identifier": "databricks_default",
+      "details": [
+        "Databricks workspace connection for notebook execution"
+      ],
+      "auth": [
+        "Connection ID based authentication"
+      ]
+    },
+    {
+      "type": "cloud_service",
+      "name": "Databricks Secrets",
+      "identifier": null,
+      "details": [
+        "Secret management for Airflow host and authentication header"
+      ],
+      "auth": [
+        "Secret-based authentication"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld",
+        "description": "Databricks notebook to execute"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "start_task",
+      "name": "start_task",
+      "objective": "Start the workflow",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "spark_jar_task",
+      "name": "spark_jar_task",
+      "objective": "Execute Databricks notebook",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "notebook",
+          "identifier": "/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld",
+          "description": "Notebook to execute"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Databricks",
+          "identifier": "databricks_default"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "existing_cluster_id",
+          "value": "existing_cluster_id"
+        },
+        {
+          "key": "notebook_path",
+          "value": "/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "dummy_task_1",
+      "name": "dummy_task_1",
+      "objective": "Intermediate step",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "branch_task",
+      "name": "branch_task",
+      "objective": "Determine next execution path based on condition",
+      "mechanism": "python_callable",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "python_callable",
+          "value": "branch_func"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "spark_jar_task_2",
+      "name": "spark_jar_task_2",
+      "objective": "Execute Databricks notebook (alternative path)",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "notebook",
+          "identifier": "/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld",
+          "description": "Notebook to execute"
+        }
+      ],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Databricks",
+          "identifier": "databricks_default"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "existing_cluster_id",
+          "value": "existing_cluster_id"
+        },
+        {
+          "key": "notebook_path",
+          "value": "/Users/sri.tikkireddy@databricks.com/workflow-mirroring/helloworld"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "dummy_task_2",
+      "name": "dummy_task_2",
+      "objective": "Intermediate step before end",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "dummy_task_3",
+      "name": "dummy_task_3",
+      "objective": "Alternative path step",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "end_task",
+      "name": "end_task",
+      "objective": "End the workflow",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "medium",
+    "extraction_warnings": [
+      "DummyOperator steps have unknown mechanism - could be placeholders or synchronization points",
+      "Cluster reuse builder configuration details not fully extracted as separate step",
+      "Branch condition logic inferred from function name only",
+      "Secret references for Airflow host and auth header not fully detailed"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:22:42.118632Z"
+  },
+  "variant": {
+    "class_id": "C0",
+    "class_name": "FULL_STRUCTURED",
+    "canonical_pipeline_id": "stikkireddy__databricks-reusable-job-clusters__example_dag.py",
+    "spec_pipeline_id": "test_dbx_aws_dag_reuse"
+  }
+}

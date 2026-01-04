@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/branch_merge:synthetic_branch_merge_01_fraud_detection_triage.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_branch_merge_01_fraud_detection_triage.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator, BranchPythonOperator\n\ndefault_args = {\n    'owner': 'fraud_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': True,\n    'email_on_retry': False\n}\n\ndef analyze_transaction_csv():\n    \"\"\"Mock function to analyze transaction CSV and return risk score\"\"\"\n    print(\"Reading transaction CSV file...\")\n    print(\"Processing 1500 transactions from daily batch\")\n    print(\"Transaction analysis complete\")\n    return 0.75  # Mock risk score\n\ndef apply_risk_model(**context):\n    \"\"\"Apply risk model and determine routing based on risk score\"\"\"\n    risk_score = context['task_instance'].xcom_pull(task_ids='analyze_transactions')\n    print(f\"Applying risk model to transaction with score: {risk_score}\")\n    \n    if risk_score > 0.8:\n        print(\"High risk detected - routing to manual review\")\n        return 'route_to_manual_review'\n    else:\n        print(\"Low risk detected - routing to auto approval\")\n        return 'route_to_auto_approve'\n\ndef manual_review_process():\n    \"\"\"Mock function for manual review process\"\"\"\n    print(\"Transaction sent to Manual_Review queue\")\n    print(\"Analyst will review high-risk transaction\")\n    print(\"Manual review process initiated\")\n\ndef auto_approve_process():\n    \"\"\"Mock function for auto approval process\"\"\"\n    print(\"Transaction auto-approved for Payment_Processing\")\n    print(\"Low-risk transaction cleared for payment\")\n    print(\"Auto-approval process completed\")\n\ndef send_notification():\n    \"\"\"Mock function to send notification after processing\"\"\"\n    print(\"Sending notification: Transaction processing complete\")\n    print(\"Notification sent to fraud detection team\")\n    print(\"Daily fraud triage process finished\")\n\nwith DAG(\n    'fraud_detection_triage',\n    default_args=default_args,\n    description='Fraud detection triage DAG that routes transactions based on risk scores',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['fraud', 'triage', 'branching']\n) as dag:\n    \n    dag.doc_md = \"\"\"\n    # Fraud Detection Triage DAG\n    \n    This DAG processes daily transaction batches for fraud detection:\n    1. Analyzes transaction CSV files\n    2. Applies risk model to calculate risk scores\n    3. Routes transactions based on risk thresholds:\n       - Risk score > 0.8: Manual review queue\n       - Risk score ≤ 0.8: Auto-approve for payment processing\n    4. Merges both paths for final notification\n    \n    Pattern: Branch Merge - Conditional branching with later merge point\n    \"\"\"\n    \n    # Extract/analyze step\n    analyze_transactions = PythonOperator(\n        task_id='analyze_transactions',\n        python_callable=analyze_transaction_csv\n    )\n    \n    # Branching decision point\n    route_transaction = BranchPythonOperator(\n        task_id='route_transaction',\n        python_callable=apply_risk_model\n    )\n    \n    # Branch paths\n    manual_review = PythonOperator(\n        task_id='route_to_manual_review',\n        python_callable=manual_review_process\n    )\n    \n    auto_approve = PythonOperator(\n        task_id='route_to_auto_approve',\n        python_callable=auto_approve_process\n    )\n    \n    # Merge point\n    send_notification_task = PythonOperator(\n        task_id='send_notification',\n        python_callable=send_notification,\n        trigger_rule='none_failed'\n    )\n    \n    # Define dependencies\n    analyze_transactions >> route_transaction\n    route_transaction >> [manual_review, auto_approve]\n    [manual_review, auto_approve] >> send_notification_task"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:40:53Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "branch_merge",
+      "has_sensors": false,
+      "has_branches": true,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 1,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 5,
+      "operator_types": [
+        "PythonOperator",
+        "BranchPythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Fraud detection triage DAG that analyzes transaction CSV files, applies risk model scoring, and routes transactions to manual review or auto-approval based on risk thresholds before merging for final notification",
+    "complexity_score": 4
+  }
+}

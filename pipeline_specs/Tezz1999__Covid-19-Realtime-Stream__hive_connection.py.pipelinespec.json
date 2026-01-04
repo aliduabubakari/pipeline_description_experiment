@@ -1,0 +1,145 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "hive_script",
+  "pipeline_name": "hive_script",
+  "source": {
+    "unique_key": null,
+    "repo": "Tezz1999/Covid-19-Realtime-Stream",
+    "file_path": "hive_connection.py",
+    "repo_url": "https://github.com/Tezz1999/Covid-19-Realtime-Stream",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "560a67558d8e2e9ed795fc08a1637b5cc118f7bff5dd0f5e5ed1944f8e6e0e4d"
+  },
+  "summary": {
+    "purpose": "Execute Hive database operations including database creation, table creation, and data insertion",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Simple linear workflow with two steps: a shell command execution followed by Hive database operations"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "00 1 * * *",
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": null
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "run_after_loop",
+        "to": "hive_script_task"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "database",
+      "name": "Hive",
+      "identifier": "hive_local",
+      "details": [
+        "Hive database connection for executing HQL queries"
+      ],
+      "auth": [
+        "Connection ID: hive_local"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [
+      {
+        "identifier": "mydb.test_af",
+        "description": "Hive table created and populated by the workflow"
+      }
+    ],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "run_after_loop",
+      "name": "run_after_loop",
+      "objective": "Execute a shell command to display the current user",
+      "mechanism": "shell_command",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "bash_command",
+          "value": "echo `whoami`"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "hive_script_task",
+      "name": "hive_script_task",
+      "objective": "Execute Hive database operations including database creation, table creation, and data insertion",
+      "mechanism": "sql_query",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": "mydb.test_af",
+          "description": "Hive table created and populated"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "Hive",
+          "identifier": "hive_local"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "hql_query",
+          "value": "create database if not exists mydb; CREATE TABLE IF NOT EXISTS mydb.test_af(`test` int); insert into mydb.test_af values (2);"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Start date calculation uses days_ago(1) but exact date cannot be determined from static code",
+      "Hive connection details (hive_local) are referenced but not defined in this file"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T13:53:12.859202Z"
+  }
+}

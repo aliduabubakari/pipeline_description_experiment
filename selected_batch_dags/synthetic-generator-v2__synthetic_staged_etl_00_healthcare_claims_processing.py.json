@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/staged_etl:synthetic_staged_etl_00_healthcare_claims_processing.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_staged_etl_00_healthcare_claims_processing.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.operators.postgres_operator import PostgresOperator\nfrom airflow.utils.task_group import TaskGroup\n\ndefault_args = {\n    'owner': 'healthcare_analytics',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5),\n    'email_on_failure': False,\n    'email_on_retry': False,\n}\n\ndef extract_claims_data():\n    \"\"\"Extract patient claims data from CSV file\"\"\"\n    print(\"Extracting patient claims data from CSV...\")\n    print(\"Reading claims.csv with columns: claim_id, patient_id, provider_id, procedure_code, amount, date_of_service\")\n    print(\"Successfully loaded 15,432 claims records\")\n    return \"claims_data_extracted\"\n\ndef extract_providers_data():\n    \"\"\"Extract provider data from CSV file\"\"\"\n    print(\"Extracting provider data from CSV...\")\n    print(\"Reading providers.csv with columns: provider_id, provider_name, specialty, location\")\n    print(\"Successfully loaded 2,187 provider records\")\n    return \"providers_data_extracted\"\n\ndef transform_join_and_anonymize(**kwargs):\n    \"\"\"Join claims and providers data, anonymize PII, calculate risk scores\"\"\"\n    ti = kwargs['ti']\n    claims_status = ti.xcom_pull(task_ids='extract.extract_claims')\n    providers_status = ti.xcom_pull(task_ids='extract.extract_providers')\n    \n    print(f\"Starting transformation with: {claims_status}, {providers_status}\")\n    print(\"Joining claims and provider tables on provider_id...\")\n    print(\"Anonymizing PII: hashing patient_id, removing names...\")\n    print(\"Calculating risk scores based on procedure codes and amounts...\")\n    print(\"Transformation completed successfully\")\n    return \"transformed_data\"\n\ndef load_to_warehouse():\n    \"\"\"Load transformed data to analytics warehouse\"\"\"\n    print(\"Loading transformed data to analytics warehouse...\")\n    print(\"Writing to healthcare_analytics.claims_fact table\")\n    print(\"Writing to healthcare_analytics.providers_dim table\")\n    print(\"Data warehouse load completed\")\n\ndef refresh_bi_tools():\n    \"\"\"Trigger BI dashboard refresh\"\"\"\n    print(\"Triggering BI dashboard refresh...\")\n    print(\"Refreshing Power BI datasets...\")\n    print(\"Updating Tableau extracts...\")\n    print(\"BI refresh initiated successfully\")\n\nwith DAG(\n    'healthcare_claims_etl',\n    default_args=default_args,\n    description='Healthcare Claims Processing ETL Pipeline',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['healthcare', 'etl', 'claims'],\n) as dag:\n\n    with TaskGroup('extract', tooltip='Extract Stage') as extract_group:\n        extract_claims = PythonOperator(\n            task_id='extract_claims',\n            python_callable=extract_claims_data\n        )\n\n        extract_providers = PythonOperator(\n            task_id='extract_providers',\n            python_callable=extract_providers_data\n        )\n\n    transform_join = PythonOperator(\n        task_id='transform_join',\n        python_callable=transform_join_and_anonymize\n    )\n\n    with TaskGroup('load', tooltip='Load Stage') as load_group:\n        load_warehouse = PythonOperator(\n            task_id='load_warehouse',\n            python_callable=load_to_warehouse\n        )\n\n        refresh_bi = PythonOperator(\n            task_id='refresh_bi',\n            python_callable=refresh_bi_tools\n        )\n\n    # Define dependencies to match staged ETL pattern\n    extract_group >> transform_join >> load_group"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:47:07Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "staged_etl",
+      "has_sensors": false,
+      "has_branches": false,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": true
+    },
+    "tasks": {
+      "total_count": 5,
+      "operator_types": [
+        "PythonOperator",
+        "PostgresOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Healthcare Claims Processing ETL Pipeline with staged extraction, transformation, and loading phases",
+    "complexity_score": 4
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "file_arrival_watcher",
+  "pipeline_name": "file_arrival_watcher",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_sensor_gated_01_file_arrival_watcher.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "c3868ba9fdcad2ff9b13ebdd8a18c1265a7081690ae52b40137218533a2ea2d9"
+  },
+  "summary": {
+    "purpose": "Monitor for transaction files, validate schema, and load to PostgreSQL",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "sensor_gated",
+    "notes": "Sensor task gates the processing pipeline"
+  },
+  "schedule": {
+    "schedule_type": "cron",
+    "schedule_expression": "@daily",
+    "timezone": null,
+    "start_date": "2024-01-01",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "wait_for_file",
+        "to": "validate_schema"
+      },
+      {
+        "from": "validate_schema",
+        "to": "load_db"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": [
+      {
+        "type": "file_arrival",
+        "step": "wait_for_file",
+        "waits_for": "file arrival"
+      }
+    ]
+  },
+  "external_systems": [
+    {
+      "type": "filesystem",
+      "name": "incoming directory",
+      "identifier": "/data/incoming",
+      "details": [
+        "Monitors for transaction files with pattern 'transactions_YYYYMMDD.csv'"
+      ],
+      "auth": []
+    },
+    {
+      "type": "database",
+      "name": "PostgreSQL",
+      "identifier": "localhost:5432",
+      "details": [
+        "Target table: public.transactions"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "wait_for_file",
+      "name": "wait_for_file",
+      "objective": "Wait for transaction file arrival",
+      "mechanism": "wait_poll",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Transaction file to monitor"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Arrived transaction file"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "incoming directory",
+          "identifier": "/data/incoming"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "poke_interval",
+          "value": "30"
+        },
+        {
+          "key": "timeout",
+          "value": "86400"
+        },
+        {
+          "key": "mode",
+          "value": "poke"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": "PT24H",
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "validate_schema",
+      "name": "validate_schema",
+      "objective": "Validate the schema of the incoming transactions file",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Transaction file to validate"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "validation_result",
+          "identifier": null,
+          "description": "Schema validation result"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "load_db",
+      "name": "load_db",
+      "objective": "Load validated data to PostgreSQL database",
+      "mechanism": "python_callable",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": null,
+          "description": "Validated transaction file"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "table",
+          "identifier": null,
+          "description": "Loaded transaction data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "database",
+          "name": "PostgreSQL",
+          "identifier": "localhost:5432"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 2,
+        "retry_delay": "PT5M",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "PostgresOperator mentioned in imports but not used in DAG definition",
+      "Some parameter values (like ds_nodash) appear to be templated but exact values unknown"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:41:39.274435Z"
+  },
+  "variant": {
+    "class_id": "C6",
+    "class_name": "NO_DATA_ARTIFACT_DETAILS",
+    "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py",
+    "spec_pipeline_id": "file_arrival_watcher"
+  }
+}

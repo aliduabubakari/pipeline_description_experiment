@@ -1,0 +1,5 @@
+test_dbx_aws_dag_reuse is a workflow with execution model batch and topology pattern branch_merge. Its purpose is: Databricks notebook execution workflow with cluster reuse and branching logic.
+
+Scheduling: schedule type is manual, start date is 2023-06-06. Control flow includes dependencies such as: start_task→spark_jar_task; spark_jar_task→dummy_task_1; dummy_task_1→branch_task; branch_task→dummy_task_3; branch_task→spark_jar_task_2; spark_jar_task_2→dummy_task_2; dummy_task_2→end_task.
+
+start_task performs Start the workflow using mechanism unknown. spark_jar_task performs Execute Databricks notebook using mechanism container_run. dummy_task_1 performs Intermediate step using mechanism unknown. branch_task performs Determine next execution path based on condition using mechanism python_callable. spark_jar_task_2 performs Execute Databricks notebook (alternative path) using mechanism container_run. dummy_task_2 performs Intermediate step before end using mechanism unknown. dummy_task_3 performs Alternative path step using mechanism unknown. end_task performs End the workflow using mechanism unknown.

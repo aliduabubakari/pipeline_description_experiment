@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/sensor_gated:synthetic_sensor_gated_02_database_partition_check.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_sensor_gated_02_database_partition_check.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.sensors.sql import SqlSensor\nfrom airflow.operators.python import PythonOperator\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef extract_incremental_orders():\n    \"\"\"Extract new orders from the partitioned table\"\"\"\n    print(f\"Extracting orders for partition: {datetime.now().strftime('%Y-%m-%d')}\")\n    print(\"Running query: SELECT * FROM orders WHERE partition_date = CURRENT_DATE\")\n    print(\"Successfully extracted 1,247 new orders\")\n\ndef transform_orders():\n    \"\"\"Transform extracted orders data\"\"\"\n    print(\"Transforming orders data...\")\n    print(\"Cleaning customer names and addresses\")\n    print(\"Validating order amounts and quantities\")\n    print(\"Formatting timestamps to ISO standard\")\n    print(\"Successfully transformed 1,247 orders\")\n\ndef load_orders():\n    \"\"\"Load transformed orders to target system\"\"\"\n    print(\"Loading orders to data warehouse...\")\n    print(\"Upserting records into fact_orders table\")\n    print(\"Updating order metrics and aggregates\")\n    print(\"Successfully loaded 1,247 orders to target\")\n\nwith DAG(\n    'database_partition_check_etl',\n    default_args=default_args,\n    description='Wait for daily partition in orders table then run incremental ETL',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['database', 'partition', 'etl']\n) as dag:\n\n    wait_partition = SqlSensor(\n        task_id='wait_partition',\n        conn_id='database_conn',\n        sql=\"SELECT 1 FROM information_schema.partitions WHERE table_name = 'orders' AND partition_name LIKE CONCAT(DATE_FORMAT(CURRENT_DATE, 'p%Y%m%d'), '%')\",\n        mode='reschedule',\n        timeout=3600,\n        poke_interval=300\n    )\n\n    extract_incremental = PythonOperator(\n        task_id='extract_incremental',\n        python_callable=extract_incremental_orders\n    )\n\n    transform = PythonOperator(\n        task_id='transform',\n        python_callable=transform_orders\n    )\n\n    load = PythonOperator(\n        task_id='load',\n        python_callable=load_orders\n    )\n\n    # Set dependencies according to sensor_gated pattern\n    wait_partition >> extract_incremental >> transform >> load"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:44:39Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "sensor_gated",
+      "has_sensors": true,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 4,
+      "operator_types": [
+        "SqlSensor",
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Daily ETL pipeline that waits for database partition availability using SqlSensor, then extracts, transforms, and loads incremental orders data",
+    "complexity_score": 3
+  }
+}

@@ -1,0 +1,1091 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "pcd-etl",
+  "pipeline_name": "pcd-etl",
+  "source": {
+    "unique_key": null,
+    "repo": "bcgov/medis-scheduler",
+    "file_path": "dags/PCD-ETL.py",
+    "repo_url": "https://github.com/bcgov/medis-scheduler",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "b6d159017eabe70cc4c3b983f57de1b34357d11d4a5ab82dfe3cd14dd4b01b29"
+  },
+  "summary": {
+    "purpose": "ETL pipeline for PCD data with multiple HTTP API calls and Kubernetes job, ending with email notification",
+    "business_domain": "healthcare",
+    "execution_model": "batch",
+    "topology_pattern": "fan_out_fan_in",
+    "notes": "Pipeline extracts PCD data via HTTP APIs, processes with Kubernetes job, and sends email notifications on success/failure"
+  },
+  "schedule": {
+    "schedule_type": "unknown",
+    "schedule_expression": null,
+    "timezone": "UTC",
+    "start_date": "2021-01-01T00:00:00Z",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "Check_PCD_SFTP_Folder",
+        "to": "Check_PCD_Shared_Folder"
+      },
+      {
+        "from": "Check_PCD_Shared_Folder",
+        "to": "Start_PCD_Extract_1"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "Status_Tracker"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "Financial_Expense"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "UPCC_Financial_Reportingr"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "CHC_Financial_reporting"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "PCN_Financial_Reporting"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "NPPCC_Financial_Reporting"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "Fiscal_Year_Reporting_Dates"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "UPCC_Primary_Care_Patient_Services"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "CHC_Primary_Care_Patient_Services"
+      },
+      {
+        "from": "Start_PCD_Extract_1",
+        "to": "Practitioner_Role_Mapping"
+      },
+      {
+        "from": "Status_Tracker",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "Financial_Expense",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "UPCC_Financial_Reportingr",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "CHC_Financial_reporting",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "PCN_Financial_Reporting",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "NPPCC_Financial_Reporting",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "Fiscal_Year_Reporting_Dates",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "UPCC_Primary_Care_Patient_Services",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "CHC_Primary_Care_Patient_Services",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "Practitioner_Role_Mapping",
+        "to": "Start_PCD_Extract_2"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "Provincial_Risk_Tracking"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "Decision_Log"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "HA_Hierarchy"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "HR_Records"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "UPPC_Budget"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "CHC_Budget"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "PCN_Budget"
+      },
+      {
+        "from": "Start_PCD_Extract_2",
+        "to": "NPPCC_Budget"
+      },
+      {
+        "from": "Provincial_Risk_Tracking",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "Decision_Log",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "HA_Hierarchy",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "HR_Records",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "UPPC_Budget",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "CHC_Budget",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "PCN_Budget",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "NPPCC_Budget",
+        "to": "PCD_file_upload"
+      },
+      {
+        "from": "PCD_file_upload",
+        "to": "ETL_Notification"
+      }
+    ],
+    "parallel_groups": [
+      {
+        "group_id": "initial_checks",
+        "steps": [
+          "Check_PCD_SFTP_Folder",
+          "Check_PCD_Shared_Folder"
+        ]
+      },
+      {
+        "group_id": "first_extract_phase",
+        "steps": [
+          "Status_Tracker",
+          "Financial_Expense",
+          "UPCC_Financial_Reportingr",
+          "CHC_Financial_reporting",
+          "PCN_Financial_Reporting",
+          "NPPCC_Financial_Reporting",
+          "Fiscal_Year_Reporting_Dates",
+          "UPCC_Primary_Care_Patient_Services",
+          "CHC_Primary_Care_Patient_Services",
+          "Practitioner_Role_Mapping"
+        ]
+      },
+      {
+        "group_id": "second_extract_phase",
+        "steps": [
+          "Provincial_Risk_Tracking",
+          "Decision_Log",
+          "HA_Hierarchy",
+          "HR_Records",
+          "UPPC_Budget",
+          "CHC_Budget",
+          "PCN_Budget",
+          "NPPCC_Budget"
+        ]
+      }
+    ],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "PCD API endpoints",
+      "identifier": null,
+      "details": [
+        "Multiple HTTP endpoints for PCD data extraction"
+      ],
+      "auth": []
+    },
+    {
+      "type": "cloud_service",
+      "name": "Kubernetes",
+      "identifier": null,
+      "details": [
+        "Kubernetes cluster for job execution"
+      ],
+      "auth": []
+    },
+    {
+      "type": "email",
+      "name": "Email service",
+      "identifier": null,
+      "details": [
+        "Email notification system"
+      ],
+      "auth": []
+    },
+    {
+      "type": "filesystem",
+      "name": "PCD shared folder",
+      "identifier": null,
+      "details": [
+        "Shared folder for PCD data"
+      ],
+      "auth": []
+    },
+    {
+      "type": "ftp",
+      "name": "PCD SFTP folder",
+      "identifier": null,
+      "details": [
+        "SFTP folder for PCD data"
+      ],
+      "auth": []
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "Check_PCD_SFTP_Folder",
+      "name": "Check_PCD_SFTP_Folder",
+      "objective": "Check PCD SFTP folder for data availability",
+      "mechanism": "kubernetes_job",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "ftp",
+          "name": "PCD SFTP folder",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "job_template_file",
+          "value": "{{var.value.pcd_emtysftp_job}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Check_PCD_Shared_Folder",
+      "name": "Check_PCD_Shared_Folder",
+      "objective": "Check PCD shared folder for data availability",
+      "mechanism": "kubernetes_job",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "filesystem",
+          "name": "PCD shared folder",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "job_template_file",
+          "value": "{{var.value.pcd_emtydir_job}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Start_PCD_Extract_1",
+      "name": "Start_PCD_Extract_1",
+      "objective": "Start first phase of PCD data extraction",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Start_PCD_Extract_2",
+      "name": "Start_PCD_Extract_2",
+      "objective": "Start second phase of PCD data extraction",
+      "mechanism": "unknown",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Financial_Expense",
+      "name": "Financial_Expense",
+      "objective": "Extract financial expense data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_financial_expense_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "UPCC_Financial_Reportingr",
+      "name": "UPCC_Financial_Reportingr",
+      "objective": "Extract UPCC financial reporting data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_upcc_financial_reporting_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "CHC_Financial_reporting",
+      "name": "CHC_Financial_reporting",
+      "objective": "Extract CHC financial reporting data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_chc_financial_reporting_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "PCN_Financial_Reporting",
+      "name": "PCN_Financial_Reporting",
+      "objective": "Extract PCN financial reporting data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_pcn_financial_reporting_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "NPPCC_Financial_Reporting",
+      "name": "NPPCC_Financial_Reporting",
+      "objective": "Extract NPPCC financial reporting data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_nppcc_financial_reporting_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Fiscal_Year_Reporting_Dates",
+      "name": "Fiscal_Year_Reporting_Dates",
+      "objective": "Extract fiscal year reporting dates from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_fiscal_year_reporting_dates_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "UPCC_Primary_Care_Patient_Services",
+      "name": "UPCC_Primary_Care_Patient_Services",
+      "objective": "Extract UPCC primary care patient services data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_upcc_pcps_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "CHC_Primary_Care_Patient_Services",
+      "name": "CHC_Primary_Care_Patient_Services",
+      "objective": "Extract CHC primary care patient services data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_chc_pcps_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Practitioner_Role_Mapping",
+      "name": "Practitioner_Role_Mapping",
+      "objective": "Extract practitioner role mapping data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_practitioner_role_mapping_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Status_Tracker",
+      "name": "Status_Tracker",
+      "objective": "Extract status tracker data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_status_tracker_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "HR_Records",
+      "name": "HR_Records",
+      "objective": "Extract HR records data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_hr_records_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Provincial_Risk_Tracking",
+      "name": "Provincial_Risk_Tracking",
+      "objective": "Extract provincial risk tracking data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_provincial_risk_tracking_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "Decision_Log",
+      "name": "Decision_Log",
+      "objective": "Extract decision log data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_decision_log_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "HA_Hierarchy",
+      "name": "HA_Hierarchy",
+      "objective": "Extract health authority hierarchy data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_ha_hierarchy_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "UPPC_Budget",
+      "name": "UPPC_Budget",
+      "objective": "Extract UPCC budget data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_upcc_budget_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "CHC_Budget",
+      "name": "CHC_Budget",
+      "objective": "Extract CHC budget data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_chc_budget_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "PCN_Budget",
+      "name": "PCN_Budget",
+      "objective": "Extract PCN budget data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_pcn_budget_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "NPPCC_Budget",
+      "name": "NPPCC_Budget",
+      "objective": "Extract NPPCC budget data from PCD API",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "PCD API endpoints",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "endpoint",
+          "value": "{{var.value.pcd_nppcc_budget_url}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "PCD_file_upload",
+      "name": "PCD_file_upload",
+      "objective": "Upload and process PCD files using Kubernetes job",
+      "mechanism": "kubernetes_job",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "cloud_service",
+          "name": "Kubernetes",
+          "identifier": null
+        }
+      ],
+      "parameters": [
+        {
+          "key": "job_template_file",
+          "value": "{{var.value.pcd_job}}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "ETL_Notification",
+      "name": "ETL_Notification",
+      "objective": "Send email notification based on pipeline execution results",
+      "mechanism": "notification",
+      "inputs": [],
+      "outputs": [],
+      "external_system_refs": [
+        {
+          "type": "email",
+          "name": "Email service",
+          "identifier": null
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": null,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "medium",
+    "extraction_warnings": [
+      "Schedule type cannot be determined from variable-based schedule expression",
+      "EmptyOperator steps have unknown mechanism",
+      "Data artifacts not explicitly defined in code",
+      "External system authentication details not specified"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T19:04:34.483393Z"
+  },
+  "variant": {
+    "class_id": "C7",
+    "class_name": "NO_ENV_INFRA_DETAILS",
+    "canonical_pipeline_id": "bcgov__medis-scheduler__PCD-ETL.py",
+    "spec_pipeline_id": "pcd-etl"
+  }
+}

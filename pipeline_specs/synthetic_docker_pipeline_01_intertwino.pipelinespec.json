@@ -1,0 +1,536 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "pipeline_execution_dag",
+  "pipeline_name": "pipeline_execution_dag",
+  "source": {
+    "unique_key": null,
+    "repo": "synthetic-generator-v2",
+    "file_path": "synthetic/synthetic_docker_pipeline_01_intertwino.py",
+    "repo_url": "https://github.com/internal/synthetic-dags",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "77d70264951fee276f173c1045d54a4bb9bf476641f7896cfd4073ab986c1558"
+  },
+  "summary": {
+    "purpose": "Sequential data processing pipeline executing containerized tasks to ingest CSVs, perform reconciliation and weather enrichment, extend columns, and save the final output",
+    "business_domain": null,
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "All steps run as Docker containers with shared data mount and network"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": null,
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "load_and_modify",
+        "to": "reconciliation"
+      },
+      {
+        "from": "reconciliation",
+        "to": "openmeteo_extension"
+      },
+      {
+        "from": "openmeteo_extension",
+        "to": "column_extension"
+      },
+      {
+        "from": "column_extension",
+        "to": "save"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "Load and Modify API",
+      "identifier": "http://load-and-modify:3003/api/",
+      "details": [
+        "API for loading and modifying CSV data"
+      ],
+      "auth": [
+        "username/password authentication"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "Reconciliation API",
+      "identifier": "http://reconciliation:3000/api/reconciliation",
+      "details": [
+        "API for data reconciliation"
+      ],
+      "auth": [
+        "username/password authentication",
+        "API token"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "OpenMeteo API",
+      "identifier": "http://openmeteo:3000/api/extension",
+      "details": [
+        "API for weather data enrichment"
+      ],
+      "auth": [
+        "username/password authentication"
+      ]
+    },
+    {
+      "type": "http_api",
+      "name": "Column Extension API",
+      "identifier": "http://column-extension:3000/api/extension",
+      "details": [
+        "API for column extension"
+      ],
+      "auth": [
+        "username/password authentication"
+      ]
+    },
+    {
+      "type": "filesystem",
+      "name": "Data directory",
+      "identifier": "/app/data",
+      "details": [
+        "Shared data directory mounted to containers"
+      ],
+      "auth": [
+        "filesystem mount"
+      ]
+    },
+    {
+      "type": "cloud_service",
+      "name": "Docker",
+      "identifier": "unix://var/run/docker.sock",
+      "details": [
+        "Container runtime"
+      ],
+      "auth": [
+        "Docker socket access"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [
+      {
+        "identifier": "*.csv",
+        "description": "Input CSV files"
+      },
+      {
+        "identifier": "table_data_*.json",
+        "description": "Modified table data"
+      },
+      {
+        "identifier": "reconciliated_data_*.json",
+        "description": "Reconciled data"
+      },
+      {
+        "identifier": "openmeteo_extended_data_*.json",
+        "description": "Weather-enriched data"
+      },
+      {
+        "identifier": "column_extended_data_*.json",
+        "description": "Column-extended data"
+      },
+      {
+        "identifier": "final_output.csv",
+        "description": "Final output file"
+      }
+    ],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "load_and_modify",
+      "name": "load_and_modify",
+      "objective": "Load CSV files and modify data structure",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "*.csv",
+          "description": "Input CSV files"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_*.json",
+          "description": "Modified table data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Load and Modify API",
+          "identifier": "http://load-and-modify:3003/api/"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "api_url",
+          "value": "http://load-and-modify:3003/api/"
+        },
+        {
+          "key": "input_pattern",
+          "value": "*.csv"
+        },
+        {
+          "key": "output_pattern",
+          "value": "table_data_{}.json"
+        },
+        {
+          "key": "dataset_id",
+          "value": "2"
+        },
+        {
+          "key": "date_column",
+          "value": "Fecha_id"
+        },
+        {
+          "key": "table_name",
+          "value": "JOT_{}"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "LOAD_MODIFY_API_URL",
+          "API_USERNAME",
+          "API_PASSWORD",
+          "LOAD_MODIFY_INPUT_PATTERN",
+          "LOAD_MODIFY_OUTPUT_PATTERN",
+          "LOAD_MODIFY_DATASET_ID",
+          "LOAD_MODIFY_DATE_COLUMN",
+          "LOAD_MODIFY_TABLE_NAME"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "docker_url: unix://var/run/docker.sock",
+          "image: i2t-backendwithintertwino6-load-and-modify:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "reconciliation",
+      "name": "reconciliation",
+      "objective": "Reconcile data using external service",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "table_data_*.json",
+          "description": "Modified table data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "reconciliated_data_*.json",
+          "description": "Reconciled data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Reconciliation API",
+          "identifier": "http://reconciliation:3000/api/reconciliation"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "api_url",
+          "value": "http://reconciliation:3000/api/reconciliation"
+        },
+        {
+          "key": "reconciliator_id",
+          "value": "1"
+        },
+        {
+          "key": "column_name",
+          "value": "column_to_reconcile"
+        },
+        {
+          "key": "input_pattern",
+          "value": "table_data_*.json"
+        },
+        {
+          "key": "output_pattern",
+          "value": "reconciliated_data_{}.json"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "RECONCILIATION_API_URL_AUTH",
+          "RECONCILIATION_API_URL",
+          "RECONCILIATION_BASE_URL",
+          "RECONCILIATION_USERNAME",
+          "RECONCILIATION_PASSWORD",
+          "RECONCILIATION_RECONCILIATOR_ID",
+          "RECONCILIATION_COLUMN_NAME",
+          "RECONCILIATION_OPTIONAL_COLUMNS",
+          "RECONCILIATION_INPUT_PATTERN",
+          "RECONCILIATION_OUTPUT_PATTERN",
+          "API_TOKEN"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "docker_url: unix://var/run/docker.sock",
+          "image: i2t-backendwithintertwino6-reconciliation:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "openmeteo_extension",
+      "name": "openmeteo_extension",
+      "objective": "Enrich data with weather information",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "reconciliated_data_*.json",
+          "description": "Reconciled data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "openmeteo_extended_data_*.json",
+          "description": "Weather-enriched data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "OpenMeteo API",
+          "identifier": "http://openmeteo:3000/api/extension"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "api_url",
+          "value": "http://openmeteo:3000/api/extension"
+        },
+        {
+          "key": "extender_id",
+          "value": "1"
+        },
+        {
+          "key": "properties",
+          "value": "temperature,humidity"
+        },
+        {
+          "key": "input_pattern",
+          "value": "reconciliated_data_*.json"
+        },
+        {
+          "key": "output_pattern",
+          "value": "openmeteo_extended_data_{}.json"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "OPENMETEO_API_URL_AUTH",
+          "OPENMETEO_API_URL",
+          "OPENMETEO_USERNAME",
+          "OPENMETEO_PASSWORD",
+          "OPENMETEO_RECONCILIATED_COLUMN_NAME",
+          "OPENMETEO_EXTENDER_ID",
+          "OPENMETEO_PROPERTIES",
+          "OPENMETEO_DATE_COLUMN_NAME",
+          "OPENMETEO_SEPARATOR_FORMAT",
+          "OPENMETEO_INPUT_PATTERN",
+          "OPENMETEO_OUTPUT_PATTERN"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "docker_url: unix://var/run/docker.sock",
+          "image: i2t-backendwithintertwino6-openmeteo-extension:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "column_extension",
+      "name": "column_extension",
+      "objective": "Extend data with additional columns",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "openmeteo_extended_data_*.json",
+          "description": "Weather-enriched data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_data_*.json",
+          "description": "Column-extended data"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Column Extension API",
+          "identifier": "http://column-extension:3000/api/extension"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "api_url",
+          "value": "http://column-extension:3000/api/extension"
+        },
+        {
+          "key": "id_extender",
+          "value": "1"
+        },
+        {
+          "key": "properties",
+          "value": "property1,property2"
+        },
+        {
+          "key": "input_pattern",
+          "value": "openmeteo_extended_data_*.json"
+        },
+        {
+          "key": "output_pattern",
+          "value": "column_extended_data_{}.json"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "COLUMN_EXT_API_URL_AUTH",
+          "COLUMN_EXT_API_URL",
+          "COLUMN_EXT_USERNAME",
+          "COLUMN_EXT_PASSWORD",
+          "COLUMN_EXT_RECONCILIATED_COLUMN_NAME",
+          "COLUMN_EXT_PROPERTIES",
+          "COLUMN_EXT_ID_EXTENDER",
+          "COLUMN_EXT_INPUT_PATTERN",
+          "COLUMN_EXT_OUTPUT_PATTERN"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "docker_url: unix://var/run/docker.sock",
+          "image: i2t-backendwithintertwino6-column-extension:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "save",
+      "name": "save",
+      "objective": "Save processed data to final output file",
+      "mechanism": "container_run",
+      "inputs": [
+        {
+          "type": "file",
+          "identifier": "column_extended_data_*.json",
+          "description": "Column-extended data"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "file",
+          "identifier": "final_output.csv",
+          "description": "Final output file"
+        }
+      ],
+      "external_system_refs": [],
+      "parameters": [
+        {
+          "key": "input_pattern",
+          "value": "column_extended_data_*.json"
+        },
+        {
+          "key": "output_filename",
+          "value": "final_output.csv"
+        },
+        {
+          "key": "data_directory",
+          "value": "/app/data"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [
+          "SAVE_INPUT_PATTERN",
+          "SAVE_OUTPUT_FILENAME",
+          "SAVE_DATA_DIRECTORY"
+        ],
+        "mounts": [
+          "/app/data"
+        ],
+        "network": "app_network",
+        "other": [
+          "docker_url: unix://var/run/docker.sock",
+          "image: i2t-backendwithintertwino6-save:latest"
+        ]
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": null,
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Some parameter values are default values from environment variables and may not reflect actual runtime values"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:47:46.732312Z"
+  }
+}

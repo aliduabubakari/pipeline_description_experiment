@@ -1,0 +1,37 @@
+Pipeline Summary:
+- Pipeline ID: peterbull__bodhi-cast__log_cleanup.py
+- Name: airflow-log-cleanup
+- Purpose: Periodically clean out task logs to prevent them from growing too large
+- Execution model: batch
+- Topology pattern: fan_out_fan_in
+- Business domain: infrastructure_maintenance
+- Notes: Maintenance workflow for log cleanup with parallel execution for multiple workers
+
+Control Flow:
+- Dependencies (directed edges):
+  - start -> log_cleanup_worker_num_1_dir_0
+
+Data Artifacts / I-O Identifiers:
+- file: LOG_CLEANUP_PROCESS_LOCK_FILE (Lock file to prevent multiple cleanup processes from running simultaneously)
+
+External Systems:
+- filesystem: Airflow log directory (BASE_LOG_FOLDER)
+
+Pipeline Steps:
+1. start — start
+  - Objective: Initialize the log cleanup workflow
+2. log_cleanup_worker_num_1_dir_0 — log_cleanup_worker_num_1_dir_0
+  - Objective: Clean up old log files from the specified directory
+  - Inputs: configuration:maxLogAgeInDays, parameter:directory, parameter:sleep_time
+  - Outputs: file:LOG_CLEANUP_PROCESS_LOCK_FILE
+  - Step parameters:
+    - directory=BASE_LOG_FOLDER
+    - sleep_time=3
+  - Failure handling:
+    - retries: 1
+    - retry delay: 1 minute
+
+Scheduling:
+- Schedule type: cron
+- Schedule expression: @daily
+- Catchup/backfill: False

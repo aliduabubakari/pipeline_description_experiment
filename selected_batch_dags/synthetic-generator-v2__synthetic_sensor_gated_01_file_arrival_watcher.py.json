@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/sensor_gated:synthetic_sensor_gated_01_file_arrival_watcher.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_sensor_gated_01_file_arrival_watcher.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.sensors.filesystem import FileSensor\nfrom airflow.operators.python import PythonOperator\nfrom airflow.providers.postgres.operators.postgres import PostgresOperator\n\ndefault_args = {\n    'owner': 'data_engineering',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef validate_file_schema():\n    \"\"\"Validate the schema of the incoming transactions file\"\"\"\n    print(\"Validating file schema...\")\n    print(\"Checking column names: transaction_id, customer_id, amount, transaction_date\")\n    print(\"Checking data types: string, string, decimal, date\")\n    print(\"Schema validation completed successfully!\")\n    return \"schema_valid\"\n\ndef load_to_postgres():\n    \"\"\"Load validated data to PostgreSQL database\"\"\"\n    print(\"Loading data to PostgreSQL...\")\n    print(\"Connecting to PostgreSQL database on host: localhost:5432\")\n    print(\"Target table: public.transactions\")\n    print(\"Loading file: /data/incoming/transactions_YYYYMMDD.csv\")\n    print(\"Data load completed successfully!\")\n\nwith DAG(\n    'file_arrival_watcher',\n    default_args=default_args,\n    description='Monitor for transaction files, validate schema, and load to PostgreSQL',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['file_monitoring', 'etl', 'postgresql']\n) as dag:\n    \n    dag.doc = \"\"\"\n    File Arrival Watcher DAG\n    \n    This DAG monitors the /data/incoming directory for new transaction files\n    with the pattern 'transactions_YYYYMMDD.csv'. Once a file arrives:\n    1. Wait for file using FileSensor\n    2. Validate the file schema meets requirements\n    3. Load the validated data to PostgreSQL database\n    \n    Pattern: SENSOR GATED - Sensor task gates the processing pipeline\n    \"\"\"\n    \n    # Sensor task - waits for file arrival\n    wait_for_file = FileSensor(\n        task_id='wait_for_file',\n        filepath='/data/incoming/transactions_{{ ds_nodash }}.csv',\n        poke_interval=30,\n        timeout=60 * 60 * 24,  # 24 hours timeout\n        mode='poke'\n    )\n    \n    # Validation task\n    validate_schema = PythonOperator(\n        task_id='validate_schema',\n        python_callable=validate_file_schema\n    )\n    \n    # Database load task\n    load_db = PythonOperator(\n        task_id='load_db',\n        python_callable=load_to_postgres\n    )\n    \n    # Set dependencies - sensor gated pattern\n    wait_for_file >> validate_schema >> load_db"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:44:16Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "sensor_gated",
+      "has_sensors": true,
+      "has_branches": false,
+      "has_fan_out": false,
+      "has_fan_in": false,
+      "estimated_max_parallel_width": 1,
+      "estimated_branch_depth": 0,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 3,
+      "operator_types": [
+        "FileSensor",
+        "PythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "File Arrival Watcher DAG that monitors for transaction files, validates schema, and loads to PostgreSQL using a sensor-gated pattern",
+    "complexity_score": 3
+  }
+}

@@ -1,0 +1,2289 @@
+{
+  "generated_at": "2025-12-17T10:55:40.854416Z",
+  "input_dir": "pipeline_specs",
+  "output_dir": "pipeline_variants",
+  "classes": [
+    {
+      "id": "C0",
+      "name": "FULL_STRUCTURED"
+    },
+    {
+      "id": "C1",
+      "name": "NO_SCHEDULING"
+    },
+    {
+      "id": "C2",
+      "name": "NO_CONTROL_FLOW"
+    },
+    {
+      "id": "C3",
+      "name": "NO_EXECUTION_MECHANISM"
+    },
+    {
+      "id": "C4",
+      "name": "NO_STEP_PARAMETERS"
+    },
+    {
+      "id": "C5",
+      "name": "NO_EXTERNAL_SYSTEM_DETAILS"
+    },
+    {
+      "id": "C6",
+      "name": "NO_DATA_ARTIFACT_DETAILS"
+    },
+    {
+      "id": "C7",
+      "name": "NO_ENV_INFRA_DETAILS"
+    },
+    {
+      "id": "C8",
+      "name": "NO_FAILURE_HANDLING_DETAILS"
+    },
+    {
+      "id": "C9",
+      "name": "PROSE_UNSTRUCTURED"
+    }
+  ],
+  "pipelines": [
+    {
+      "canonical_pipeline_id": "6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py",
+      "spec_pipeline_id": "airvisual_pipeline_lat_long_v1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__airvisual_pipeline_by_lat_long_review.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py",
+      "spec_pipeline_id": "mahidol_aqi_pipeline_v2_alert_1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/6587093polakornming__RiskAlertPM25__mahidol_aqi_report_pipeline_alert.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py",
+      "spec_pipeline_id": "etl_import_ensembl",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_ensembl.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py",
+      "spec_pipeline_id": "etl_import_mondo",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/Ferlab-Ste-Justine__clin-pipelines-dags__etl_import_mondo.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "HaydarovAkbar__airflow_dag__main.py",
+      "spec_pipeline_id": "WF_MAIN_DATASETS_LOAD_L2_TO_L2",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/HaydarovAkbar__airflow_dag__main.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "M4TTRX__data-eng-project__global_dag.py",
+      "spec_pipeline_id": "global_dag",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/M4TTRX__data-eng-project__global_dag.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "Tezz1999__Covid-19-Realtime-Stream__hive_connection.py",
+      "spec_pipeline_id": "hive_script",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/Tezz1999__Covid-19-Realtime-Stream__hive_connection.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "bcgov__medis-scheduler__PCD-ETL.py",
+      "spec_pipeline_id": "pcd-etl",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/bcgov__medis-scheduler__PCD-ETL.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "customer_data_quality_scoring_dag",
+      "spec_pipeline_id": "customer_dq_scoring_pipeline",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/customer_data_quality_scoring_dag/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/customer_data_quality_scoring_dag/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "de_001_text_processing_keyword_extraction_from_documents",
+      "spec_pipeline_id": "keyword_extraction_pipeline",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/de_001_text_processing_keyword_extraction_from_documents/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "environmental_monitoring_pipeline",
+      "spec_pipeline_id": "environmental_monitoring_network_v1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/environmental_monitoring_pipeline/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/environmental_monitoring_pipeline/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "hejnal__dataform-training__dataform_dag_dynamic_vars.py",
+      "spec_pipeline_id": "data-transformation-pipeline",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/hejnal__dataform-training__dataform_dag_dynamic_vars.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "keeyong__airflow-bootcamp__run_elt_error.py",
+      "spec_pipeline_id": "RunELT_Alert",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/keeyong__airflow-bootcamp__run_elt_error.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "medical_facility_accessibility_pipeline",
+      "spec_pipeline_id": "medical_facility_accessibility_v1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/medical_facility_accessibility_pipeline/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/medical_facility_accessibility_pipeline/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "multilingual_product_review_pipeline",
+      "spec_pipeline_id": "multilingual_product_review_analysis_v1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/multilingual_product_review_pipeline/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/multilingual_product_review_pipeline/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "nazzang49__gcp-tutorials__airflow_db_cleanup.py",
+      "spec_pipeline_id": "airflow_db_cleanup",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/nazzang49__gcp-tutorials__airflow_db_cleanup.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "peterbull__bodhi-cast__log_cleanup.py",
+      "spec_pipeline_id": "airflow-log-cleanup",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/peterbull__bodhi-cast__log_cleanup.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "procurement_supplier_validation_pipeline",
+      "spec_pipeline_id": "procurement_supplier_validation_v1",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/procurement_supplier_validation_pipeline/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/procurement_supplier_validation_pipeline/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "sivajik34__magento-airflow__magento_customer_graphql.py",
+      "spec_pipeline_id": "magento_graphql_customer",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/sivajik34__magento-airflow__magento_customer_graphql.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "stikkireddy__databricks-reusable-job-clusters__example_dag.py",
+      "spec_pipeline_id": "test_dbx_aws_dag_reuse",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/stikkireddy__databricks-reusable-job-clusters__example_dag.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py",
+      "spec_pipeline_id": "data_quality_gate",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_00_data_quality_gate.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py",
+      "spec_pipeline_id": "fraud_detection_triage",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_01_fraud_detection_triage.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py",
+      "spec_pipeline_id": "backup_strategy_selector",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_02_backup_strategy_selector.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py",
+      "spec_pipeline_id": "regulatory_report_router",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_03_regulatory_report_router.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py",
+      "spec_pipeline_id": "content_moderation_pipeline",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_branch_merge_05_content_moderation_pipeline.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py",
+      "spec_pipeline_id": "multi_region_ecommerce_analytics",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_00_multi_region_e_commerce_analytics.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py",
+      "spec_pipeline_id": "climate_data_fusion_pipeline",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_01_climate_data_fusion.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py",
+      "spec_pipeline_id": "retail_inventory_reconciliation",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_03_retail_inventory_reconciliation.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py",
+      "spec_pipeline_id": "portfolio_rebalancing_dag",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_fan_in_06_financial_portfolio_rebalancing.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py",
+      "spec_pipeline_id": "multi_channel_marketing_campaign",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_00_multi_channel_marketing_campaign.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py",
+      "spec_pipeline_id": "database_replication_fanout",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_fan_out_only_01_data_replication_to_environments.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_linear_01_report_generation.py",
+      "spec_pipeline_id": "daily_sales_report",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_linear_01_report_generation.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py",
+      "spec_pipeline_id": "executive_sales_dashboard",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_00_upstream_etl_dependency.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py",
+      "spec_pipeline_id": "file_arrival_watcher",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_01_file_arrival_watcher.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py",
+      "spec_pipeline_id": "database_partition_check_etl",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_02_database_partition_check.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py",
+      "spec_pipeline_id": "ftp_vendor_inventory_processor",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_sensor_gated_03_ftp_drop_zone_monitor.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py",
+      "spec_pipeline_id": "healthcare_claims_etl",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_00_healthcare_claims_processing.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py",
+      "spec_pipeline_id": "supply_chain_shipment_etl",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic-generator-v2__synthetic_staged_etl_01_supply_chain_etl.py/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "synthetic_docker_pipeline_01_intertwino",
+      "spec_pipeline_id": "pipeline_execution_dag",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/synthetic_docker_pipeline_01_intertwino/specs/C9.json"
+        }
+      }
+    },
+    {
+      "canonical_pipeline_id": "technoavengers-com__airflow-training-private__assignment_template.py",
+      "spec_pipeline_id": "assignment_solution",
+      "variants": {
+        "C0": {
+          "class_name": "FULL_STRUCTURED",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C0_FULL_STRUCTURED.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C0.json"
+        },
+        "C1": {
+          "class_name": "NO_SCHEDULING",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C1_NO_SCHEDULING.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C1.json"
+        },
+        "C2": {
+          "class_name": "NO_CONTROL_FLOW",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C2_NO_CONTROL_FLOW.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C2.json"
+        },
+        "C3": {
+          "class_name": "NO_EXECUTION_MECHANISM",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C3_NO_EXECUTION_MECHANISM.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C3.json"
+        },
+        "C4": {
+          "class_name": "NO_STEP_PARAMETERS",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C4_NO_STEP_PARAMETERS.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C4.json"
+        },
+        "C5": {
+          "class_name": "NO_EXTERNAL_SYSTEM_DETAILS",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C5_NO_EXTERNAL_SYSTEM_DETAILS.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C5.json"
+        },
+        "C6": {
+          "class_name": "NO_DATA_ARTIFACT_DETAILS",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C6_NO_DATA_ARTIFACT_DETAILS.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C6.json"
+        },
+        "C7": {
+          "class_name": "NO_ENV_INFRA_DETAILS",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C7_NO_ENV_INFRA_DETAILS.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C7.json"
+        },
+        "C8": {
+          "class_name": "NO_FAILURE_HANDLING_DETAILS",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C8_NO_FAILURE_HANDLING_DETAILS.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C8.json"
+        },
+        "C9": {
+          "class_name": "PROSE_UNSTRUCTURED",
+          "prompt_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/C9_PROSE_UNSTRUCTURED.txt",
+          "spec_file": "pipeline_variants/technoavengers-com__airflow-training-private__assignment_template.py/specs/C9.json"
+        }
+      }
+    }
+  ]
+}

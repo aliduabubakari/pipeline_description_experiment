@@ -1,0 +1,5 @@
+ftp_vendor_inventory_processor is a workflow with execution model batch and topology pattern sensor_gated. Its purpose is: Monitor FTP for vendor inventory file, download, cleanse and merge with internal inventory.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: wait_for_ftp_file→download_vendor_file; download_vendor_file→cleanse_vendor_data; cleanse_vendor_data→merge_with_internal_inventory.
+
+wait_for_ftp_file performs Monitor FTP server for vendor inventory file availability using mechanism wait_poll. download_vendor_file performs Download vendor inventory file from FTP server using mechanism python_callable. cleanse_vendor_data performs Clean null values from vendor inventory data using mechanism python_callable. merge_with_internal_inventory performs Merge vendor inventory data with internal inventory system using mechanism python_callable.

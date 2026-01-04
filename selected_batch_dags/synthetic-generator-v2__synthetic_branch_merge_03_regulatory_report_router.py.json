@@ -1,0 +1,48 @@
+{
+  "unique_key": "synthetic/branch_merge:synthetic_branch_merge_03_regulatory_report_router.py",
+  "repo": "synthetic-generator-v2",
+  "repo_url": "https://github.com/internal/synthetic-dags",
+  "stars": 0,
+  "license": "MIT",
+  "file_path": "synthetic/synthetic_branch_merge_03_regulatory_report_router.py",
+  "detected_airflow_version": "2.x",
+  "sampled_versions": [
+    {
+      "version": "latest",
+      "commit": "synthetic_generation",
+      "code": "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator, BranchPythonOperator\n\ndefault_args = {\n    'owner': 'regulatory_team',\n    'depends_on_past': False,\n    'start_date': datetime(2024, 1, 1),\n    'email_on_failure': False,\n    'email_on_retry': False,\n    'retries': 2,\n    'retry_delay': timedelta(minutes=5)\n}\n\ndef read_csv_file():\n    \"\"\"Mock function to read CSV file with financial transactions\"\"\"\n    print(\"Reading financial transaction CSV file...\")\n    print(\"CSV headers: transaction_id,account_type,amount,currency\")\n    print(\"Sample data processed successfully\")\n    return \"csv_data_processed\"\n\ndef check_account_type(**kwargs):\n    \"\"\"Branch function to determine routing based on account type\"\"\"\n    ti = kwargs['ti']\n    csv_result = ti.xcom_pull(task_ids='read_csv')\n    print(f\"Checking account types from: {csv_result}\")\n    \n    # Mock logic: In real scenario, this would analyze actual data\n    # For demonstration, we'll randomly choose a branch\n    import random\n    account_types = ['international', 'domestic']\n    selected_type = random.choice(account_types)\n    print(f\"Routing transactions to: {selected_type.upper()} processing\")\n    \n    if selected_type == 'international':\n        return 'route_to_fatca'\n    else:\n        return 'route_to_irs'\n\ndef process_fatca_reporting():\n    \"\"\"Mock function for FATCA regulatory reporting\"\"\"\n    print(\"Processing FATCA reporting for international accounts\")\n    print(\"Validating transaction data against FATCA requirements\")\n    print(\"Generating FATCA XML report\")\n    print(\"FATCA reporting completed successfully\")\n    return \"fatca_report_generated\"\n\ndef process_irs_reporting():\n    \"\"\"Mock function for IRS regulatory reporting\"\"\"\n    print(\"Processing IRS reporting for domestic accounts\")\n    print(\"Validating transaction data against IRS requirements\")\n    print(\"Generating IRS Form 1099 data\")\n    print(\"IRS reporting completed successfully\")\n    return \"irs_report_generated\"\n\ndef archive_reports(**kwargs):\n    \"\"\"Merge function to archive all reports\"\"\"\n    ti = kwargs['ti']\n    \n    # Collect results from both branches\n    fatca_result = ti.xcom_pull(task_ids='route_to_fatca')\n    irs_result = ti.xcom_pull(task_ids='route_to_irs')\n    \n    print(f\"Archiving FATCA report: {fatca_result}\")\n    print(f\"Archiving IRS report: {irs_result}\")\n    print(\"All regulatory reports archived successfully\")\n    print(\"Compressing and storing in secure archive location\")\n    return \"reports_archived\"\n\nwith DAG(\n    'regulatory_report_router',\n    default_args=default_args,\n    description='DAG for routing financial transactions to appropriate regulatory reporting systems',\n    schedule_interval='@daily',\n    catchup=False,\n    tags=['regulatory', 'reporting', 'finance']\n) as dag:\n    \n    # Docstring for the DAG\n    \"\"\"\n    Regulatory Report Router DAG\n    \n    This DAG processes financial transaction data and routes it to the appropriate\n    regulatory reporting system based on account type:\n    - International accounts → FATCA Reporting\n    - Domestic accounts → IRS Reporting\n    \n    All reports are then merged and archived for compliance purposes.\n    \n    Data Flow: CSV → Account_Check → [International → FATCA | Domestic → IRS] → Archive\n    Pattern: BRANCH MERGE\n    \"\"\"\n    \n    # Extract: Read CSV file\n    read_csv = PythonOperator(\n        task_id='read_csv',\n        python_callable=read_csv_file\n    )\n    \n    # Branch: Determine routing based on account type\n    account_check = BranchPythonOperator(\n        task_id='account_check',\n        python_callable=check_account_type\n    )\n    \n    # Transform: Process international accounts (FATCA)\n    route_to_fatca = PythonOperator(\n        task_id='route_to_fatca',\n        python_callable=process_fatca_reporting\n    )\n    \n    # Transform: Process domestic accounts (IRS)\n    route_to_irs = PythonOperator(\n        task_id='route_to_irs',\n        python_callable=process_irs_reporting\n    )\n    \n    # Load: Archive all reports\n    archive_reports = PythonOperator(\n        task_id='archive_reports',\n        python_callable=archive_reports\n    )\n    \n    # Define dependencies to match BRANCH MERGE pattern\n    read_csv >> account_check\n    account_check >> [route_to_fatca, route_to_irs]\n    [route_to_fatca, route_to_irs] >> archive_reports"
+    }
+  ],
+  "sampled_time": "2025-11-26T11:42:02Z",
+  "analysis": {
+    "is_valid_dag_file": true,
+    "is_production_dag": true,
+    "is_airflow_2": true,
+    "processing_type": "batch",
+    "has_streaming_operators": false,
+    "has_ml_operators": false,
+    "topology": {
+      "pattern": "branch_merge",
+      "has_sensors": false,
+      "has_branches": true,
+      "has_fan_out": true,
+      "has_fan_in": true,
+      "estimated_max_parallel_width": 2,
+      "estimated_branch_depth": 1,
+      "has_cycles": false,
+      "has_subdags": false,
+      "has_task_groups": false
+    },
+    "tasks": {
+      "total_count": 5,
+      "operator_types": [
+        "PythonOperator",
+        "BranchPythonOperator"
+      ],
+      "has_dynamic_mapping": false,
+      "has_external_task_sensor": false
+    },
+    "description": "Regulatory Report Router DAG processes financial transaction data and routes it to appropriate regulatory reporting systems (FATCA for international accounts, IRS for domestic accounts) based on account type, then archives all reports.",
+    "complexity_score": 4
+  }
+}

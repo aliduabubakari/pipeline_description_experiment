@@ -1,0 +1,227 @@
+{
+  "spec_version": "1.0",
+  "pipeline_id": "magento_graphql_customer",
+  "pipeline_name": "magento_graphql_customer",
+  "source": {
+    "unique_key": null,
+    "repo": "sivajik34/magento-airflow",
+    "file_path": "src/example_dags/magento_customer_graphql.py",
+    "repo_url": "https://github.com/sivajik34/magento-airflow",
+    "detected_airflow_version": "2.x",
+    "sampled_version": null,
+    "sampled_commit": null,
+    "sampled_time": null,
+    "source_fingerprint_sha256": "c4418ecae775ed0ea3f3d497698be18e967db97fc686b78aefceb1b095b06e82"
+  },
+  "summary": {
+    "purpose": "Creates a Magento customer, generates authentication token, and retrieves customer information using GraphQL operations",
+    "business_domain": "e-commerce",
+    "execution_model": "batch",
+    "topology_pattern": "linear",
+    "notes": "Uses Magento GraphQL API for customer management operations"
+  },
+  "schedule": {
+    "schedule_type": "manual",
+    "schedule_expression": null,
+    "timezone": null,
+    "start_date": "2024-08-22",
+    "catchup_backfill": false
+  },
+  "control_flow": {
+    "edges": [
+      {
+        "from": "create_customer",
+        "to": "generate_customer_token"
+      },
+      {
+        "from": "generate_customer_token",
+        "to": "get_customer_info"
+      }
+    ],
+    "parallel_groups": [],
+    "branch_points": [],
+    "gates": []
+  },
+  "external_systems": [
+    {
+      "type": "http_api",
+      "name": "Magento",
+      "identifier": "magento_default",
+      "details": [
+        "Magento GraphQL API for customer management"
+      ],
+      "auth": [
+        "Bearer token authentication",
+        "Connection configuration"
+      ]
+    }
+  ],
+  "data_artifacts": {
+    "files": [],
+    "tables": [],
+    "buckets": [],
+    "topics": []
+  },
+  "steps": [
+    {
+      "step_id": "create_customer",
+      "name": "create_customer",
+      "objective": "Create a new customer in Magento system",
+      "mechanism": "http_request",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "customer_email",
+          "description": "Email address of created customer"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Magento",
+          "identifier": "magento_default"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "firstname",
+          "value": "John"
+        },
+        {
+          "key": "lastname",
+          "value": "Doe"
+        },
+        {
+          "key": "email",
+          "value": "john.doe@example.com"
+        },
+        {
+          "key": "password",
+          "value": "Airflow@123"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "generate_customer_token",
+      "name": "generate_customer_token",
+      "objective": "Generate authentication token for the created customer",
+      "mechanism": "http_request",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "customer_email",
+          "description": "Email address from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "customer_token",
+          "description": "Authentication token for customer"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Magento",
+          "identifier": "magento_default"
+        }
+      ],
+      "parameters": [
+        {
+          "key": "email",
+          "value": "customer_email"
+        },
+        {
+          "key": "password",
+          "value": "Airflow@123"
+        }
+      ],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    },
+    {
+      "step_id": "get_customer_info",
+      "name": "get_customer_info",
+      "objective": "Retrieve customer information using authentication token",
+      "mechanism": "http_request",
+      "inputs": [
+        {
+          "type": "data",
+          "identifier": "customer_token",
+          "description": "Authentication token from previous step"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "data",
+          "identifier": "customer_info",
+          "description": "Customer details including name, email, and addresses"
+        }
+      ],
+      "external_system_refs": [
+        {
+          "type": "http_api",
+          "name": "Magento",
+          "identifier": "magento_default"
+        }
+      ],
+      "parameters": [],
+      "env_infra": {
+        "env_vars": [],
+        "mounts": [],
+        "network": null,
+        "other": []
+      },
+      "failure_handling": {
+        "retries": 1,
+        "retry_delay": "5 minutes",
+        "timeout": null,
+        "alerts": [],
+        "idempotency": []
+      }
+    }
+  ],
+  "quality": {
+    "confidence": "high",
+    "extraction_warnings": [
+      "Original code uses Airflow-specific decorators and operators",
+      "Step mechanisms inferred from GraphQL operations",
+      "Some parameter values are hardcoded in the original queries"
+    ]
+  },
+  "generation": {
+    "generated_at": "2025-12-16T14:21:21.467385Z"
+  },
+  "variant": {
+    "class_id": "C9",
+    "class_name": "PROSE_UNSTRUCTURED",
+    "canonical_pipeline_id": "sivajik34__magento-airflow__magento_customer_graphql.py",
+    "spec_pipeline_id": "magento_graphql_customer"
+  }
+}

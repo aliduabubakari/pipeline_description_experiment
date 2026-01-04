@@ -1,0 +1,5 @@
+regulatory_report_router is a workflow with execution model batch and topology pattern branch_merge. Its purpose is: Processes financial transaction data and routes it to appropriate regulatory reporting systems based on account type (FATCA for international accounts, IRS for domestic accounts), then archives all reports.
+
+Scheduling: schedule type is cron, expression is @daily, start date is 2024-01-01, catchup/backfill is False. Control flow includes dependencies such as: read_csv→account_check; account_check→route_to_fatca; account_check→route_to_irs; route_to_fatca→archive_reports; route_to_irs→archive_reports.
+
+read_csv performs Read CSV file with financial transactions using mechanism python_callable. account_check performs Determine routing based on account type using mechanism python_callable. route_to_fatca performs Process FATCA regulatory reporting for international accounts using mechanism python_callable. route_to_irs performs Process IRS regulatory reporting for domestic accounts using mechanism python_callable. archive_reports performs Archive all regulatory reports using mechanism python_callable.
